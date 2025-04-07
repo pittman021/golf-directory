@@ -15,4 +15,5 @@ Rails.application.config.assets.version = "1.0"
 # config.assets.css_compressor = :sass
 
 # Make sure this line exists and is set to nil
-config.assets.css_compressor = nil
+Rails.application.config.assets.css_compressor = nil
+
