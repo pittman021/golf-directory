@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  course: one
+  rating: 1
+  played_on: 2025-04-05
+  course_condition: MyString
+  comment: MyText
+
+two:
+  user: two
+  course: two
+  rating: 1
+  played_on: 2025-04-05
+  course_condition: MyString
+  comment: MyText

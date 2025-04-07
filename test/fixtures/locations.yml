@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  latitude: 9.99
+  longitude: 9.99
+  region: MyString
+  state: MyString
+  country: MyString
+  best_months: MyString
+  nearest_airports: MyText
+  weather_info: MyText
+
+two:
+  name: MyString
+  description: MyText
+  latitude: 9.99
+  longitude: 9.99
+  region: MyString
+  state: MyString
+  country: MyString
+  best_months: MyString
+  nearest_airports: MyText
+  weather_info: MyText

@@ -1,0 +1,232 @@
+<div class="bg-white">
+  <!-- Hero Section -->
+  <div class="relative bg-white">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#355E3B]/10 to-white"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div class="text-center">
+        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+          <span class="block">Discover World-Class</span>
+          <span class="block text-[#355E3B]">Golf Destinations</span>
+        </h1>
+        <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+          Explore the finest golf destinations worldwide. From historic links courses to modern resort destinations.
+        </p>
+        
+        <!-- Search Bar -->
+        <div class="mt-8 max-w-3xl mx-auto">
+          <div class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="flex-1 px-4">
+              <input type="text" placeholder="Search golf destinations..." class="w-full h-12 focus:outline-none text-gray-700">
+            </div>
+            <button class="h-12 px-6 text-white bg-[#355E3B] hover:bg-[#2A4A30] rounded-r-lg flex items-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-8 flex justify-center space-x-12">
+          <div>
+            <p class="text-3xl font-bold text-[#355E3B]">200+</p>
+            <p class="text-gray-500">Destinations</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-[#355E3B]">1000+</p>
+            <p class="text-gray-500">Courses</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-[#355E3B]">10k+</p>
+            <p class="text-gray-500">Reviews</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Bar -->
+  <div class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center text-sm">
+        <div class="flex space-x-8">
+          <div>
+            <span class="text-gray-500">Most Popular:</span>
+            <span class="ml-2 font-medium text-gray-900">Pebble Beach</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Trending:</span>
+            <span class="ml-2 font-medium text-gray-900">St Andrews</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Average Rating:</span>
+            <span class="ml-2 font-medium text-gray-900">4.8/5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Table Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex space-x-4">
+        <!-- View toggle buttons -->
+        <button data-view="table" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B] active">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M3 18h18M3 6h18"/>
+          </svg>
+          <span class="ml-2">List View</span>
+        </button>
+        
+        <button data-view="map" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6-3l5.447 2.724A1 1 0 0121 7.618v10.764a1 1 0 01-1.447.894L15 17m-6-3l6-3"/>
+          </svg>
+          <span class="ml-2">Map View</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Map View -->
+    <div id="map-view" class="hidden" data-controller="map">
+      <div data-map-target="markers" 
+           data-markers="<%= @locations.map { |location| {
+             lat: location.latitude,
+             lng: location.longitude,
+             title: location.name,
+             courses: location.courses.count,
+             url: location_path(location)
+           }}.to_json %>">
+      </div>
+      <div data-map-target="map" class="w-full h-[600px] rounded-lg shadow-lg"></div>
+    </div>
+
+    <!-- Table View (existing code) -->
+    <div id="table-view">
+      <!-- Filters -->
+      <div class="mb-6 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <select class="rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]">
+            <option>All Countries</option>
+            <option>United States</option>
+            <option>Scotland</option>
+            <option>Ireland</option>
+          </select>
+          
+          <select class="rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]">
+            <option>Price Range</option>
+            <option>$0-$50</option>
+            <option>$51-$150</option>
+            <option>$150+</option>
+          </select>
+          
+          <select class="rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]">
+            <option>Best Season</option>
+            <option>Spring</option>
+            <option>Summer</option>
+            <option>Fall</option>
+            <option>Winter</option>
+          </select>
+        </div>
+        
+        <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+          </svg>
+          Save Filters
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white shadow overflow-hidden rounded-lg">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Location
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Region/Country
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rating
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price Range
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Courses
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Best Season
+                </th>
+                <th scope="col" class="relative px-6 py-3">
+                  <span class="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @locations.each do |location| %>
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <%= location.name %>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= location.region %></div>
+                    <div class="text-sm text-gray-500"><%= location.country %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <% avg_rating = location.average_rating %>
+                      <% if avg_rating %>
+                        <div class="flex items-center">
+                          <% avg_rating.to_i.times do %>
+                            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                          <% end %>
+                          <% (5 - avg_rating.to_i).times do %>
+                            <svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <span class="text-sm text-gray-500">No ratings</span>
+                      <% end %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% avg_price = location.courses.pluck(:green_fee_range).max %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      <%= avg_price || 'N/A' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= location.courses.count %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= location.best_months %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <%= link_to "View", location_path(location), class: "text-[#355E3B] hover:text-[#2A4A30]" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

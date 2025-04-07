@@ -1,0 +1,26 @@
+# app/views/locations/index.html.erb
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Filters -->
+  <div class="bg-white shadow rounded-lg mb-8 p-6">
+    <%= form_tag locations_path, method: :get, class: "space-y-4 sm:flex sm:space-x-4 sm:space-y-0" do %>
+      <div class="flex-1">
+        <%= select_tag :country, 
+            options_for_select(Location.distinct.pluck(:country), params[:country]),
+            prompt: "Select Country",
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      <div class="flex-1">
+        <%= select_tag :price_range,
+            options_for_select([['$0-$50', '0-50'], ['$51-$150', '51-150'], ['$150+', '150-plus']], params[:price_range]),
+            prompt: "Select Price Range",
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      <%= submit_tag "Apply Filters", class: "w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    <% end %>
+  </div>
+
+  <!-- Location Grid -->
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <%= render partial: 'location_card', collection: @locations, as: :location %>
+  </div>
+</div>

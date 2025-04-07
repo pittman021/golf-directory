@@ -1,0 +1,68 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Import Courses
+      </h2>
+    </div>
+  </div>
+
+  <div class="mt-8 bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <%= form_tag admin_imports_path, multipart: true, class: "space-y-6" do %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            CSV File
+          </label>
+          <div class="mt-1 flex items-center">
+            <%= file_field_tag :file, accept: '.csv', class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#355E3B] file:text-white hover:file:bg-[#2A4A30]" %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">
+            Please upload a CSV file with the required columns
+          </p>
+        </div>
+
+        <div class="flex justify-end">
+          <%= submit_tag "Upload and Import", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+        </div>
+      <% end %>
+
+      <% if session[:import_errors].present? %>
+        <div class="mt-6">
+          <h3 class="text-lg font-medium text-red-600">Import Errors</h3>
+          <div class="mt-2 text-sm text-red-500">
+            <ul class="list-disc pl-5 space-y-1">
+              <% session[:import_errors].each do |error| %>
+                <li><%= error %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+        <% session.delete(:import_errors) %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- CSV Format Guide -->
+  <div class="mt-8 bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900">CSV Format Guide</h3>
+      <div class="mt-2 text-sm text-gray-500">
+        <p>Your CSV file should include the following columns:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+          <li>name (required)</li>
+          <li>location_name (required)</li>
+          <li>course_type (public_course, private_course, or resort_course)</li>
+          <li>number_of_holes (9 or 18)</li>
+          <li>green_fee_range ($, $$, $$$, or $$$$)</li>
+          <li>description</li>
+          <li>yardage</li>
+          <li>par</li>
+          <li>website_url</li>
+          <li>latitude</li>
+          <li>longitude</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
