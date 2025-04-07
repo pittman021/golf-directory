@@ -14,22 +14,31 @@
  *= require_self
  */
 
-
-  .overflow-x-auto {
-    max-height: calc(100vh - 400px); /* Adjust the height as needed */
-    overflow-y: auto;
-  }
-  
-  /* Make the header stick to the top while scrolling */
-  thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: #f9fafb;
-  }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer components {
   .btn-primary {
     @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B];
   }
+}
+
+/* Custom styles */
+.overflow-x-auto {
+  max-height: calc(100vh - 400px);
+  overflow-y: auto;
+}
+
+/* Make the header stick to the top while scrolling */
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f9fafb;
+}
+
+/* Use standard media query syntax */
+@media (min-width: 40rem) {
+  /* Your styles here */
 }
