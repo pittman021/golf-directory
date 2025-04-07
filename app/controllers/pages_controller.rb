@@ -6,15 +6,23 @@ class PagesController < ApplicationController
       .left_joins(:reviews)  # Add left join to include locations without reviews
       .group('locations.id')  # Group by location to calculate average
       .select('locations.*, COALESCE(AVG(reviews.rating), 0) as avg_rating')  # Calculate average rating
-      .order('avg_rating DESC, locations.name')  # Sort by average rating, then name
-    
+
     # Apply filters
-    @locations = @locations.where(country: params[:country]) if params[:country].present?
-    @locations = filter_by_price_range(@locations) if params[:price_range].present?
-    @locations = filter_by_season(@locations) if params[:season].present?
+    @locations = @locations.where(region: params[:region]) if params[:region].present?
+    @locations = @locations.where(state: params[:state]) if params[:state].present?
     
-    # Paginate
-    @locations = @locations.page(params[:page]).per(10)
+    if params[:price_range].present?
+      @locations = @locations.joins(:courses)
+        .group('locations.id')
+        .having("MODE() WITHIN GROUP (ORDER BY courses.green_fee_range) = ?", params[:price_range])
+    end
+
+    @locations = @locations.order('avg_rating DESC, locations.name')
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   private

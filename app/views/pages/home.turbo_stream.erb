@@ -1,0 +1,11 @@
+<!-- app/views/pages/home.turbo_stream.erb -->
+<%= turbo_stream.update "locations-table" do %>
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <!-- Your table header and body code -->
+        <%= render partial: "locations_table", locals: { locations: @locations } %>
+      </table>
+    </div>
+  </div>
+<% end %>

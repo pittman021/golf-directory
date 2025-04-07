@@ -23,7 +23,27 @@ class Location < ApplicationRecord
     end
     
     def average_price_range
-      courses.group(:green_fee_range).count.max_by { |_, v| v }&.first || 'N/A'
+      return nil if courses.empty?
+      
+      # Convert price ranges to numbers
+      price_values = courses.map do |course|
+        case course.green_fee_range
+        when '$' then 1
+        when '$$' then 2
+        when '$$$' then 3
+        when '$$$$' then 4
+        else 0
+        end
+      end
+      
+      # Calculate average and convert back to symbols
+      avg = price_values.sum.to_f / price_values.size
+      case avg
+      when 0..1.5 then '$'
+      when 1.5..2.5 then '$$'
+      when 2.5..3.5 then '$$$'
+      else '$$$$'
+      end
     end
     
     def courses_count
