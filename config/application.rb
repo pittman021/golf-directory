@@ -23,5 +23,13 @@ module GolfDirectory
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Disable Sass processing
+    config.assets.css_compressor = nil
+    
+    # Disable automatic Sass processing of CSS files
+    config.sass.preferred_syntax = :sass
+    config.sass.line_comments = false
+    config.sass.cache = false
   end
 end
