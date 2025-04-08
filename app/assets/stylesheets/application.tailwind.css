@@ -16,14 +16,3 @@
 }
 
 /* Custom styles */
-.overflow-x-auto {
-  max-height: calc(100vh - 400px);
-  overflow-y: auto;
-}
-
-thead {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background-color: #f9fafb;
-}

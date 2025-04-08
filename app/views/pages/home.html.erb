@@ -4,7 +4,7 @@
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-gradient-to-b from-[#355E3B]/10 to-white"></div>
     
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 md:pt-24 pb-12 sm:pb-16">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 md:pt-24 pb-0">
       <div class="text-center">
         <h1 class="text-3xl sm:text-4xl tracking-tight font-extrabold text-gray-900 md:text-5xl lg:text-6xl">
           <span class="block">Discover World-Class</span>
@@ -34,7 +34,7 @@
   </div>
 
   <!-- Filters and Table Section -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
     <div class="flex justify-between items-center mb-6">
       <div class="flex space-x-4">
         <!-- View toggle buttons -->
@@ -84,9 +84,9 @@
 
     <!-- Locations Table -->
     <%= turbo_frame_tag "locations_table" do %>
-      <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="bg-white rounded-lg shadow">
         <!-- Mobile View (Card Layout) -->
-        <div class="block sm:hidden">
+        <div class="block lg:hidden">
           <% @locations.each do |location| %>
             <div class="p-4 border-b border-gray-200">
               <div class="flex items-start space-x-4">
@@ -140,7 +140,7 @@
         </div>
 
         <!-- Desktop View (Table Layout) -->
-        <div class="hidden sm:block">
+        <div class="hidden lg:block">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
