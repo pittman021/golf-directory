@@ -1,3 +1,5 @@
+<% content_for :google_maps, true %>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Location Header -->
   <div class="mb-8">
@@ -19,10 +21,43 @@
     <p class="text-gray-700 text-lg"><%= @location.summary %></p>
   </div>
 
-  <!-- Map Placeholder (to be implemented later) -->
-  <div class="bg-gray-100 rounded-lg mb-8 h-[400px] relative">
-    <div class="absolute bottom-4 right-4 bg-white rounded-lg p-4">
-      <%= @location.best_months %>
+  <!-- Add this debug section temporarily -->
+  <% if Rails.env.development? %>
+    <div class="hidden">
+      Debug Coordinates:
+      Raw latitude: <%= @location.latitude.inspect %>
+      Raw longitude: <%= @location.longitude.inspect %>
+      To float latitude: <%= @location.latitude.to_f.inspect %>
+      To float longitude: <%= @location.longitude.to_f.inspect %>
+    </div>
+  <% end %>
+
+  <!-- Map Section -->
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-4">Location & Courses</h2>
+    </div>
+    <div id="location-map"
+         class="h-[400px] relative" 
+         data-controller="map"
+         data-map-latitude-value="<%= @location.latitude.present? ? @location.latitude.to_f : 0 %>"
+         data-map-longitude-value="<%= @location.longitude.present? ? @location.longitude.to_f : 0 %>"
+         data-map-markers-value="<%= [
+           {
+             latitude: @location.latitude.to_f,
+             longitude: @location.longitude.to_f,
+             name: @location.name,
+             type: 'location',
+             info: "#{@location.name} - #{pluralize(@location.courses.count, 'course')}"
+           },
+           *@location.courses.map { |course| {
+             latitude: course.latitude,
+             longitude: course.longitude,
+             name: course.name,
+             type: 'course',
+             info: "#{course.name} - #{course.course_type.humanize} - #{number_to_currency(course.green_fee)}"
+           }}
+         ].to_json %>">
     </div>
   </div>
 

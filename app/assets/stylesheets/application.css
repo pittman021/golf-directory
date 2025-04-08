@@ -19,3 +19,9 @@
   max-height: calc(100vh - 400px);
   overflow-y: auto;
 }
+
+#location-map {
+  min-height: 400px;
+  width: 100%;
+  background-color: #f0f0f0;
+}

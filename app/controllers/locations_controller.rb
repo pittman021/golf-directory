@@ -18,6 +18,17 @@ class LocationsController < ApplicationController
     @location = Location.includes(:courses).find(params[:id])
     @courses = @location.courses.includes(:reviews)
     
+    # Add explicit debugging
+    Rails.logger.debug "=== Location Debug ==="
+    Rails.logger.debug "Location: #{@location.name}"
+    Rails.logger.debug "Coordinates: #{@location.latitude}, #{@location.longitude}"
+    Rails.logger.debug "Courses count: #{@courses.count}"
+    Rails.logger.debug "Course coordinates:"
+    @courses.each do |course|
+      Rails.logger.debug "  #{course.name}: #{course.latitude}, #{course.longitude}"
+    end
+    Rails.logger.debug "===================="
+
     # Get nearby locations if coordinates are available
     if @location.latitude && @location.longitude
       @nearby_locations = Location.where.not(id: @location.id)

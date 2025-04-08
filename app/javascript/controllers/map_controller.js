@@ -4,122 +4,91 @@ export default class extends Controller {
   static values = {
     markers: Array,
     latitude: Number,
-    longitude: Number,
-    mapId: String
+    longitude: Number
   }
 
-  async connect() {
+  connect() {
     console.log("Map controller connected");
-    
-    try {
-      // Wait for Google Maps to be loaded
-      await this.waitForGoogleMaps();
-      
-      const latitude = this.hasLatitudeValue ? parseFloat(this.latitudeValue) : 0;
-      const longitude = this.hasLongitudeValue ? parseFloat(this.longitudeValue) : 0;
-      const mapId = this.mapIdValue || window.GOOGLE_MAPS_CONFIG?.mapId;
+    this.initializeMapWhenReady();
+  }
 
-      console.log("Initializing map with:", {
-        latitude,
-        longitude,
-        mapId
-      });
-
-      // Create the map
-      this.map = new google.maps.Map(this.element, {
-        center: { lat: latitude, lng: longitude },
-        zoom: 12,
-        mapId: mapId,
-        mapTypeControl: true,
-        fullscreenControl: true,
-        streetViewControl: true
-      });
-
-      // Create the marker
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map: this.map,
-        position: { lat: latitude, lng: longitude },
-        title: "Location"
-      });
-
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      console.error('Error details:', error.stack);
+  initializeMapWhenReady() {
+    if (window.google && window.google.maps) {
+      this.initializeMap();
+    } else {
+      // Wait for Google Maps to be ready
+      window.initMap = () => {
+        this.initializeMap();
+      };
     }
   }
 
-  waitForGoogleMaps() {
-    return new Promise((resolve, reject) => {
-      if (window.google && window.google.maps) {
-        resolve();
-      } else {
-        const maxAttempts = 20;
-        let attempts = 0;
-        
-        const interval = setInterval(() => {
-          attempts++;
-          if (window.google && window.google.maps) {
-            clearInterval(interval);
-            resolve();
-          } else if (attempts >= maxAttempts) {
-            clearInterval(interval);
-            reject(new Error('Google Maps failed to load'));
-          }
-        }, 100);
+  async initializeMap() {
+    try {
+      const lat = this.latitudeValue || 0;
+      const lng = this.longitudeValue || 0;
+
+      console.log("Initializing map with coordinates:", { lat, lng });
+
+      const mapOptions = {
+        center: { lat, lng },
+        zoom: 13,
+        mapTypeControl: true,
+        fullscreenControl: true,
+        streetViewControl: true
+      };
+
+      this.map = new google.maps.Map(this.element, mapOptions);
+      
+      if (this.hasMarkersValue) {
+        await this.addMarkers();
       }
-    });
+
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
   }
 
-  addMarkers() {
-    if (!this.hasMarkersValue) return;
-
+  async addMarkers() {
     const bounds = new google.maps.LatLngBounds();
     
-    this.markersValue.forEach(location => {
+    this.markersValue.forEach(markerData => {
       const position = { 
-        lat: parseFloat(location.latitude), 
-        lng: parseFloat(location.longitude) 
+        lat: parseFloat(markerData.latitude || 0), 
+        lng: parseFloat(markerData.longitude || 0) 
       };
       
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        position: position,
-        map: this.map,
-        title: location.name
-      });
+      if (position.lat && position.lng) {
+        bounds.extend(position);
 
-      bounds.extend(position);
+        const marker = new google.maps.Marker({
+          map: this.map,
+          position: position,
+          title: markerData.name
+        });
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div class="p-4 max-w-xs">
-            <h3 class="text-lg font-bold mb-2">${location.name}</h3>
-            <div class="space-y-1">
-              <p><span class="font-medium">Courses:</span> ${location.courses_count}</p>
-              ${location.average_rating ? 
-                `<p><span class="font-medium">Rating:</span> ${location.average_rating}/5</p>` 
-                : ''}
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div class="p-2">
+              <h3 class="font-bold">${markerData.name}</h3>
+              <p class="text-sm">${markerData.info || ''}</p>
             </div>
-          </div>
-        `
-      });
+          `
+        });
 
-      marker.addListener('click', () => {
-        if (this.currentInfoWindow) {
-          this.currentInfoWindow.close();
-        }
-        infoWindow.open(this.map, marker);
-        this.currentInfoWindow = infoWindow;
-      });
+        marker.addListener('click', () => {
+          if (this.currentInfoWindow) {
+            this.currentInfoWindow.close();
+          }
+          infoWindow.open(this.map, marker);
+          this.currentInfoWindow = infoWindow;
+        });
+      }
     });
 
     if (this.markersValue.length > 1) {
       this.map.fitBounds(bounds);
-    }
-  }
-
-  disconnect() {
-    if (this.currentInfoWindow) {
-      this.currentInfoWindow.close();
+      this.map.setZoom(Math.min(this.map.getZoom(), 15));
     }
   }
 }
