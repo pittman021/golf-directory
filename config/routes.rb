@@ -16,7 +16,6 @@ Rails.application.routes.draw do
     resources :locations
     resources :courses
     resources :reviews
-    resources :imports, only: [:new, :create]
     root to: "users#index"
   end
 
