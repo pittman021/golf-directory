@@ -11,10 +11,18 @@ class PagesController < ApplicationController
     @locations = @locations.where(region: params[:region]) if params[:region].present?
     @locations = @locations.where(state: params[:state]) if params[:state].present?
     
-    if params[:price_range].present?
-      @locations = @locations.joins(:courses)
-        .group('locations.id')
-        .having("MODE() WITHIN GROUP (ORDER BY courses.green_fee_range) = ?", params[:price_range])
+    # Filter by price category
+    if params[:price_category].present?
+      case params[:price_category]
+      when 'budget'
+        @locations = @locations.where('estimated_trip_cost <= ?', 1500)
+      when 'mid_range'
+        @locations = @locations.where('estimated_trip_cost > ? AND estimated_trip_cost <= ?', 1500, 2500)
+      when 'premium'
+        @locations = @locations.where('estimated_trip_cost > ? AND estimated_trip_cost <= ?', 2500, 4000)
+      when 'luxury'
+        @locations = @locations.where('estimated_trip_cost > ?', 4000)
+      end
     end
 
     @locations = @locations.order('avg_rating DESC, locations.name')

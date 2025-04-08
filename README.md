@@ -1,24 +1,57 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+1. Problem Statement
+Groups of friends want to plan summer golf trips but struggle to find:
 
-Things you may want to cover:
+Unique golf course layouts with interesting features (elevation, forced carries, scenic views)
 
-* Ruby version
+Affordable lodging options nearby
 
-* System dependencies
+Aggregated info on course quality, player reviews, and logistics
 
-* Configuration
+A way to compare destinations easily
 
-* Database creation
+2. Goals and Objectives
+Let users explore and compare golf destinations based on “uniqueness,” cost, and group-friendliness
 
-* Database initialization
+Include recommendations from past users and public reviews
 
-* How to run the test suite
+Provide course stats (elevation, par, difficulty, holes, etc.)
 
-* Services (job queues, cache servers, search engines, etc.)
+Show nearby lodging with estimated prices
 
-* Deployment instructions
+Allow users to create and share trip plans with friends
 
-* ...
+3. Key Features
+Course Explorer
+Filterable by state (ND, SD, MN, WI)
+
+Tag filters: “Unique Layout,” “Great Views,” “Budget-friendly,” “Group Lodging Nearby”
+
+Course profiles with:
+
+Photos
+
+Ratings
+
+Layout notes (e.g., elevation, forced carries)
+
+Comments from past trips
+
+Nearby lodging options and costs
+
+Drive time from major cities (e.g., Minneapolis, Fargo)
+
+Trip Planner
+Build a trip with a shortlist of courses and lodging
+
+View lodging and total estimated trip cost per person
+
+Save and share trip plans
+
+Voting option for group members to weigh in on options
+
+User Reviews & Stories
+Let users leave short comments and photos of past trips
+
+Highlight especially “unique” holes or features

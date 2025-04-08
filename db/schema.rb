@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_06_005146) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,7 +55,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_06_005146) do
     t.string "website_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "layout_tags", default: [], array: true
+    t.string "notes"
+    t.integer "green_fee"
     t.index ["course_type"], name: "index_courses_on_course_type"
+    t.index ["green_fee"], name: "index_courses_on_green_fee"
+    t.index ["layout_tags"], name: "index_courses_on_layout_tags", using: :gin
     t.index ["name"], name: "index_courses_on_name"
   end
 
@@ -82,8 +87,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_06_005146) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reviews_count", default: 0, null: false
+    t.integer "avg_green_fee"
+    t.integer "avg_lodging_cost_per_night"
+    t.integer "estimated_trip_cost"
+    t.string "tags", default: [], array: true
+    t.text "summary"
     t.index ["latitude", "longitude"], name: "index_locations_on_latitude_and_longitude"
     t.index ["name"], name: "index_locations_on_name"
+    t.index ["region"], name: "index_locations_on_region"
+    t.index ["state"], name: "index_locations_on_state"
+    t.index ["tags"], name: "index_locations_on_tags", using: :gin
   end
 
   create_table "reviews", force: :cascade do |t|

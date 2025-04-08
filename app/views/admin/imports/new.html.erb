@@ -1,3 +1,4 @@
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div class="md:flex md:items-center md:justify-between">
     <div class="flex-1 min-w-0">
@@ -15,7 +16,7 @@
             CSV File
           </label>
           <div class="mt-1 flex items-center">
-            <%= file_field_tag :file, accept: '.csv', class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#355E3B] file:text-white hover:file:bg-[#2A4A30]" %>
+            <%= file_field_tag :file, accept: '.csv', class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" %>
           </div>
           <p class="mt-2 text-sm text-gray-500">
             Please upload a CSV file with the required columns
@@ -23,7 +24,7 @@
         </div>
 
         <div class="flex justify-end">
-          <%= submit_tag "Upload and Import", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+          <%= submit_tag "Upload and Import", class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
         </div>
       <% end %>
 
@@ -59,8 +60,6 @@
           <li>yardage</li>
           <li>par</li>
           <li>website_url</li>
-          <li>latitude</li>
-          <li>longitude</li>
         </ul>
       </div>
     </div>
