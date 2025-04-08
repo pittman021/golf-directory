@@ -1,32 +1,18 @@
-<div class="bg-white">
+<div>
   <!-- Hero Section -->
-  <div class="relative bg-white">
+  <div class="relative min-h-[600px]">
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-gradient-to-b from-[#355E3B]/10 to-white"></div>
     
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-60 md:pt-72 pb-16">
       <div class="text-center">
-        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl pt-24 md:pt-32">
           <span class="block">Discover World-Class</span>
           <span class="block text-[#355E3B]">Golf Destinations</span>
         </h1>
         <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
           Explore the finest golf destinations worldwide. From historic links courses to modern resort destinations.
         </p>
-        
-        <!-- Search Bar -->
-        <div class="mt-8 max-w-3xl mx-auto">
-          <div class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="flex-1 px-4">
-              <input type="text" placeholder="Search golf destinations..." class="w-full h-12 focus:outline-none text-gray-700">
-            </div>
-            <button class="h-12 px-6 text-white bg-[#355E3B] hover:bg-[#2A4A30] rounded-r-lg flex items-center">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
 
         <!-- Stats -->
         <div class="mt-8 flex justify-center space-x-12">
@@ -41,28 +27,6 @@
           <div>
             <p class="text-3xl font-bold text-[#355E3B]">10k+</p>
             <p class="text-gray-500">Reviews</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Stats Bar -->
-  <div class="bg-white border-b">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex justify-between items-center text-sm">
-        <div class="flex space-x-8">
-          <div>
-            <span class="text-gray-500">Most Popular:</span>
-            <span class="ml-2 font-medium text-gray-900">Pebble Beach</span>
-          </div>
-          <div>
-            <span class="text-gray-500">Trending:</span>
-            <span class="ml-2 font-medium text-gray-900">St Andrews</span>
-          </div>
-          <div>
-            <span class="text-gray-500">Average Rating:</span>
-            <span class="ml-2 font-medium text-gray-900">4.8/5</span>
           </div>
         </div>
       </div>
@@ -92,58 +56,48 @@
       <div data-map-target="map" class="w-full h-[600px] rounded-lg shadow-lg"></div>
     </div>
 
-    <!-- Table View (existing code) -->
-    <div id="table-view">
-      <!-- Filters -->
-      <div class="mb-6 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <%= form_tag root_path, method: :get, class: "flex items-center space-x-4", data: { turbo_frame: "locations_table", turbo_action: "advance" } do %>
-            <%= select_tag :region,
-                options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
-                { prompt: "All Regions",
-                  class: "rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]",
-                  onchange: "this.form.requestSubmit()" } %>
-            
-            <%= select_tag :state,
-                options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
-                { prompt: "All States",
-                  class: "rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]",
-                  onchange: "this.form.requestSubmit()" } %>
-            
-            <%= select_tag :price_range,
-                options_for_select([
-                  ['Budget ($)', '$'],
-                  ['Mid ($$)', '$$'],
-                  ['Premium ($$$)', '$$$'],
-                  ['Luxury ($$$$)', '$$$$']
-                ], params[:price_range]),
-                { prompt: "All Price Ranges",
-                  class: "rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:outline-none focus:ring-[#355E3B] focus:border-[#355E3B]",
-                  onchange: "this.form.requestSubmit()" } %>
-          <% end %>
-        </div>
+    <!-- Filters -->
+    <div class="mb-6 flex items-center space-x-4">
+      <%= form_tag root_path, method: :get, class: "flex items-center space-x-4", data: { turbo_frame: "locations_table" } do %>
+        <%= select_tag :region,
+            options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
+            { prompt: "All Regions",
+              class: "rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              onchange: "this.form.requestSubmit()" } %>
         
-        <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-          <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-          </svg>
-          Save Filters
-        </button>
-      </div>
+        <%= select_tag :state,
+            options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
+            { prompt: "All States",
+              class: "rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              onchange: "this.form.requestSubmit()" } %>
+        
+        <%= select_tag :price_category,
+            options_for_select([
+              ['Budget (Up to $1,500)', 'budget'],
+              ['Mid-Range ($1,501 - $2,500)', 'mid_range'],
+              ['Premium ($2,501 - $4,000)', 'premium'],
+              ['Luxury ($4,000+)', 'luxury']
+            ], params[:price_category]),
+            { prompt: "All Price Ranges",
+              class: "rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              onchange: "this.form.requestSubmit()" } %>
+      <% end %>
+    </div>
 
-      <!-- Table -->
-      <div class="bg-white shadow rounded-lg">
+    <!-- Locations Table -->
+    <%= turbo_frame_tag "locations_table" do %>
+      <div class="bg-white rounded-lg shadow">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                Image
+              </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Location
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Region/State
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Courses
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Avg Green Fee
@@ -152,77 +106,67 @@
                 Avg Lodging
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Est. Trip Cost
+                Est Trip Cost
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Category
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rating
-              </th>
-              <th scope="col" class="relative px-6 py-3">
-                <span class="sr-only">View</span>
               </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% @locations.each do |location| %>
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
+              <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-[#355E3B] hover:text-[#2A4A30]">
-                    <%= link_to location.name, location_path(location) %>
+                  <div class="relative h-32 w-48 rounded-lg overflow-hidden">
+                    <%= image_tag location.featured_image_url, 
+                        class: "h-full w-full object-cover",
+                        alt: "#{location.name} featured image" %>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= location.region %>, <%= location.state %>
+                  <div class="text-sm font-medium text-[#355E3B]">
+                    <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
                   </div>
                 </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= location.courses.count %>
-                  </div>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <%= location.region %>, <%= location.state %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <%= number_to_currency(location.avg_green_fee, precision: 0) %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= number_to_currency(location.avg_green_fee, precision: 0) %>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <% category = location.price_category %>
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    <%= case category[:symbol]
-                      when '$' then 'bg-green-100 text-green-800'
-                      when '$$' then 'bg-blue-100 text-blue-800'
-                      when '$$$' then 'bg-purple-100 text-purple-800'
-                      else 'bg-red-100 text-red-800'
-                      end %>">
-                    <%= category[:label] %>
+                    <%= case location.price_category[:label]
+                        when 'Budget' then 'bg-green-100 text-green-800'
+                        when 'Mid-Range' then 'bg-blue-100 text-blue-800'
+                        when 'Premium' then 'bg-purple-100 text-purple-800'
+                        when 'Luxury' then 'bg-yellow-100 text-yellow-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= location.price_category[:label] %>
                   </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
-                    <%= location.average_rating&.round(1) || 'N/A' %>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-right text-sm font-medium">
-                  <%= link_to "View", location_path(location), class: "text-[#355E3B] hover:text-[#2A4A30]" %>
                 </td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
+
+<style>
+  .sort-link {
+    @apply text-gray-500 hover:text-gray-700 transition-colors duration-200;
+  }
+  
+  .sort-indicator {
+    @apply opacity-50 group-hover:opacity-100 transition-opacity duration-200;
+  }
+</style>

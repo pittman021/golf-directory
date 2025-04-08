@@ -3,6 +3,7 @@ class Location < ApplicationRecord
     has_many :location_courses, dependent: :destroy
     has_many :courses, through: :location_courses
     has_many :reviews, through: :courses
+    has_one_attached :featured_image
     
     validates :name, presence: true
     validates :latitude, presence: true, numericality: true
@@ -94,16 +95,6 @@ class Location < ApplicationRecord
       end
     end
     
-    private
-
-    def calculate_estimated_trip_cost
-      return unless avg_lodging_cost_per_night.present?
-      # 3 nights lodging + 3 rounds of golf
-      lodging_cost = avg_lodging_cost_per_night * 3
-      golf_cost = avg_green_fee * 3
-      self.estimated_trip_cost = lodging_cost + golf_cost
-    end
-
     def update_avg_green_fee
       # This ensures the average is updated whenever courses are added/modified
       current_avg = avg_green_fee
@@ -117,5 +108,23 @@ class Location < ApplicationRecord
       golf_cost = avg_green_fee * 3
       new_total = lodging_cost + golf_cost
       update_column(:estimated_trip_cost, new_total) unless estimated_trip_cost == new_total
+    end
+
+    def featured_image_url
+      if featured_image.attached?
+        featured_image
+      else
+        "placeholder_golf_course.jpg" # We'll add this to app/assets/images/
+      end
+    end
+
+    private
+
+    def calculate_estimated_trip_cost
+      return unless avg_lodging_cost_per_night.present?
+      # 3 nights lodging + 3 rounds of golf
+      lodging_cost = avg_lodging_cost_per_night * 3
+      golf_cost = avg_green_fee * 3
+      self.estimated_trip_cost = lodging_cost + golf_cost
     end
   end

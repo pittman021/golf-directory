@@ -25,7 +25,8 @@ class PagesController < ApplicationController
       end
     end
 
-    @locations = @locations.order('avg_rating DESC, locations.name')
+    # Apply sorting
+    @locations = apply_sorting(@locations)
 
     respond_to do |format|
       format.html
@@ -34,6 +35,22 @@ class PagesController < ApplicationController
   end
 
   private
+
+  def apply_sorting(locations)
+    sort_column = params[:sort]
+    sort_direction = params[:direction] == 'desc' ? 'desc' : 'asc'
+
+    case sort_column
+    when 'avg_green_fee'
+      locations.order("avg_green_fee #{sort_direction}, name")
+    when 'avg_lodging'
+      locations.order("avg_lodging_cost_per_night #{sort_direction}, name")
+    when 'estimated_trip_cost'
+      locations.order("estimated_trip_cost #{sort_direction}, name")
+    else
+      locations.order('avg_rating DESC, name')
+    end
+  end
 
   def filter_by_price_range(locations)
     case params[:price_range]

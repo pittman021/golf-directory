@@ -1,118 +1,111 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Location Header -->
-  <div class="bg-white shadow rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:px-6">
-      <div class="flex justify-between items-start">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900"><%= @location.name %></h1>
-          <p class="mt-1 text-sm text-gray-500"><%= @location.region %>, <%= @location.country %></p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm text-gray-500">Best Time to Visit</p>
-          <p class="text-lg font-medium text-gray-900"><%= @location.best_months %></p>
-        </div>
+  <div class="mb-8">
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900"><%= @location.name %></h1>
+        <p class="mt-2 text-xl text-gray-600"><%= @location.region %>, <%= @location.country %></p>
       </div>
-    </div>
-
-    <!-- Location Details -->
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-      <dl class="sm:divide-y sm:divide-gray-200">
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Description</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= @location.description %>
-          </dd>
-        </div>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Nearest Airports</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= @location.nearest_airports %>
-          </dd>
-        </div>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Weather Information</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= @location.weather_info %>
-          </dd>
-        </div>
-      </dl>
-    </div>
-  </div>
-
-  <!-- Map Section -->
-  <div class="mt-8 bg-white shadow rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:px-6">
-      <h2 class="text-xl font-semibold text-gray-900">Course Locations</h2>
-    </div>
-    <% map_id = Rails.application.credentials.google_maps_map_id %>
-    <!-- Add this temporary debug info -->
-    <div class="bg-yellow-100 p-4 mb-4 text-sm" style="display: none;">
-      <pre>Map ID from Rails: <%= map_id.inspect %></pre>
-    </div>
-    <div class="relative bg-gray-100 rounded-lg" style="height: 400px;">
-      <div id="location-map" 
-           class="w-full h-full rounded-lg" 
-           data-controller="map"
-           data-map-latitude-value="<%= @location.latitude.to_f %>"
-           data-map-longitude-value="<%= @location.longitude.to_f %>"
-           data-map-map-id-value="<%= Rails.application.credentials.google_maps_map_id %>"
-           data-map-markers-value="<%= [
-             {
-               name: @location.name,
-               latitude: @location.latitude.to_f,
-               longitude: @location.longitude.to_f,
-               courses_count: @location.courses.count,
-               average_rating: @location.reviews.average(:rating)&.round(1)
-             }
-           ].to_json %>">
+      <div class="text-right">
+        <p class="text-lg font-medium text-gray-900">Best: Time to Visit</p>
+        <p class="text-gray-600"><%= @location.best_months %></p>
       </div>
     </div>
   </div>
 
-  <!-- Courses Grid -->
-  <div class="mt-8">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Courses at <%= @location.name %></h2>
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <% @courses.each do |course| %>
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-          <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-900"><%= course.name %></h3>
-            <p class="mt-2 text-sm text-gray-500"><%= course.course_type.humanize %></p>
-            
-            <div class="mt-4 flex items-center justify-between">
-              <div class="flex items-center">
-                <% course.average_rating.to_i.times do %>
-                  <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
+  <!-- Why Choose Section -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <h2 class="text-2xl font-bold mb-4">Why Choose <%= @location.name %> for Your Next Trip</h2>
+    <p class="text-gray-700 text-lg"><%= @location.summary %></p>
+  </div>
+
+  <!-- Map Placeholder (to be implemented later) -->
+  <div class="bg-gray-100 rounded-lg mb-8 h-[400px] relative">
+    <div class="absolute bottom-4 right-4 bg-white rounded-lg p-4">
+      <%= @location.best_months %>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-6">Information</h2>
+    <div class="bg-white rounded-lg shadow-sm divide-y">
+      <div class="p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Description</h3>
+        <p class="text-gray-600"><%= @location.description %></p>
+      </div>
+      
+      <div class="p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Weather</h3>
+        <p class="text-gray-600"><%= @location.weather_info %></p>
+      </div>
+
+      <div class="p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nearest Airports</h3>
+        <p class="text-gray-600"><%= @location.nearest_airports %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Section -->
+  <div>
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Courses in <%= @location.name %></h2>
+      <div class="relative">
+        <select class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]">
+          <option>Recommended</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Rating: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <% @location.courses.each do |course| %>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex gap-4 items-start">
+            <!-- Course Image -->
+            <div class="w-16 h-16 flex-shrink-0">
+              <img 
+                src="https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=480&auto=format&fit=crop"
+                class="w-full h-full object-cover rounded-lg"
+                alt="<%= course.name %>"
+              >
+            </div>
+
+            <!-- Course Info -->
+            <div class="flex-grow">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900"><%= course.name %></h3>
+                  <p class="text-sm text-gray-600"><%= course.course_type.humanize %></p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <% if course.green_fee.present? %>
+                    <span class="text-base font-medium text-gray-900">
+                      $<%= course.green_fee %>
+                    </span>
+                  <% end %>
+                  <% if course.average_rating.present? %>
+                    <span class="text-base font-medium text-gray-900">
+                      <%= number_with_precision(course.average_rating, precision: 1) %>
+                    </span>
+                  <% end %>
+                  <%= link_to "View Details", course_path(course), 
+                      class: "px-4 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+                </div>
+              </div>
+
+              <!-- Layout Tags -->
+              <div class="mt-2 flex flex-wrap gap-2">
+                <% course.layout_tags.first(2).each do |tag| %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                    <%= tag.titleize %>
+                  </span>
                 <% end %>
-                <span class="ml-2 text-sm text-gray-600">
-                  (<%= course.reviews.count %> reviews)
-                </span>
-              </div>
-              <span class="text-sm font-medium text-gray-900">
-                <%= course.green_fee_range %>
-              </span>
-            </div>
-
-            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-gray-500">Holes:</span>
-                <span class="ml-1 text-gray-900"><%= course.number_of_holes %></span>
-              </div>
-              <div>
-                <span class="text-gray-500">Par:</span>
-                <span class="ml-1 text-gray-900"><%= course.par %></span>
-              </div>
-              <div>
-                <span class="text-gray-500">Yardage:</span>
-                <span class="ml-1 text-gray-900"><%= course.yardage %></span>
               </div>
             </div>
-
-            <%= link_to "View Details", course_path(course), class: "mt-6 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
           </div>
         </div>
       <% end %>
@@ -143,12 +136,3 @@
     </div>
   <% end %>
 </div>
-
-<%# Add Google Maps JavaScript %>
-<% content_for :head do %>
-  <script>
-    window.GOOGLE_MAPS_CONFIG = {
-      mapId: '<%= map_id %>'
-    };
-  </script>
-<% end %>

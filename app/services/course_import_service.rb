@@ -18,6 +18,9 @@ class CourseImportService
           next
         end
 
+        # Convert layout_tags from string to array
+        layout_tags = row[:layout_tags].to_s.split(',').map(&:strip)
+
         # Update course attributes with all available fields
         course.assign_attributes(
           name: row[:name],
@@ -25,11 +28,13 @@ class CourseImportService
           latitude: row[:latitude],
           longitude: row[:longitude],
           course_type: row[:course_type],
-          green_fee_range: row[:green_fee_range],
           number_of_holes: row[:number_of_holes],
           par: row[:par],
           yardage: row[:yardage],
-          website_url: row[:website_url]
+          green_fee: row[:green_fee],
+          layout_tags: layout_tags,
+          website_url: row[:website_url],
+          notes: row[:notes]
         )
 
         # Save course and create location association
