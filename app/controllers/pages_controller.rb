@@ -7,6 +7,13 @@ class PagesController < ApplicationController
       .group('locations.id')  # Group by location to calculate average
       .select('locations.*, COALESCE(AVG(reviews.rating), 0) as avg_rating')  # Calculate average rating
 
+    # Get counts for stats
+    @stats = {
+      locations_count: Location.count,
+      courses_count: Course.count,
+      reviews_count: Review.count
+    }
+
     # Apply filters
     @locations = @locations.where(region: params[:region]) if params[:region].present?
     @locations = @locations.where(state: params[:state]) if params[:state].present?
