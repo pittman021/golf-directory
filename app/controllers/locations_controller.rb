@@ -42,4 +42,18 @@ class LocationsController < ApplicationController
     puts "DEBUG: Map ID from credentials: #{Rails.application.credentials.google_maps_map_id}"
     puts "DEBUG: API Key from credentials: #{Rails.application.credentials.google_maps_map_id.present?}"
   end
+
+  def compare
+    location_ids = params[:location_ids]&.split(',')
+    @locations = Location.includes(:courses, :reviews).where(id: location_ids)
+    
+    # Redirect to locations index if fewer than 2 locations selected
+    if @locations.size < 2
+      redirect_to locations_path, alert: 'Please select at least 2 locations to compare'
+      return
+    end
+    
+    # Limit to 2 locations for side-by-side comparison
+    @locations = @locations.limit(2)
+  end
 end

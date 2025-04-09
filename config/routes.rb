@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   
   resources :locations, only: [:index, :show] do
     resources :courses, only: [:index]
+    collection do
+      get 'compare'
+    end
   end
 
   resources :courses, only: [:show] do

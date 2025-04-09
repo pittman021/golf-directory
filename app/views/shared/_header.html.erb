@@ -1,4 +1,4 @@
-<header class="absolute w-full z-10">
+<header class="fixed w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-end h-16">
       <div class="flex items-center">
@@ -16,7 +16,7 @@
             </div>
           </div>
         <% else %>
-          <%= link_to "Sign in", new_user_session_path, class: "text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium" %>
+          <%= link_to "Sign in", new_user_session_path, class: "text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" %>
           <%= link_to "Sign up", new_user_registration_path, class: "bg-[#355E3B] text-white hover:bg-[#2A4A30] px-3 py-2 rounded-md text-sm font-medium ml-4" %>
         <% end %>
       </div>

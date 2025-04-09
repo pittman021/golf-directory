@@ -1,11 +1,20 @@
 <!-- app/views/pages/home.turbo_stream.erb -->
-<%= turbo_stream.update "locations-table" do %>
-  <div class="bg-white shadow overflow-hidden rounded-lg">
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <!-- Your table header and body code -->
-        <%= render partial: "locations_table", locals: { locations: @locations } %>
-      </table>
+<%= turbo_stream.update "locations_table" do %>
+  <div class="bg-white rounded-lg shadow" data-filters-target="table">
+    <!-- Mobile View -->
+    <div class="block lg:hidden">
+      <% @locations.each do |location| %>
+        <%= render partial: "pages/location_card", locals: { location: location } %>
+      <% end %>
+    </div>
+
+    <!-- Desktop View -->
+    <div class="hidden lg:block">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <%= render partial: "pages/locations_table", locals: { locations: @locations } %>
+        </table>
+      </div>
     </div>
   </div>
 <% end %>

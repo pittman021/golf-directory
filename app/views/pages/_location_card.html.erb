@@ -1,0 +1,55 @@
+<div class="p-4 border-b border-gray-200">
+  <div class="flex justify-end mb-2">
+    <input type="checkbox" 
+           class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+           data-location-id="<%= location.id %>"
+           data-action="change->comparison#toggleLocation"
+           data-comparison-target="checkbox">
+  </div>
+  <div class="flex items-start space-x-4">
+    <!-- Image -->
+    <div class="w-24 h-24 flex-shrink-0">
+      <%= image_tag location.featured_image_url, 
+          class: "w-full h-full object-cover rounded-lg",
+          alt: "#{location.name} featured image" %>
+    </div>
+    
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="flex justify-between">
+        <h3 class="text-base font-medium text-[#355E3B] truncate">
+          <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
+        </h3>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+          <%= case location.price_category[:label]
+              when 'Budget' then 'bg-green-100 text-green-800'
+              when 'Mid-Range' then 'bg-blue-100 text-blue-800'
+              when 'Premium' then 'bg-purple-100 text-purple-800'
+              when 'Luxury' then 'bg-yellow-100 text-yellow-800'
+              else 'bg-gray-100 text-gray-800'
+              end %>">
+          <%= location.price_category[:label] %>
+        </span>
+      </div>
+      
+      <p class="mt-1 text-sm text-gray-500">
+        <%= location.region %>, <%= location.state %>
+      </p>
+      
+      <div class="mt-2 flex flex-wrap gap-2 text-sm">
+        <div class="text-gray-900">
+          <span class="font-medium">Green Fee:</span>
+          <%= number_to_currency(location.avg_green_fee, precision: 0) %>
+        </div>
+        <div class="text-gray-900">
+          <span class="font-medium">Lodging:</span>
+          <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %>
+        </div>
+        <div class="text-gray-900">
+          <span class="font-medium">Trip Cost:</span>
+          <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

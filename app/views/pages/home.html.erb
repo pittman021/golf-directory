@@ -9,7 +9,7 @@
         <h1 class="text-3xl sm:text-4xl tracking-tight font-extrabold text-gray-900 md:text-5xl lg:text-6xl">
           <span class="block">Discover World-Class</span>
           <span class="block text-[#355E3B]">Golf Destinations</span>
-        </h1>
+      </h1>
         <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
           Explore the finest golf destinations worldwide. From historic links courses to modern resort destinations.
         </p>
@@ -34,112 +34,46 @@
   </div>
 
   <!-- Filters and Table Section -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex space-x-4">
-        <!-- View toggle buttons -->
-      
-      </div>
-    </div>
-
-    <!-- Map View -->
-    <div id="map-view" class="hidden" data-controller="map">
-      <div data-map-target="markers" 
-           data-markers="<%= @locations.map { |location| {
-             lat: location.latitude,
-             lng: location.longitude,
-             title: location.name,
-             courses: location.courses.count,
-             url: location_path(location)
-           }}.to_json %>">
-      </div>
-      <div data-map-target="map" class="w-full h-[600px] rounded-lg shadow-lg"></div>
-    </div>
-
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4" data-controller="comparison">
     <!-- Filters -->
-    <div class="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
-      <%= select_tag :region,
-          options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
-          { prompt: "All Regions",
-            class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
-            onchange: "this.form.requestSubmit()" } %>
-      
-      <%= select_tag :state,
-          options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
-          { prompt: "All States",
-            class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
-            onchange: "this.form.requestSubmit()" } %>
-      
-      <%= select_tag :price_category,
-          options_for_select([
-            ['Budget (Up to $1,500)', 'budget'],
-            ['Mid-Range ($1,501 - $2,500)', 'mid_range'],
-            ['Premium ($2,501 - $4,000)', 'premium'],
-            ['Luxury ($4,000+)', 'luxury']
-          ], params[:price_category]),
-          { prompt: "All Price Ranges",
-            class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
-            onchange: "this.form.requestSubmit()" } %>
-    </div>
+    <%= form_tag root_path, method: :get, data: { controller: "filters", filters_target: "form" } do %>
+      <div class="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
+        <%= select_tag :region,
+            options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
+            { prompt: "All Regions",
+              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              data: { action: "change->filters#filter" } } %>
+        
+        <%= select_tag :state,
+            options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
+            { prompt: "All States",
+              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              data: { action: "change->filters#filter" } } %>
+        
+        <%= select_tag :price_category,
+            options_for_select([
+              ['Budget (Up to $1,500)', 'budget'],
+              ['Mid-Range ($1,501 - $2,500)', 'mid_range'],
+              ['Premium ($2,501 - $4,000)', 'premium'],
+              ['Luxury ($4,000+)', 'luxury']
+            ], params[:price_category]),
+            { prompt: "All Price Ranges",
+              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+              data: { action: "change->filters#filter" } } %>
+      </div>
+    <% end %>
 
     <!-- Locations Table -->
     <%= turbo_frame_tag "locations_table" do %>
-      <div class="bg-white rounded-lg shadow">
-        <!-- Mobile View (Card Layout) -->
+      <div class="bg-white rounded-lg shadow" data-filters-target="table">
+        <!-- Mobile View -->
         <div class="block lg:hidden">
           <% @locations.each do |location| %>
-            <div class="p-4 border-b border-gray-200">
-              <div class="flex items-start space-x-4">
-                <!-- Image -->
-                <div class="w-24 h-24 flex-shrink-0">
-                  <%= image_tag location.featured_image_url, 
-                      class: "w-full h-full object-cover rounded-lg",
-                      alt: "#{location.name} featured image" %>
-                </div>
-                
-                <!-- Content -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex justify-between">
-                    <h3 class="text-base font-medium text-[#355E3B] truncate">
-                      <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
-                    </h3>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                      <%= case location.price_category[:label]
-                          when 'Budget' then 'bg-green-100 text-green-800'
-                          when 'Mid-Range' then 'bg-blue-100 text-blue-800'
-                          when 'Premium' then 'bg-purple-100 text-purple-800'
-                          when 'Luxury' then 'bg-yellow-100 text-yellow-800'
-                          else 'bg-gray-100 text-gray-800'
-                          end %>">
-                      <%= location.price_category[:label] %>
-                    </span>
-                  </div>
-                  
-                  <p class="mt-1 text-sm text-gray-500">
-                    <%= location.region %>, <%= location.state %>
-                  </p>
-                  
-                  <div class="mt-2 flex flex-wrap gap-2 text-sm">
-                    <div class="text-gray-900">
-                      <span class="font-medium">Green Fee:</span>
-                      <%= number_to_currency(location.avg_green_fee, precision: 0) %>
-                    </div>
-                    <div class="text-gray-900">
-                      <span class="font-medium">Lodging:</span>
-                      <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %>
-                    </div>
-                    <div class="text-gray-900">
-                      <span class="font-medium">Trip Cost:</span>
-                      <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <%= render partial: "pages/location_card", locals: { location: location } %>
           <% end %>
         </div>
 
-        <!-- Desktop View (Table Layout) -->
+        <!-- Desktop View -->
         <div class="hidden lg:block">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -165,6 +99,9 @@
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Category
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Compare
                   </th>
                 </tr>
               </thead>
@@ -206,6 +143,13 @@
                             end %>">
                         <%= location.price_category[:label] %>
                       </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <input type="checkbox" 
+                             class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                             data-location-id="<%= location.id %>"
+                             data-action="change->comparison#toggleLocation"
+                             data-comparison-target="checkbox">
                     </td>
                   </tr>
                 <% end %>

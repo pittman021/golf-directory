@@ -24,14 +24,25 @@ export default class extends Controller {
       }
     })
 
+    console.log("Fetching URL:", url.toString())
+
     fetch(url, {
       headers: {
         "Accept": "text/vnd.turbo-stream.html"
       }
     })
-    .then(response => response.text())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.status}`)
+      }
+      return response.text()
+    })
     .then(html => {
+      console.log("Turbo Stream Response:", html)
       Turbo.renderStreamMessage(html)
+    })
+    .catch(error => {
+      console.error("Error fetching Turbo Stream:", error)
     })
   }
 

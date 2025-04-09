@@ -1,5 +1,13 @@
-
-<%= link_to location_path(location), class: "group" do %>
+<div class="group relative">
+  <div class="absolute top-2 right-2 z-10">
+    <input type="checkbox" 
+           class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+           data-location-id="<%= location.id %>"
+           data-controller="comparison"
+           data-action="change->comparison#toggleLocation">
+  </div>
+  
+  <%= link_to location_path(location), class: "group" do %>
     <div class="relative rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <div class="aspect-w-16 aspect-h-9 bg-gray-200">
         <!-- Add image here when implemented -->
@@ -24,3 +32,4 @@
       </div>
     </div>
   <% end %>
+</div>

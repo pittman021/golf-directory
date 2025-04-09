@@ -1,0 +1,83 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
+  <div class="mb-8">
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-900">Location Comparison</h1>
+      <%= link_to "← Back to Home", root_path, class: "text-indigo-600 hover:text-indigo-500" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <% @locations.each do |location| %>
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4"><%= location.name %></h2>
+          <div class="space-y-6">
+            <!-- Basic Info -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Location</h3>
+              <p class="text-gray-600"><%= [location.region, location.state, location.country].compact.join(', ') %></p>
+            </div>
+
+            <!-- Courses -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Golf Courses</h3>
+              <p class="text-gray-600"><%= pluralize(location.courses.count, 'course') %></p>
+              <div class="mt-2">
+                <% location.courses.each do |course| %>
+                  <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700"><%= course.name %></span>
+                    <span class="text-gray-600"><%= number_to_currency(course.green_fee) %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Costs -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Average Costs</h3>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Green Fee</span>
+                  <span class="font-medium"><%= number_to_currency(location.avg_green_fee) %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Lodging (per night)</span>
+                  <span class="font-medium"><%= number_to_currency(location.avg_lodging_cost_per_night) %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Estimated Trip Cost</span>
+                  <span class="font-medium"><%= number_to_currency(location.estimated_trip_cost) %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Reviews</h3>
+              <div class="flex items-center space-x-2">
+                <div class="text-2xl font-bold text-gray-900">
+                  <%= location.average_rating || 'N/A' %>
+                </div>
+                <div class="text-gray-600">
+                  (<%= pluralize(location.reviews_count, 'review') %>)
+                </div>
+              </div>
+            </div>
+
+            <!-- Best Time to Visit -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Best Time to Visit</h3>
+              <p class="text-gray-600"><%= location.best_months %></p>
+            </div>
+
+            <!-- Nearest Airports -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Nearest Airports</h3>
+              <p class="text-gray-600"><%= location.nearest_airports %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
