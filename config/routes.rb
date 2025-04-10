@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     resources :courses, only: [:index]
     collection do
       get 'compare'
+      get 'states_for_region'
     end
   end
 

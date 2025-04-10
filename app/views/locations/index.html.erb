@@ -2,12 +2,23 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Filters -->
   <div class="bg-white shadow rounded-lg mb-8 p-6">
-    <%= form_tag locations_path, method: :get, class: "space-y-4 sm:flex sm:space-x-4 sm:space-y-0" do %>
+    <%= form_tag locations_path, method: :get, class: "space-y-4 sm:flex sm:space-x-4 sm:space-y-0", data: { controller: "filters" } do %>
       <div class="flex-1">
-        <%= select_tag :country, 
-            options_for_select(Location.distinct.pluck(:country), params[:country]),
-            prompt: "Select Country",
-            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        <%= select_tag :region, 
+            options_for_select(Location.distinct.pluck(:region), params[:region]),
+            prompt: "Select Region",
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+            data: { 
+              filters_target: "regionSelect",
+              action: "change->filters#updateStates"
+            } %>
+      </div>
+      <div class="flex-1">
+        <%= select_tag :state, 
+            options_for_select(Location.distinct.pluck(:state), params[:state]),
+            prompt: "Select State",
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+            data: { filters_target: "stateSelect" } %>
       </div>
       <div class="flex-1">
         <%= select_tag :price_range,

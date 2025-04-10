@@ -33,21 +33,27 @@
   </div>
 
   <!-- Filters and Table Section -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4" data-controller="comparison">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
     <!-- Filters -->
-    <%= form_tag root_path, method: :get, data: { controller: "filters", filters_target: "form" } do %>
+    <%= form_tag root_path, method: :get, 
+        data: { 
+          controller: "filters comparison",
+          filters_target: "form"
+        } do %>
       <div class="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
         <%= select_tag :region,
             options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
             { prompt: "All Regions",
               class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
-              data: { action: "change->filters#filter" } } %>
+              data: { action: "change->filters#filter", filters_target: "regionSelect" },
+              id: "region" } %>
         
         <%= select_tag :state,
             options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
             { prompt: "All States",
               class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
-              data: { action: "change->filters#filter" } } %>
+              data: { action: "change->filters#filter", filters_target: "stateSelect" },
+              id: "state" } %>
         
         <%= select_tag :price_category,
             options_for_select([

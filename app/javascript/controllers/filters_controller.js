@@ -2,17 +2,50 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "table"]
+  static targets = ["form", "regionSelect", "stateSelect"]
 
   connect() {
+    console.log("Filters controller connected")
     this.submitForm = this.debounce(this.submitForm.bind(this), 300)
   }
 
-  filter() {
+  filter(event) {
+    console.log("Filter method called", event.target.id)
+    
+    // If the region select changed, update the state options
+    if (event.target.id === 'region') {
+      const selectedRegion = event.target.value
+      console.log("Selected region:", selectedRegion)
+      
+      // Fetch states for the selected region (or all states if "All Regions" is selected)
+      fetch(`/locations/states_for_region?region=${encodeURIComponent(selectedRegion)}`, {
+        headers: {
+          "Accept": "application/json"
+        }
+      })
+      .then(response => response.json())
+      .then(states => {
+        console.log("Received states:", states)
+        // Clear current options
+        this.stateSelectTarget.innerHTML = '<option value="">Select State</option>'
+        
+        // Add new options
+        states.forEach(state => {
+          const option = new Option(state, state)
+          this.stateSelectTarget.add(option)
+        })
+      })
+      .catch(error => {
+        console.error("Error fetching states:", error)
+      })
+    }
+    
+    // Submit the form to update results
     this.submitForm()
   }
 
   submitForm() {
+    console.log("SubmitForm method called")
     const url = new URL(window.location.href)
     const formData = new FormData(this.formTarget)
     

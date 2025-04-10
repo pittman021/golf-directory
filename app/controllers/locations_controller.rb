@@ -3,8 +3,11 @@ class LocationsController < ApplicationController
   def index
     @locations = Location.includes(:courses, :reviews).all
     
-    # Filter by country if parameter present
-    @locations = @locations.where(country: params[:country]) if params[:country].present?
+    # Filter by region if parameter present
+    @locations = @locations.where(region: params[:region]) if params[:region].present?
+    
+    # Filter by state if parameter present
+    @locations = @locations.where(state: params[:state]) if params[:state].present?
     
     # Filter by price range if parameter present
     if params[:price_range].present?
@@ -12,6 +15,20 @@ class LocationsController < ApplicationController
                            .where(courses: { green_fee_range: params[:price_range] })
                            .distinct
     end
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
+  end
+
+  def states_for_region
+    if params[:region].present? && params[:region] != ""
+      states = Location.where(region: params[:region]).distinct.pluck(:state).compact.sort
+    else
+      states = Location.distinct.pluck(:state).compact.sort
+    end
+    render json: states
   end
 
   def show
