@@ -4,6 +4,7 @@ class Course < ApplicationRecord
     has_many :locations, through: :location_courses
     has_many :reviews, dependent: :destroy
     has_many_attached :images
+    has_one_attached :featured_image
     
     enum course_type: {
       public_course: 0,

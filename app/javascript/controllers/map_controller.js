@@ -32,7 +32,7 @@ export default class extends Controller {
 
       const mapOptions = {
         center: { lat, lng },
-        zoom: 13,
+        zoom: 10,
         mapTypeControl: true,
         fullscreenControl: true,
         streetViewControl: true
@@ -88,7 +88,7 @@ export default class extends Controller {
 
     if (this.markersValue.length > 1) {
       this.map.fitBounds(bounds);
-      this.map.setZoom(Math.min(this.map.getZoom(), 15));
+      this.map.setZoom(Math.min(this.map.getZoom(), 12));
     }
   }
 }
