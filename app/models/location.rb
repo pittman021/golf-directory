@@ -35,8 +35,6 @@ class Location < ApplicationRecord
       'mountains'
     ]
 
-    serialize :summary, JSON
-
     def full_address
       [region, state, country].compact.join(', ')
     end

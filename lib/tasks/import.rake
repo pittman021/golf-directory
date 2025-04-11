@@ -91,7 +91,6 @@ namespace :export do
       avg_green_fee
       estimated_trip_cost
       tags
-      summary
     ]
     
     CSV.open(csv_file, 'w') do |csv|
@@ -112,8 +111,7 @@ namespace :export do
           location.avg_lodging_cost_per_night,
           location.avg_green_fee,
           location.estimated_trip_cost,
-          location.tags&.join(','),
-          location.summary
+          location.tags&.join(',')
         ]
         csv << row
       end
