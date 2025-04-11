@@ -98,14 +98,63 @@
     <div>
       <h2 class="text-2xl font-bold mb-4">Information</h2>
       <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Description</h3>
-        <p class="text-gray-600 mb-6"><%= @location.description %></p>
+        <% if @location.summary.present? %>
+          <div class="space-y-6">
+            <!-- Destination Overview -->
+            <% if @location.destination_overview.present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <%= simple_format(@location.destination_overview) %>
+                </div>
+              </div>
+            <% end %>
 
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Weather Info</h3>
-        <p class="text-gray-600 mb-6"><%= @location.weather_info %></p>
+            <!-- Golf Experience -->
+            <% if @location.golf_experience.present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <%= simple_format(@location.golf_experience) %>
+                </div>
+              </div>
+            <% end %>
 
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Nearest Airport</h3>
-        <p class="text-gray-600"><%= @location.nearest_airports %></p>
+            <!-- Travel Information -->
+            <% if @location.travel_information.present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <%= simple_format(@location.travel_information) %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Local Attractions -->
+            <% if @location.local_attractions.present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <%= simple_format(@location.local_attractions) %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Practical Tips -->
+            <% if @location.practical_tips.present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <%= simple_format(@location.practical_tips) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-gray-500 italic">
+            No detailed information available yet. Check back soon!
+          </div>
+        <% end %>
       </div>
     </div>
 

@@ -35,6 +35,8 @@ class Location < ApplicationRecord
       'mountains'
     ]
 
+    serialize :summary, JSON
+
     def full_address
       [region, state, country].compact.join(', ')
     end
@@ -116,6 +118,26 @@ class Location < ApplicationRecord
       else
         "placeholder_golf_course.jpg" # We'll add this to app/assets/images/
       end
+    end
+
+    def destination_overview
+      summary&.dig('destination_overview')
+    end
+
+    def golf_experience
+      summary&.dig('golf_experience')
+    end
+
+    def travel_information
+      summary&.dig('travel_information')
+    end
+
+    def local_attractions
+      summary&.dig('local_attractions')
+    end
+
+    def practical_tips
+      summary&.dig('practical_tips')
     end
 
     private
