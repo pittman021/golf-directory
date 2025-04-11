@@ -3,9 +3,9 @@ require 'net/http'
 require 'json'
 
 namespace :import do
-  desc "Import golf locations and courses using Google Places API and OpenWeatherMap"
+  desc "Import and enrich golf course data"
   task golf_data: :environment do
-    puts "Starting golf data import..."
+    puts "Starting golf data import and enrichment..."
     
     # Track created records for summary
     created_locations = []

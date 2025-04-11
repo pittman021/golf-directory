@@ -4,6 +4,7 @@ class Location < ApplicationRecord
     has_many :courses, through: :location_courses
     has_many :reviews, through: :courses
     has_one_attached :featured_image
+    has_many :lodgings, dependent: :destroy
     
     validates :name, presence: true
     validates :latitude, presence: true, numericality: true
@@ -119,32 +120,67 @@ class Location < ApplicationRecord
     end
 
     def destination_overview
-      summary&.dig('destination_overview')
+      parse_summary&.dig('destination_overview')
     end
 
     def golf_experience
-      summary&.dig('golf_experience')
+      parse_summary&.dig('golf_experience')
     end
 
     def travel_information
-      summary&.dig('travel_information')
+      parse_summary&.dig('travel_information')
     end
 
     def local_attractions
-      summary&.dig('local_attractions')
+      parse_summary&.dig('local_attractions')
     end
 
     def practical_tips
-      summary&.dig('practical_tips')
+      parse_summary&.dig('practical_tips')
+    end
+
+    def update_avg_lodging_cost
+      return if lodgings.empty?
+      
+      total_avg = lodgings.sum(&:average_price)
+      count = lodgings.count
+      
+      update(avg_lodging_cost_per_night: total_avg / count)
+    end
+
+    def lodging_price_range
+      return nil unless lodging_price_min && lodging_price_max
+      "#{lodging_price_currency} #{lodging_price_min} - #{lodging_price_max}"
+    end
+    
+    def update_lodging_prices(min:, max:, source:, notes: nil)
+      update(
+        lodging_price_min: min,
+        lodging_price_max: max,
+        lodging_price_source: source,
+        lodging_price_notes: notes,
+        lodging_price_last_updated: Time.current
+      )
+    end
+    
+    def average_lodging_price
+      return nil unless lodging_price_min && lodging_price_max
+      (lodging_price_min + lodging_price_max) / 2.0
+    end
+
+    def calculate_estimated_trip_cost
+      return unless average_lodging_price.present? && avg_green_fee.present?
+      # 3 nights lodging + 3 rounds of golf
+      lodging_cost = average_lodging_price * 3
+      golf_cost = avg_green_fee * 3
+      self.estimated_trip_cost = lodging_cost + golf_cost
     end
 
     private
 
-    def calculate_estimated_trip_cost
-      return unless avg_lodging_cost_per_night.present?
-      # 3 nights lodging + 3 rounds of golf
-      lodging_cost = avg_lodging_cost_per_night * 3
-      golf_cost = avg_green_fee * 3
-      self.estimated_trip_cost = lodging_cost + golf_cost
+    def parse_summary
+      return nil if summary.blank?
+      return summary if summary.is_a?(Hash)
+      JSON.parse(summary) rescue nil
     end
   end

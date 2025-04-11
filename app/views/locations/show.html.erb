@@ -99,57 +99,72 @@
       <h2 class="text-2xl font-bold mb-4">Information</h2>
       <div class="bg-white rounded-lg shadow-sm p-6">
         <% if @location.summary.present? %>
-          <div class="space-y-6">
-            <!-- Destination Overview -->
-            <% if @location.destination_overview.present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <%= simple_format(@location.destination_overview) %>
+          <% 
+            # Parse the summary JSON
+            summary_data = begin
+              JSON.parse(@location.summary)
+            rescue JSON::ParserError
+              nil
+            end
+          %>
+          
+          <% if summary_data.present? %>
+            <div class="space-y-6">
+              <!-- Destination Overview -->
+              <% if summary_data['destination_overview'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                  <div class="prose max-w-none text-gray-700">
+                    <%= summary_data %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
 
-            <!-- Golf Experience -->
-            <% if @location.golf_experience.present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <%= simple_format(@location.golf_experience) %>
+              <!-- Golf Experience -->
+              <% if summary_data['golf_experience'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
+                  <div class="prose max-w-none text-gray-700">
+                    <%= simple_format(summary_data['golf_experience']) %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
 
-            <!-- Travel Information -->
-            <% if @location.travel_information.present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <%= simple_format(@location.travel_information) %>
+              <!-- Travel Information -->
+              <% if summary_data['travel_information'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
+                  <div class="prose max-w-none text-gray-700">
+                    <%= simple_format(summary_data['travel_information']) %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
 
-            <!-- Local Attractions -->
-            <% if @location.local_attractions.present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <%= simple_format(@location.local_attractions) %>
+              <!-- Local Attractions -->
+              <% if summary_data['local_attractions'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                  <div class="prose max-w-none text-gray-700">
+                    <%= simple_format(summary_data['local_attractions']) %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
 
-            <!-- Practical Tips -->
-            <% if @location.practical_tips.present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <%= simple_format(@location.practical_tips) %>
+              <!-- Practical Tips -->
+              <% if summary_data['practical_tips'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
+                  <div class="prose max-w-none text-gray-700">
+                    <%= simple_format(summary_data['practical_tips']) %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
-          </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-gray-500 italic">
+              The summary data is not in the correct format. Please regenerate the summary.
+            </div>
+          <% end %>
         <% else %>
           <div class="text-gray-500 italic">
             No detailed information available yet. Check back soon!
@@ -241,6 +256,39 @@
               <% end %>
               <%= link_to "View Course", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
             </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Lodging Section -->
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4">Lodging Options</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @location.lodgings.each do |lodging| %>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <% if lodging.photo.attached? %>
+            <div class="aspect-w-16 aspect-h-9">
+              <%= image_tag lodging.photo, class: "w-full h-48 object-cover", alt: lodging.name %>
+            </div>
+          <% else %>
+            <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-400">No photo available</span>
+            </div>
+          <% end %>
+          <div class="p-4">
+            <h3 class="text-lg font-semibold mb-2"><%= lodging.name %></h3>
+            <p class="text-gray-600 mb-2"><%= lodging.formatted_address %></p>
+            <% if lodging.rating %>
+              <div class="flex items-center mb-2">
+                <span class="text-yellow-500 mr-1">★</span>
+                <span><%= lodging.rating %></span>
+              </div>
+            <% end %>
+            <% if lodging.website %>
+              <%= link_to "Visit Website", lodging.website, class: "text-blue-600 hover:text-blue-800", target: "_blank" %>
+            <% end %>
           </div>
         </div>
       <% end %>

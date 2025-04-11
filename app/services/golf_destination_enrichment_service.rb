@@ -1,3 +1,24 @@
+# This service handles comprehensive enrichment of golf destinations.
+# It manages destination-level data including:
+# - Destination overviews and summaries
+# - Golf experience descriptions
+# - Travel information and tips
+# - Local attractions and activities
+# - Practical travel advice
+# - Lodging information and prices
+#
+# Usage:
+#   service = GolfDestinationEnrichmentService.new(location)
+#   service.enrich
+#
+# This service integrates with:
+# - CoursesEnrichmentService for course-specific data
+# - LodgingEnrichmentService for accommodation data
+# - OpenAI for content generation
+#
+# Note: This service works at the destination level,
+# handling entire locations rather than individual courses.
+
 require 'openai'
 
 class GolfDestinationEnrichmentService
@@ -21,6 +42,9 @@ class GolfDestinationEnrichmentService
       
       # Update the location's summary
       @location.update!(summary: summary)
+      
+      # Enrich lodging prices
+      enrich_lodging_prices
       
       true
     rescue StandardError => e
@@ -435,5 +459,48 @@ class GolfDestinationEnrichmentService
   def generate_call_to_action
     # Generate a compelling call to action
     "Ready to experience the best golf #{@location.name} has to offer? Book your tee times today and start planning your dream golf vacation!"
+  end
+
+  def enrich_lodging_prices
+    return if @location.lodging_price_last_updated.present? && 
+              @location.lodging_price_last_updated > 1.month.ago
+
+    puts "Enriching lodging prices for #{@location.name}..."
+    
+    # Get lodging data from Google Places API
+    lodging_service = LodgingEnrichmentService.new(@location)
+    lodging_result = lodging_service.enrich_location
+    
+    if lodging_result.present?
+      # Calculate price range from lodging data
+      prices = lodging_result[:lodging_options].map { |place| place[:price_level] }.compact
+      
+      if prices.present?
+        min_price = prices.min
+        max_price = prices.max
+        
+        # Convert price levels to actual dollar amounts
+        # Price levels are 0-4, where 0 is free and 4 is very expensive
+        price_conversion = {
+          0 => 0,      # Free
+          1 => 50,     # Inexpensive
+          2 => 150,    # Moderate
+          3 => 300,    # Expensive
+          4 => 500     # Very Expensive
+        }
+        
+        min_dollars = price_conversion[min_price]
+        max_dollars = price_conversion[max_price]
+        
+        @location.update_lodging_prices(
+          min: min_dollars,
+          max: max_dollars,
+          source: 'Google Places API',
+          notes: "Based on #{prices.size} lodging options in the area"
+        )
+        
+        puts "Updated lodging prices: $#{min_dollars} - $#{max_dollars}"
+      end
+    end
   end
 end 

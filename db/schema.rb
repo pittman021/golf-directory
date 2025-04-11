@@ -92,11 +92,39 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
     t.integer "estimated_trip_cost"
     t.string "tags", default: [], array: true
     t.text "summary"
+    t.integer "lodging_price_min"
+    t.integer "lodging_price_max"
+    t.string "lodging_price_currency", default: "USD"
+    t.datetime "lodging_price_last_updated"
     t.index ["latitude", "longitude"], name: "index_locations_on_latitude_and_longitude"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["region"], name: "index_locations_on_region"
     t.index ["state"], name: "index_locations_on_state"
     t.index ["tags"], name: "index_locations_on_tags", using: :gin
+  end
+
+  create_table "lodgings", force: :cascade do |t|
+    t.string "google_place_id", null: false
+    t.string "name", null: false
+    t.string "types", default: [], array: true
+    t.decimal "rating"
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.string "formatted_address"
+    t.string "formatted_phone_number"
+    t.string "website"
+    t.text "research_notes"
+    t.string "research_status", default: "pending"
+    t.date "research_last_attempted"
+    t.integer "research_attempts", default: 0
+    t.bigint "location_id", null: false
+    t.boolean "is_featured", default: false
+    t.integer "display_order"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "photo_reference"
+    t.index ["google_place_id"], name: "index_lodgings_on_google_place_id", unique: true
+    t.index ["location_id"], name: "index_lodgings_on_location_id"
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -132,6 +160,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "location_courses", "courses"
   add_foreign_key "location_courses", "locations"
+  add_foreign_key "lodgings", "locations"
   add_foreign_key "reviews", "courses"
   add_foreign_key "reviews", "users"
 end
