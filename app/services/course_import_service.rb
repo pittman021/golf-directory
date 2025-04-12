@@ -1,4 +1,3 @@
-# app/services/course_import_service.rb
 require 'csv'
 
 class CourseImportService
@@ -66,4 +65,4 @@ class CourseImportService
     
     results
   end
-end
+end 

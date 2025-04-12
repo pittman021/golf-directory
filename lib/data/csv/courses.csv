@@ -95,8 +95,24 @@ La Tourette Golf Course,New York City,"A health, point_of_interest, establishmen
 Blackwolf Run Golf Course,Kohler,"A point_of_interest, store, establishment golf course located at 1111 W Riverside Dr, Kohler, WI 53044, USA",public_course,18,75,6000,72,standard,https://www.kohlerwisconsin.com/golf/blackwolf-run,"Commonly praised for: the, and, course, it, is"
 Sand Valley Golf Resort,Nekoosa,"A lodging, point_of_interest, establishment golf course located at 1697 Leopold Way, Nekoosa, WI 54457, USA",public_course,18,75,6000,72,standard,https://sandvalley.com/?NCK=8772611141,"Commonly praised for: the, and, a, was, to"
 Deerfield,New York City,"A bar, restaurant, food, point_of_interest, establishment golf course located at 507 Thompson Station Rd, Newark, DE 19711, USA",public_course,18,75,6000,72,standard,http://www.deerfieldgolfclub.com/,"Commonly praised for: the, and, was, we, our"
-Pinehurst Resort,Pinehurst,"A lodging, point_of_interest, establishment golf course located at 80 Carolina Vista Dr, Pinehurst, NC 28374, USA",public_course,18,75,6000,72,standard,https://www.pinehurst.com/?NCK=8443301669&utm_source=GMBlisting&utm_medium=organic,"Commonly praised for: and, the, golf, to, great"
-Pinehurst No. 2,Pinehurst,"A point_of_interest, establishment golf course located at 1 Carolina Vista Dr, Pinehurst, NC 28374, USA",public_course,18,75,6000,72,standard,https://www.pinehurst.com/golf/courses/no-2/?NCK=8775452124&utm_source=GMBlisting&utm_medium=organic,"Commonly praised for: the, to, and, you, a"
+Pinehurst Resort,Pinehurst,Pinehurst Resort is a renowned golf destination in North Carolina known for its challenging courses and beautiful scenery.,resort_course,18,200,7000,72,"water holes,elevation changes,tree lined,bunkers",https://www.pinehurst.com/,"Notable Holes: Hole 2 - a par 5 with a split fairway and strategic bunkering, Hole 17 - a par 3 with a water hazard guarding the green
+
+History: Pinehurst Resort has a rich history dating back to 1898 when the first course was built. It has hosted numerous prestigious tournaments over the years.
+
+Designers: Donald Ross, Tom Fazio, Gil Hanse
+
+Tournament History: US Open, US Women's Open, US Amateur
+
+Playing Tips: Pay attention to the strategic bunkering on the course, Focus on accuracy over distance on the tree-lined fairways"
+Pinehurst No. 2,Pinehurst,"Pinehurst No. 2 is a renowned golf course located in Pinehurst, North Carolina. It is known for its challenging layout and strategic design.",resort_course,18,250,7000,72,"tree lined,bunkers",https://www.pinehurst.com/golf/courses/no-2/,"Notable Holes: Hole 4 - The Carolina Vista, Hole 9 - The Deuce
+
+History: Pinehurst No. 2 was designed by Donald Ross in 1907 and has since hosted multiple major championships.
+
+Designers: Donald Ross
+
+Tournament History: Multiple U.S. Opens
+
+Playing Tips: Accuracy off the tee is crucial due to the challenging green complexes."
 River Oaks Golf Club,Myrtle Beach,"A point_of_interest, establishment golf course located at 831 River Oaks Dr, Myrtle Beach, SC 29579, USA",public_course,18,75,6000,72,standard,http://www.playriveroaksgolfclub.com/,"Commonly praised for: the, and, to, we, a"
 Grande Dunes Resort Club,Myrtle Beach,"A lodging, point_of_interest, establishment golf course located at 8700 Golf Village Ln, Myrtle Beach, SC 29579, USA",public_course,18,75,6000,72,standard,http://www.grandedunesgolf.com/,"Commonly praised for: the, and, a, was, i"
 TPC Myrtle Beach,Myrtle Beach,"A point_of_interest, establishment golf course located at 1199 TPC Blvd, Murrells Inlet, SC 29576, USA",public_course,18,75,6000,72,standard,http://tpcmyrtlebeach.com/,"Commonly praised for: the, of, and, course, was"
@@ -111,17 +127,282 @@ Arizona Biltmore Golf Club,Scottsdale,"A point_of_interest, establishment golf c
 The Legacy Golf Club,Scottsdale,"A restaurant, health, point_of_interest, food, establishment golf course located at 6808 S 32nd St, Phoenix, AZ 85042, USA",public_course,18,75,6000,72,standard,http://golflegacyresort.com/,"Commonly praised for: the, course, and, to, were"
 Raven Golf Club,Scottsdale,"A health, restaurant, food, point_of_interest, establishment golf course located at 3636 E Baseline Rd, Phoenix, AZ 85042, USA",public_course,18,100,6000,72,standard,https://www.ravenphx.com/?utm_source=google&utm_medium=organic&utm_campaign=google_business_profile,"Commonly praised for: was, the, and, in, on"
 Torrey Pines Golf Course,San Diego,"A tourist_attraction, point_of_interest, establishment golf course located at 11480 N Torrey Pines Rd, La Jolla, CA 92037, USA",public_course,18,75,6000,72,standard,https://www.sandiego.gov/torrey-pines,"Commonly praised for: the, and, to, a, in"
-Pinehurst Golf Course,Pinehurst,"A point_of_interest, establishment golf course located at 11 Country Club Ln, Pinehurst, ID 83850, USA",public_course,18,75,6000,72,standard,"","Commonly praised for: the, is, course, to, golf"
-Reflection Bay Golf Club,Las Vegas,"A restaurant, food, point_of_interest, establishment golf course located at 75 Montelago Blvd, Henderson, NV 89011, USA",public_course,18,75,6000,72,standard,https://www.reflectionbaygolf.com/,"Commonly praised for: the, a, course, and, of"
-Wildhorse Golf Club,Las Vegas,"A health, restaurant, food, point_of_interest, establishment golf course located at 2100 W Warm Springs Rd, Henderson, NV 89014, USA",public_course,18,75,6000,72,standard,http://www.golfwildhorse.com/,"Commonly praised for: and, a, the, course, in"
-Chimera Golf Club,Las Vegas,"A bar, store, health, restaurant, food, point_of_interest, establishment golf course located at 901 Olivia Pkwy, Henderson, NV 89011, USA",public_course,18,75,6000,72,standard,https://chimeragolfclub.com/,"Commonly praised for: the, and, was, course, in"
-Desert Willow Golf Course,Las Vegas,"A point_of_interest, establishment golf course located at 2020 W Horizon Ridge Pkwy, Henderson, NV 89012, USA",public_course,18,75,6000,72,standard,http://www.desertwillowlasvegas.com/,"Commonly praised for: the, and, a, course, i"
-TPC Summerlin,Las Vegas,"A point_of_interest, establishment golf course located at 1700 Village Center Cir, Las Vegas, NV 89134, USA",public_course,18,75,6000,72,standard,http://tpc.com/summerlin,"Commonly praised for: the, to, course, and, fun"
-Las Vegas Paiute Golf Resort,Las Vegas,"A restaurant, food, point_of_interest, establishment golf course located at 10325 Nu-Wav Kaiv Blvd, Las Vegas, NV 89124, USA",public_course,18,75,6000,72,standard,http://www.lvpaiutegolf.com/,"Commonly praised for: the, and, a, i, is"
-The Arroyo Golf Club,Las Vegas,"A lodging, point_of_interest, establishment golf course located at 2250 Red Springs Dr, Las Vegas, NV 89135, USA",public_course,18,75,6000,72,standard,http://www.thearroyogolfclub.com/,"Commonly praised for: the, course, to, and, i"
-Palm Valley Golf Course,Las Vegas,"A point_of_interest, establishment golf course located at 9201 Del Webb Blvd, Las Vegas, NV 89134, USA",public_course,18,75,6000,72,standard,http://www.golfsummerlin.com/,"Commonly praised for: the, and, were, course, golf"
-Southern Highlands Golf Club,Las Vegas,"A spa, health, point_of_interest, establishment golf course located at 1 Robert Trent Jones Ln, Las Vegas, NV 89141, USA",public_course,18,75,6000,72,standard,http://www.southernhighlandsgolfclub.com/,"Commonly praised for: and, the, course, was, you"
-Desert Pines Golf Club,Las Vegas,"A health, restaurant, food, point_of_interest, establishment golf course located at 3415 E Bonanza Rd, Las Vegas, NV 89101, USA",public_course,18,75,6000,72,standard,https://www.desertpinesgolfclub.com/?utm_source=google&utm_medium=organic&utm_campaign=google_business_profile,"Commonly praised for: the, and, on, a, were"
-TPC Las Vegas,Las Vegas,"A bar, lodging, restaurant, food, point_of_interest, store, establishment golf course located at 9851 Canyon Run Dr, Las Vegas, NV 89144, USA",public_course,18,75,6000,72,standard,http://tpc.com/lasvegas,"Commonly praised for: the, and, a, course, it"
-Siena Golf Club,Las Vegas,"A lodging, point_of_interest, establishment golf course located at 10575 Siena Monte Ave, Las Vegas, NV 89135, USA",public_course,18,75,6000,72,standard,http://www.sienagolfclub.com/,"Commonly praised for: the, and, a, is, course"
-Painted Desert Golf Club,Las Vegas,"A health, restaurant, food, point_of_interest, establishment golf course located at 5555 Painted Mirage Rd, Las Vegas, NV 89149, USA",public_course,18,75,6000,72,standard,https://www.painteddesertgc.com/?utm_source=google&utm_medium=organic&utm_campaign=google_business_profile,"Commonly praised for: in, for, a, on, were"
+Reflection Bay Golf Club,Las Vegas,"Reflection Bay Golf Club is a stunning 18-hole course located in Henderson, Nevada, offering breathtaking views of Lake Las Vegas.",resort_course,18,150,7075,72,"water holes,elevation changes,bunkers",https://www.reflectionbaygolf.com/,"Notable Holes: Hole 3 - a challenging par 3 with a tee shot over water to a well-protected green
+
+History: The course opened in 1998 and quickly gained recognition as one of the top courses in the area.
+
+Designers: Jack Nicklaus
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards and play strategically to avoid the challenging bunkers."
+Wildhorse Golf Club,Las Vegas,Wildhorse Golf Club is a public course known for its challenging layout and scenic views.,public_course,18,75,6800,72,"water holes,bunkers,dog legs",www.wildhorsegolfclub.com,"Notable Holes: Hole 3 - a par 3 with a challenging water hazard, Hole 12 - a dogleg par 5 with strategically placed bunkers
+
+History: The course was established in 1999 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Tom Fazio, Andy Banfield
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind on the back nine, Club up on approach shots to avoid bunkers"
+Chimera Golf Club,Las Vegas,"Chimera Golf Club is a challenging 18-hole course located in Henderson, Nevada. The course features stunning views of the Las Vegas Strip and surrounding mountains.",public_course,18,100,7000,72,"water holes,elevation changes,bunkers",https://www.chimeragolfclub.com/,"Notable Holes: Hole 7 - a par 3 with a challenging green surrounded by water, Hole 15 - a par 4 with a narrow fairway and strategically placed bunkers
+
+History: Chimera Golf Club opened in 2003 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Ted Robinson Sr.
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Take advantage of the driving range and practice facilities before your round"
+Desert Willow Golf Course,Las Vegas,"Desert Willow Golf Course is a stunning desert oasis located in Palm Desert, California. The course offers breathtaking views of the surrounding mountains and lush green fairways.",public_course,18,100,6800,72,"water holes,bunkers,narrow fairways",https://www.desertwillow.com/,"Notable Holes: Hole 6 - a challenging par 3 with a water hazard guarding the green, Hole 18 - a picturesque finishing hole with a narrow fairway and strategic bunkers
+
+History: Desert Willow Golf Course opened in 1997 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Michael Hurdzan, Dana Fry
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this desert course, Take advantage of the practice facilities before your round to warm up and work on your short game"
+TPC Summerlin,Las Vegas,"TPC Summerlin is a championship golf course located in Las Vegas, Nevada. It is known for its challenging layout and stunning views of the surrounding desert landscape.",public_course,18,150,7100,72,"water holes,bunkers",https://tpc.com/summerlin,"Notable Holes: Hole 7 - a par 3 with a water hazard on the left and bunkers guarding the green.
+
+History: TPC Summerlin was designed by Bobby Weed and Fuzzy Zoeller, and opened in 1992.
+
+Designers: Bobby Weed, Fuzzy Zoeller
+
+Tournament History: TPC Summerlin is the host course for the PGA Tour's Shriners Hospitals for Children Open.
+
+Playing Tips: Pay attention to the wind, as it can greatly affect your shots on this open course."
+Las Vegas Paiute Golf Resort,Las Vegas,Las Vegas Paiute Golf Resort offers three championship courses surrounded by stunning mountain views and desert landscapes.,resort_course,18,150,7200,72,"water holes,elevation changes,bunkers",https://www.lvpaiutegolf.com/,"Notable Holes: Hole 15 on the Wolf Course, a challenging par 3 surrounded by water
+
+History: Opened in 1998, Las Vegas Paiute Golf Resort has become a premier destination for golf enthusiasts visiting Las Vegas.
+
+Designers: Pete Dye
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on some of the holes"
+The Arroyo Golf Club,Las Vegas,"The Arroyo Golf Club is a scenic 18-hole golf course located in Las Vegas, Nevada. The course offers stunning views of Red Rock Canyon and the Las Vegas Strip.",public_course,18,100,6800,72,"water holes,elevation changes,bunkers,narrow fairways",https://www.arroyogolfclub.com/,"Notable Holes: Hole 3: A challenging par 3 with a water hazard guarding the green, Hole 12: A long par 5 with a narrow fairway and strategically placed bunkers
+
+History: The Arroyo Golf Club opened in 2005 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Arnold Palmer, Ed Seay
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Take advantage of the practice facilities before your round to warm up"
+Palm Valley Golf Course,Las Vegas,Palm Valley Golf Course offers a challenging and scenic course with lush fairways and strategically placed bunkers.,public_course,18,60,6800,72,"water holes,bunkers,dog legs",http://www.palmvalleygolf.com,"Notable Holes: Hole 3 - A par 3 with a water hazard guarding the green, Hole 12 - A long par 5 with a dogleg left fairway
+
+History: Opened in 1995, Palm Valley Golf Course has been a favorite among both locals and visitors for its well-maintained course and beautiful surroundings.
+
+Designers: Arthur Hills
+
+Tournament History: 
+
+Playing Tips: Pay attention to the water hazards on several holes, Strategize your approach shots to avoid the well-placed bunkers"
+Southern Highlands Golf Club,Las Vegas,"Southern Highlands Golf Club is a prestigious private golf course located in Las Vegas, Nevada. The course offers a challenging yet picturesque layout with stunning views of the surrounding mountains.",private_course,18,250,7100,72,"water holes,bunkers,narrow fairways",https://www.southernhighlands.com/,"Notable Holes: Hole 3 - Par 3 with a challenging water hazard, Hole 17 - Par 4 with a narrow fairway and strategically placed bunkers
+
+History: The course opened in 1999 and quickly gained a reputation as one of the top courses in Nevada.
+
+Designers: Robert Trent Jones Sr., Robert Trent Jones Jr.
+
+Tournament History: Hosted the PGA Tour's Las Vegas Invitational
+
+Playing Tips: Bring plenty of balls as water hazards and bunkers come into play on many holes, Pay attention to the wind as it can affect your shots on this exposed course"
+Desert Pines Golf Club,Las Vegas,"Desert Pines Golf Club is a lush oasis in the desert, featuring over 4,000 mature pine trees lining the fairways.",public_course,18,120,6812,71,"water holes,tree lined,bunkers,dog legs",https://www.desertpinesgolfclub.com/,"Notable Holes: Hole 7 - A challenging par 3 surrounded by water hazards, Hole 15 - A dogleg left par 4 with strategically placed bunkers
+
+History: Opened in 1997, Desert Pines Golf Club has become a popular destination for golfers in Las Vegas.
+
+Designers: Perry Dye
+
+Tournament History: 
+
+Playing Tips: Bring extra balls as water hazards come into play on several holes, Pay attention to the pin placement on the undulating greens"
+TPC Las Vegas,Las Vegas,"TPC Las Vegas is a premier championship golf course located in Las Vegas, Nevada. The course offers stunning views of the surrounding desert landscape and features challenging holes for players of all skill levels.",resort_course,18,150,7048,71,"water holes,elevation changes,bunkers,dog legs",https://tpc.com/lasvegas/,"Notable Holes: Hole 3 - A par 3 with a water feature and bunkers guarding the green, Hole 14 - A par 4 with a dogleg left and breathtaking views of the Las Vegas Strip
+
+History: TPC Las Vegas opened in 1996 and has since been a popular destination for golfers visiting Las Vegas.
+
+Designers: Bobby Weed, Raymond Floyd
+
+Tournament History: The course has hosted PGA Tour events in the past, showcasing its championship caliber layout.
+
+Playing Tips: Bring extra balls as water hazards and bunkers come into play on several holes, Pay attention to the wind direction as it can affect your shots on this desert course"
+Siena Golf Club,Las Vegas,Siena Golf Club is a public course known for its stunning views of the Las Vegas Strip and Red Rock Canyon. The course features undulating fairways and strategically placed bunkers.,public_course,18,100,6700,72,"water holes,elevation changes,bunkers",https://sienagolfclub.com/,"Notable Holes: Hole 7 - a challenging par 3 with water hazards and bunkers guarding the green
+
+History: Siena Golf Club opened in 2000 and quickly became a popular destination for golfers in the Las Vegas area.
+
+Designers: Lee Schmidt, Brian Curley
+
+Tournament History: 
+
+Playing Tips: Stay below the hole on the fast greens to avoid tricky downhill putts."
+Painted Desert Golf Club,Las Vegas,"Painted Desert Golf Club is a public 18-hole golf course located in Las Vegas, Nevada. The course features stunning desert landscapes and challenging holes for players of all skill levels.",public_course,18,85,6900,72,water holes,https://www.painteddesertgolf.com/,"Notable Holes: Hole 3 - A par 3 with a peninsula green surrounded by water, providing a picturesque but challenging shot.
+
+History: Painted Desert Golf Club opened in 1987 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Jay Morrish
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on some holes and pay attention to the desert landscape for tricky lies."
+The Legacy Golf Club,Las Vegas,"The Legacy Golf Club is a scenic 18-hole course located in Henderson, Nevada, offering a challenging yet enjoyable experience for golfers of all skill levels.",public_course,18,75,6800,72,"water holes,elevation changes,bunkers",https://thelegacygc.com/,"Notable Holes: Hole 3 - a par 3 with a stunning island green surrounded by water, Hole 18 - a challenging par 5 finishing hole with water hazards and bunkers
+
+History: The course opened in 1989 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Arthur Hills
+
+Tournament History: The Legacy Golf Club has hosted various amateur and charity tournaments over the years.
+
+Playing Tips: Pay attention to the wind on the elevated holes, Strategic club selection is key to avoid the numerous bunkers throughout the course."
+Durango Hills Golf Club,Las Vegas,"Durango Hills Golf Club is a scenic 18-hole course located in Las Vegas, Nevada, offering a challenging and enjoyable golfing experience for players of all skill levels.",public_course,18,60,6712,72,"water holes,bunkers,wide fairways",https://www.golfsummerlin.com/durango-hills-golf-club,"Notable Holes: Hole 4 - a challenging par 3 with water hazards and bunkers guarding the green, Hole 16 - a picturesque par 5 with a risk-reward tee shot over water
+
+History: Opened in 2002, Durango Hills Golf Club has been a popular destination for golf enthusiasts in the Las Vegas area.
+
+Designers: Lee Schmidt, Brian Curley
+
+Tournament History: 
+
+Playing Tips: Take advantage of the wide fairways by hitting accurate tee shots to set up approach shots, Be wary of the water hazards on several holes and play strategically to avoid them"
+Southern Pines Golf Club,Pinehurst,"Southern Pines Golf Club is a scenic 18-hole public course located in Southern Pines, North Carolina. The course features rolling fairways and challenging greens set against a backdrop of towering pine trees.",public_course,18,75,6700,72,"tree lined,bunkers",https://southernpinesgolfclub.com/,"Notable Holes: Hole 4 - Par 3 with a water hazard guarding the green, Hole 12 - Par 5 with a dogleg left and strategic bunkers
+
+History: Established in 1968, Southern Pines Golf Club has been a favorite among local golfers and visitors alike for over 50 years.
+
+Designers: Gene Hamm
+
+Tournament History: 
+
+Playing Tips: Be mindful of the tree-lined fairways and strategically placed bunkers, Focus on accuracy over distance to score well on this course"
+The Woods Golf Club,Pinehurst,The Woods Golf Club is a challenging 18-hole course set amidst a picturesque wooded landscape.,public_course,18,50,6700,72,"water holes,elevation changes,bunkers,narrow fairways",www.woodsgolfclub.com,"Notable Holes: Hole 3 - a par 5 with a narrow fairway and water hazards, Hole 12 - a par 3 with an elevated green surrounded by bunkers
+
+History: The Woods Golf Club opened in 1998 and quickly gained a reputation for its scenic views and challenging layout.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: The club has hosted the Woods Classic tournament annually since 2005.
+
+Playing Tips: Bring extra balls for the water hazards, Pay attention to the wind on elevated holes"
+Sanford Golf Course,Pinehurst,Sanford Golf Course is a challenging 18-hole public course located in the scenic countryside.,public_course,18,50,6700,72,"water holes,bunkers,narrow fairways",www.sanfordgolfcourse.com,"Notable Holes: Hole 5, a long par 4 with a water hazard on the left side of the fairway.
+
+History: Established in 1990, the course has been a popular destination for golfers of all skill levels.
+
+Designers: Robert Trent Jones Sr.
+
+Tournament History: Annual Sanford Open Championship held every August.
+
+Playing Tips: Stay left on Hole 9 to avoid the bunkers on the right side of the fairway."
+Quail Ridge Golf Course,Pinehurst,Quail Ridge Golf Course is a challenging 18-hole public course located in the scenic countryside.,public_course,18,50,6500,72,"water holes,dog legs,bunkers",www.quailridgegolf.com,"Notable Holes: Hole 4 - a par 3 with a tricky island green surrounded by water, Hole 12 - a long par 5 with a dogleg left and strategically placed bunkers
+
+History: The course was established in 1995 and has since become a popular destination for golfers of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on holes 4 and 7, Pay attention to the wind direction on the elevated tee boxes"
+Tot Hill Farm Golf Club,Pinehurst,"Tot Hill Farm Golf Club is a challenging and scenic course located in Asheboro, North Carolina. The course is known for its dramatic elevation changes and stunning views.",public_course,18,75,6600,71,"elevation changes,water holes,narrow fairways",https://tothillfarm.com/,"Notable Holes: Hole 4 - 'Devil's Gut' is a par 4 with a narrow fairway and a green guarded by water on both sides.
+
+History: Tot Hill Farm Golf Club was designed by renowned architect Mike Strantz and opened in 2000.
+
+Designers: Mike Strantz
+
+Tournament History: 
+
+Playing Tips: Take advantage of the wide fairways to set up approach shots to the elevated greens."
+Carolina Lakes Golf Course,Pinehurst,Carolina Lakes Golf Course is a scenic course located in North Carolina that offers a challenging yet enjoyable round of golf for players of all skill levels.,public_course,18,60,6800,72,"water holes,bunkers,narrow fairways",https://www.carolinalakesgolf.com/,"Notable Holes: Hole 4 - A challenging par 3 with a water hazard guarding the green, Hole 18 - A picturesque finishing hole with a narrow fairway and strategically placed bunkers
+
+History: Carolina Lakes Golf Course opened in 1992 and has since become a popular destination for golfers in the region.
+
+Designers: Tom Jackson
+
+Tournament History: 
+
+Playing Tips: Pay attention to the pin placements on the undulating greens, Avoid the water hazards on the front nine"
+Carolina Trace Country Club,Pinehurst,Carolina Trace Country Club features a challenging 18-hole golf course set amidst the beautiful North Carolina landscape.,private_course,18,75,6800,72,"water holes,tree lined,bunkers",https://www.carolinatracecc.com/,"Notable Holes: Hole 4 - a par 5 with a water hazard that comes into play on the approach shot, Hole 12 - a par 3 with a narrow green protected by bunkers
+
+History: The course was opened in 1971 and has since become a popular destination for golfers in the area.
+
+Designers: Robert Trent Jones Sr.
+
+Tournament History: 
+
+Playing Tips: Be mindful of the water hazards on several holes, Accuracy off the tee is crucial due to the tree-lined fairways"
+Scothurst Golf Course,Pinehurst,Scothurst Golf Course is a challenging 18-hole public course located in the picturesque countryside. The course features rolling hills and scenic views throughout.,public_course,18,50,6500,72,"water holes,bunkers,elevation changes",www.scothurstgolf.com,"Notable Holes: Hole 4 - a par 3 with a challenging water hazard, Hole 12 - a long par 5 with strategically placed bunkers
+
+History: Scothurst Golf Course was established in 1995 and has since become a popular destination for golf enthusiasts of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Watch out for the water hazards on Holes 4 and 7, Take advantage of the wide fairways on Holes 10 and 15"
+Ryder Golf Course @ Fort Bragg,Pinehurst,"Ryder Golf Course at Fort Bragg is a challenging 18-hole course located on the military base in North Carolina. The course offers a mix of tree-lined fairways, water hazards, and bunkers to test players of all skill levels.",public_course,18,30,6700,72,"tree lined,water holes,bunkers",https://www.bragg.army.mil/,"Notable Holes: Hole 3 - a par 3 with a challenging water hazard in front of the green, Hole 12 - a long par 5 with strategically placed bunkers along the fairway
+
+History: The Ryder Golf Course has been a staple at Fort Bragg for decades, providing recreational opportunities for military personnel and their families.
+
+Designers: Unknown
+
+Tournament History: 
+
+Playing Tips: Stay straight off the tee to avoid the tree-lined fairways, Pay attention to pin placements on the undulating greens"
+Tobacco Road Golf Club,Pinehurst,"Tobacco Road Golf Club is a unique and challenging course located in Sanford, North Carolina. The course features rolling terrain, sandy waste areas, and dramatic elevation changes.",public_course,18,120,6500,71,elevation changes,https://www.tobaccoroadgolf.com/,"Notable Holes: Hole 4 - The Devil's Gut, Hole 13 - The Gambler
+
+History: Tobacco Road Golf Club opened in 1998 and was designed by Mike Strantz, known for his unconventional and visually stunning designs.
+
+Designers: Mike Strantz
+
+Tournament History: 
+
+Playing Tips: Pay attention to the undulating greens, Strategic course management is key due to the challenging layout"
+Seven Lakes Country Club,Pinehurst,"Seven Lakes Country Club is a picturesque golf course located in Palm Springs, California. The course offers stunning views of the surrounding mountains and lush green fairways.",resort_course,18,75,6500,72,"water holes,elevation changes,tree lined",https://www.sevenlakescc.com/,"Notable Holes: Hole 5 - a challenging par 3 with a water feature, Hole 18 - a scenic finishing hole with a narrow fairway
+
+History: Seven Lakes Country Club was established in 1965 and has been a popular destination for golf enthusiasts ever since.
+
+Designers: Ted Robinson Sr.
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Focus on accuracy over distance due to the narrow fairways"
+Stryker Golf Course at Fort Bragg,Pinehurst,"Stryker Golf Course at Fort Bragg is a scenic course located on a military base, offering a challenging layout for golfers of all skill levels.",public_course,18,40,6800,72,"tree lined,water holes,bunkers",https://www.bragg.army.mil/index.php/my-fort-bragg/all-services/golf-courses,"Notable Holes: Hole 3 - a challenging par 4 with a narrow fairway and strategic bunkering, Hole 12 - a picturesque par 3 with water hazards and a well-protected green
+
+History: The course has been a staple at Fort Bragg for many years, providing recreational opportunities for military personnel and their families.
+
+Designers: Unknown
+
+Tournament History: 
+
+Playing Tips: Stay accurate off the tee to avoid the tree-lined fairways, Take advantage of strategic club selection on holes with elevation changes"
+Hyland Golf Club,Pinehurst,"Hyland Golf Club is a scenic 18-hole golf course located in Southern California, known for its challenging layout and breathtaking views.",public_course,18,75,6600,72,"water holes,dog legs,narrow fairways,bunkers",www.hylandgolfclub.com,"Notable Holes: Hole 4 - a par 3 with a challenging green surrounded by bunkers, Hole 12 - a dogleg left par 4 with a narrow fairway and water hazards
+
+History: Hyland Golf Club opened in 1992 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Robert Trent Jones Sr., Robert Trent Jones Jr.
+
+Tournament History: Hosted several amateur tournaments and charity events
+
+Playing Tips: Focus on accuracy over distance to navigate the narrow fairways, Pay attention to the wind direction on holes near water hazards"
+Densons Creek Golf Course,Pinehurst,Densons Creek Golf Course is a picturesque 18-hole public course set in the rolling hills of North Carolina.,public_course,18,50,6500,72,"water holes,elevation changes,tree lined,bunkers",www.densonscreekgolf.com,"Notable Holes: Hole 7 - a challenging par 3 with water hazards on both sides of the green
+
+History: Established in 1995, Densons Creek Golf Course has been a popular destination for golfers of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind on the back nine, as it can greatly affect your shots."
+Forest Creek Golf Club,Pinehurst,"Forest Creek Golf Club is a scenic 18-hole course located in Round Rock, Texas, featuring a challenging layout surrounded by beautiful natural landscapes.",public_course,18,75,6800,72,"water holes,elevation changes,bunkers,dog legs,wide fairways",https://www.forestcreekgc.com/,"Notable Holes: Hole 3 - a par 3 with a water carry to an elevated green, Hole 12 - a long par 5 with a dogleg left and strategically placed bunkers
+
+History: The course was opened in 1990 and has since become a popular destination for golfers in the Austin area.
+
+Designers: Dick Phelps
+
+Tournament History: 
+
+Playing Tips: Keep your approach shots precise to avoid the many strategically placed bunkers on the course, Take advantage of the wide fairways on some holes to set up easier approach shots"
+Longleaf Golf & Family Club,Pinehurst,Longleaf Golf & Family Club is a public golf course known for its challenging layout and family-friendly atmosphere.,public_course,18,60,6800,72,"water holes,tree lined",https://www.longleafgfc.com/,"Notable Holes: Hole 4 - a par 3 with a water hazard guarding the green
+
+History: The course opened in 2002 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Dan Maples
+
+Tournament History: 
+
+Playing Tips: Keep the ball in play off the tee to avoid trouble on the tree-lined fairways."

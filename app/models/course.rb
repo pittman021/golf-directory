@@ -46,9 +46,7 @@ class Course < ApplicationRecord
 
     def featured_image_url
       if featured_image.attached?
-        # In production, this will use Cloudinary's URL
-        # In development, it will use the local storage URL
-        featured_image
+        Rails.application.routes.url_helpers.rails_blob_url(featured_image, only_path: true)
       else
         # Default placeholder image
         ActionController::Base.helpers.asset_path('placeholder_golf_course.jpg')
