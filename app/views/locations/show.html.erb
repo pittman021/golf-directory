@@ -212,49 +212,67 @@
     <h2 class="text-2xl font-bold mb-6">Courses at <%= @location.name %></h2>
     <div class="space-y-4">
       <% @location.courses.each do |course| %>
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <div class="flex justify-between items-start">
-            <div>
-              <div class="flex items-center gap-4">
-                <h3 class="text-xl font-semibold text-gray-900"><%= course.name %></h3>
-                <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
-              </div>
-              
-              <div class="mt-2 flex items-center gap-4">
-                <div class="flex items-center">
-                  <span class="text-sm text-gray-600"><%= course.number_of_holes %> Holes</span>
-                  <span class="mx-2 text-gray-300">•</span>
-                  <span class="text-sm text-gray-600">Par <%= course.par %></span>
-                  <% if course.yardage.present? %>
-                    <span class="mx-2 text-gray-300">•</span>
-                    <span class="text-sm text-gray-600"><%= course.yardage %> yards</span>
-                  <% end %>
-                </div>
-              </div>
-
-              <p class="mt-4 text-gray-600"><%= course.description %></p>
-
-              <div class="mt-4 flex flex-wrap gap-2">
-                <% course.layout_tags.each do |tag| %>
-                  <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    <%= tag.titleize %>
-                  </span>
-                <% end %>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-4">
-              <% if course.average_rating.present? %>
-                <div class="flex items-center">
-                  <% course.average_rating.to_i.times do %>
-                    <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                  <% end %>
-                  <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %>)</span>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="flex">
+            <!-- Image Column -->
+            <div class="w-48 flex-shrink-0">
+              <% if course.featured_image.attached? %>
+                <%= image_tag course.featured_image, class: "w-full h-full object-cover", alt: course.name %>
+              <% else %>
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
               <% end %>
-              <%= link_to "View Course", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+            </div>
+
+            <!-- Content Column -->
+            <div class="flex-1 p-6">
+              <div class="flex justify-between items-start">
+                <div>
+                  <div class="flex items-center gap-4">
+                    <h3 class="text-xl font-semibold text-gray-900"><%= course.name %></h3>
+                    <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
+                  </div>
+                  
+                  <div class="mt-2 flex items-center gap-4">
+                    <div class="flex items-center">
+                      <span class="text-sm text-gray-600"><%= course.number_of_holes %> Holes</span>
+                      <span class="mx-2 text-gray-300">•</span>
+                      <span class="text-sm text-gray-600">Par <%= course.par %></span>
+                      <% if course.yardage.present? %>
+                        <span class="mx-2 text-gray-300">•</span>
+                        <span class="text-sm text-gray-600"><%= course.yardage %> yards</span>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <p class="mt-4 text-gray-600"><%= course.description %></p>
+
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <% course.layout_tags.each do |tag| %>
+                      <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <%= tag.titleize %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <% if course.average_rating.present? %>
+                    <div class="flex items-center">
+                      <% course.average_rating.to_i.times do %>
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      <% end %>
+                      <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %>)</span>
+                    </div>
+                  <% end %>
+                  <%= link_to "View Course", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+                </div>
+              </div>
             </div>
           </div>
         </div>

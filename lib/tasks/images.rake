@@ -1,6 +1,6 @@
 namespace :images do
-  desc "Attach images to locations and courses from a directory"
-  task attach: :environment do
+  desc "Create necessary image directories"
+  task setup: :environment do
     # Configuration
     locations_image_path = Rails.root.join('app', 'assets', 'images', 'locations')
     courses_image_path = Rails.root.join('app', 'assets', 'images', 'courses')
@@ -8,6 +8,24 @@ namespace :images do
     # Create directories if they don't exist
     FileUtils.mkdir_p(locations_image_path)
     FileUtils.mkdir_p(courses_image_path)
+
+    puts "\n=== Image Directory Setup ==="
+    puts "Created directories:"
+    puts "- #{locations_image_path}"
+    puts "- #{courses_image_path}"
+    puts "\nTo add images:"
+    puts "1. Add location images to: app/assets/images/locations/"
+    puts "   Format: location-name.jpg (e.g., bandon-dunes.jpg)"
+    puts "2. Add course images to: app/assets/images/courses/"
+    puts "   Format: course-name.jpg (e.g., pacific-dunes.jpg)"
+    puts "\nThen run: rake images:attach"
+  end
+
+  desc "Attach images to locations and courses from directories"
+  task attach: :environment do
+    # Configuration
+    locations_image_path = Rails.root.join('app', 'assets', 'images', 'locations')
+    courses_image_path = Rails.root.join('app', 'assets', 'images', 'courses')
 
     puts "\n=== Starting Image Attachment Process ==="
 

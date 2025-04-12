@@ -1,5 +1,7 @@
 # app/controllers/locations_controller.rb
 class LocationsController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   def index
     @locations = Location.includes(:courses, :reviews).all
     
@@ -33,16 +35,15 @@ class LocationsController < ApplicationController
 
   def show
     @location = Location.includes(:courses).find(params[:id])
-    @courses = @location.courses.includes(:reviews)
+    @courses = @location.courses.ordered_by_price.includes(:reviews)
     
     # Add explicit debugging
     Rails.logger.debug "=== Location Debug ==="
     Rails.logger.debug "Location: #{@location.name}"
-    Rails.logger.debug "Coordinates: #{@location.latitude}, #{@location.longitude}"
     Rails.logger.debug "Courses count: #{@courses.count}"
-    Rails.logger.debug "Course coordinates:"
+    Rails.logger.debug "Course prices:"
     @courses.each do |course|
-      Rails.logger.debug "  #{course.name}: #{course.latitude}, #{course.longitude}"
+      Rails.logger.debug "  #{course.name}: $#{course.green_fee}"
     end
     Rails.logger.debug "===================="
 

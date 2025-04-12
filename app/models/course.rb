@@ -37,6 +37,9 @@ class Course < ApplicationRecord
     after_save :update_locations_avg_green_fee
     after_destroy :update_locations_avg_green_fee
 
+    # Scope to order courses by price
+    scope :ordered_by_price, -> { order(green_fee: :desc) }
+
     def average_rating
       reviews.average(:rating)
     end

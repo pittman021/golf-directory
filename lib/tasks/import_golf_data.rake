@@ -117,217 +117,34 @@ namespace :import do
       exit 1
     end
 
-    # Process each region and its states
     regions.each do |region, states|
       puts "\nProcessing region: #{region}"
       
       states.each do |state|
         puts "\nProcessing state: #{state}"
         
-        # Step 1: Fetch golf courses from Google Places API
-        uri = URI("https://maps.googleapis.com/maps/api/place/textsearch/json")
-        params = {
-          query: "golf course in #{state}",
-          type: "golf_course",
-          key: google_api_key
-        }
-        uri.query = URI.encode_www_form(params)
+        # Step 1: Create a temporary location for the state
+        location = Location.create!(
+          name: state,
+          region: region,
+          state: state,
+          country: "USA",
+          latitude: 0,  # Will be updated with actual coordinates
+          longitude: 0  # Will be updated with actual coordinates
+        )
         
-        puts "Fetching courses from Google Places API..."
-        puts "Request URL: #{uri.to_s}"
+        # Step 2: Use FindCoursesByLocationService to find and enrich courses
+        service = FindCoursesByLocationService.new(location)
+        service.find_and_enrich
         
-        begin
-          response = Net::HTTP.get_response(uri)
-          puts "Response status: #{response.code}"
-          puts "Response body: #{response.body}" if response.code != "200"
-          
-          if response.is_a?(Net::HTTPSuccess)
-            data = JSON.parse(response.body)
-            
-            if data['status'] != 'OK'
-              puts "Google Places API Error: #{data['status']}"
-              puts "Error message: #{data['error_message']}" if data['error_message']
-              next
-            end
-            
-            courses = data['results']
-            puts "Found #{courses.size} courses in #{state}"
-            
-            if courses.empty?
-              puts "No courses found. Trying alternative search..."
-              params = {
-                query: "golf club in #{state}",
-                type: "golf_course",
-                key: google_api_key
-              }
-              uri.query = URI.encode_www_form(params)
-              
-              puts "Alternative request URL: #{uri.to_s}"
-              response = Net::HTTP.get_response(uri)
-              
-              if response.is_a?(Net::HTTPSuccess)
-                data = JSON.parse(response.body)
-                if data['status'] == 'OK'
-                  courses = data['results']
-                  puts "Found #{courses.size} courses with alternative search"
-                else
-                  puts "Alternative search failed: #{data['status']}"
-                  next
-                end
-              end
-            end
-            
-            # Step 2: Group courses by city and check for existing locations
-            courses_by_city = courses.group_by { |c| extract_city(c['formatted_address']) }
-            puts "Grouped into #{courses_by_city.size} cities"
-            
-            # Group courses by metropolitan area
-            courses_by_metro = {}
-            courses_by_city.each do |city, city_courses|
-              metro_area = find_metropolitan_area(city)
-              if metro_area
-                courses_by_metro[metro_area] ||= []
-                courses_by_metro[metro_area] += city_courses
-              else
-                courses_by_metro[city] ||= []
-                courses_by_metro[city] += city_courses
-              end
-            end
-            
-            puts "Grouped into #{courses_by_metro.size} metropolitan areas"
-            
-            # Sort metropolitan areas by number of courses and take top MAX_CITIES_PER_STATE
-            top_metros = courses_by_metro.sort_by { |_, courses| -courses.size }.first(MAX_CITIES_PER_STATE)
-            puts "Processing top #{MAX_CITIES_PER_STATE} metropolitan areas with most courses"
-            
-            # Process each metropolitan area and its courses
-            top_metros.each do |metro, metro_courses|
-              puts "\nProcessing metropolitan area: #{metro} (#{metro_courses.size} courses)"
-              
-              # Check if location already exists
-              location = Location.find_by("LOWER(name) = LOWER(?)", metro)
-              if location
-                puts "Location already exists: #{location.name}"
-              else
-                # Only create new location if there are enough courses to form a cluster
-                if metro_courses.size >= MIN_COURSES_FOR_LOCATION
-                  # Calculate average coordinates for the metropolitan area
-                  avg_lat = metro_courses.sum { |c| c['geometry']['location']['lat'] } / metro_courses.size
-                  avg_lng = metro_courses.sum { |c| c['geometry']['location']['lng'] } / metro_courses.size
-                  
-                  location = Location.create!(
-                    name: metro,
-                    region: region,
-                    state: state,
-                    country: "USA",
-                    latitude: avg_lat,
-                    longitude: avg_lng
-                  )
-                  created_locations << location
-                  puts "Created new location: #{location.name}"
-                else
-                  puts "Skipping location creation - not enough courses (#{metro_courses.size}) to form a significant cluster (minimum #{MIN_COURSES_FOR_LOCATION} required)"
-                  next
-                end
-              end
-              
-              # Get weather data
-              weather_uri = URI("https://api.openweathermap.org/data/2.5/weather")
-              weather_params = {
-                lat: metro_courses.first['geometry']['location']['lat'],
-                lon: metro_courses.first['geometry']['location']['lng'],
-                appid: weather_api_key,
-                units: 'imperial'
-              }
-              weather_uri.query = URI.encode_www_form(weather_params)
-              
-              weather_response = Net::HTTP.get_response(weather_uri)
-              if weather_response.is_a?(Net::HTTPSuccess)
-                weather_data = JSON.parse(weather_response.body)
-                location.update!(
-                  average_temp: weather_data['main']['temp'],
-                  conditions: weather_data['weather'].first['description']
-                )
-              end
-              
-              # Get airport data - only take the first airport
-              airports_uri = URI("https://maps.googleapis.com/maps/api/place/nearbysearch/json")
-              airports_params = {
-                location: "#{metro_courses.first['geometry']['location']['lat']},#{metro_courses.first['geometry']['location']['lng']}",
-                radius: 50000,
-                type: 'airport',
-                key: google_api_key
-              }
-              airports_uri.query = URI.encode_www_form(airports_params)
-              
-              airports_response = Net::HTTP.get_response(airports_uri)
-              if airports_response.is_a?(Net::HTTPSuccess)
-                airports_data = JSON.parse(airports_response.body)
-                if airports_data['status'] == 'OK' && airports_data['results'].any?
-                  location.update!(nearest_airports: airports_data['results'].first['name'])
-                end
-              end
-              
-              # Process each course, limited to MAX_COURSES_PER_CITY
-              metro_courses.first(MAX_COURSES_PER_CITY).each do |course_data|
-                details_uri = URI("https://maps.googleapis.com/maps/api/place/details/json")
-                details_params = {
-                  place_id: course_data['place_id'],
-                  fields: 'name,formatted_address,website,price_level,reviews,types',
-                  key: google_api_key
-                }
-                details_uri.query = URI.encode_www_form(details_params)
-                
-                details_response = Net::HTTP.get_response(details_uri)
-                if details_response.is_a?(Net::HTTPSuccess)
-                  details = JSON.parse(details_response.body)['result']
-                  
-                  # Check if course already exists
-                  course = Course.find_by(
-                    name: details['name'],
-                    latitude: course_data['geometry']['location']['lat'],
-                    longitude: course_data['geometry']['location']['lng']
-                  )
-                  
-                  if course
-                    puts "Course already exists: #{course.name}"
-                  else
-                    course = Course.create!(
-                      name: details['name'],
-                      latitude: course_data['geometry']['location']['lat'],
-                      longitude: course_data['geometry']['location']['lng'],
-                      description: generate_course_description(details),
-                      course_type: determine_course_type(details['types']),
-                      number_of_holes: 18,
-                      par: 72,
-                      yardage: calculate_yardage(details['types']),
-                      green_fee: calculate_green_fee(details['price_level']),
-                      website_url: details['website'] || '',
-                      layout_tags: extract_course_tags(details['types']).presence || ['standard'],
-                      notes: extract_course_notes(details['reviews'])
-                    )
-                    created_courses << course
-                    puts "Created new course: #{course.name}"
-                  end
-                  
-                  # Create location-course association if it doesn't exist
-                  unless LocationCourse.exists?(location: location, course: course)
-                    LocationCourse.create!(location: location, course: course)
-                    puts "Created association between #{location.name} and #{course.name}"
-                  end
-                else
-                  puts "Failed to get course details: #{details_response.code}"
-                end
-              end
-            end
-          else
-            puts "Error fetching courses for #{state}: #{response.code}"
-            puts "Response body: #{response.body}"
-          end
-        rescue StandardError => e
-          puts "Error processing #{state}: #{e.message}"
-          puts e.backtrace.join("\n")
-        end
+        # Step 3: Update location statistics
+        location.update_avg_green_fee
+        location.update_estimated_trip_cost
+        
+        created_locations << location
+        created_courses += location.courses.to_a
+        
+        puts "Processed #{location.courses.count} courses for #{state}"
       end
     end
     
