@@ -9,7 +9,7 @@ namespace :import do
       
       begin
         file = File.open(csv_file)
-        results = LocationImportService.import(file)
+        results = Old::LocationImportService.import(file)
         
         puts "Import completed:"
         puts "Created: #{results[:created]}"
