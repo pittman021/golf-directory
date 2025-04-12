@@ -4,7 +4,9 @@
   <!-- Hero Image Section -->
   <div class="relative h-96 overflow-hidden">
     <% if @location.featured_image.attached? %>
-      <%= image_tag @location.featured_image, class: "w-full h-full object-cover" %>
+      <%= image_tag @location.featured_image_variant(size: 'large'), 
+          class: "w-full h-full object-cover",
+          alt: "#{@location.name} golf destination" %>
     <% else %>
       <div class="w-full h-full bg-gray-200 flex items-center justify-center">
         <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +219,9 @@
             <!-- Image Column -->
             <div class="w-48 flex-shrink-0">
               <% if course.featured_image.attached? %>
-                <%= image_tag course.featured_image, class: "w-full h-full object-cover", alt: course.name %>
+                <%= image_tag course.featured_image_variant(size: 'small'), 
+                    class: "w-full h-full object-cover", 
+                    alt: "#{course.name} golf course" %>
               <% else %>
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

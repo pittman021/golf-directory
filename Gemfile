@@ -29,6 +29,9 @@ gem 'devise'
 # Authorization
 gem 'pundit'
 
+# Image Hosting
+gem 'cloudinary'
+
 # Image processing
 gem 'image_processing'
 

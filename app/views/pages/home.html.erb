@@ -97,9 +97,9 @@
                     <td class="px-6 py-4">
                       <div class="relative h-32 w-48 rounded-lg overflow-hidden">
                         <% if location.featured_image.attached? %>
-                          <%= image_tag location.featured_image, 
+                          <%= image_tag location.featured_image_variant(size: 'small'), 
                               class: "h-full w-full object-cover",
-                              alt: "#{location.name} featured image" %>
+                              alt: "#{location.name} golf destination" %>
                         <% else %>
                           <div class="h-full w-full bg-gray-200 flex items-center justify-center">
                             <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -113,9 +113,29 @@ class Location < ApplicationRecord
 
     def featured_image_url
       if featured_image.attached?
+        # In production, this will use Cloudinary's URL
+        # In development, it will use the local storage URL
         featured_image
       else
-        "placeholder_golf_course.jpg" # We'll add this to app/assets/images/
+        # Default placeholder image
+        ActionController::Base.helpers.asset_path('placeholder_golf_course.jpg')
+      end
+    end
+
+    def featured_image_variant(size: 'medium')
+      return unless featured_image.attached?
+
+      case size
+      when 'thumbnail'
+        featured_image.variant(resize_to_fill: [150, 150])
+      when 'small'
+        featured_image.variant(resize_to_fill: [300, 200])
+      when 'medium'
+        featured_image.variant(resize_to_fill: [600, 400])
+      when 'large'
+        featured_image.variant(resize_to_fill: [1200, 800])
+      else
+        featured_image
       end
     end
 
