@@ -91,63 +91,153 @@ namespace :export do
   desc "Import locations and courses from CSV files"
   task import: :environment do
     puts "Starting import process..."
-
+    
+    # Diagnostic information
+    puts "\nDiagnostic information for Location model:"
+    puts "Available columns: #{Location.column_names.inspect}"
+    
     # Import Locations
     puts "\nImporting locations..."
     CSV.foreach("locations.csv", headers: true) do |row|
       location = Location.find_or_initialize_by(id: row["id"])
-      location.assign_attributes(
-        name: row["name"],
-        description: row["description"],
-        latitude: row["latitude"],
-        longitude: row["longitude"],
-        region: row["region"],
-        state: row["state"],
-        country: row["country"],
-        best_months: row["best_months"],
-        nearest_airports: row["nearest_airports"],
-        weather_info: row["weather_info"],
-        avg_green_fee: row["avg_green_fee"],
-        avg_lodging_cost_per_night: row["avg_lodging_cost_per_night"],
-        estimated_trip_cost: row["estimated_trip_cost"],
-        tags: row["tags"]&.split("|"),
-        summary: row["summary"],
-        image_url: row["image_url"],
-        reviews_count: row["reviews_count"],
-        lodging_price_min: row["lodging_price_min"],
-        lodging_price_max: row["lodging_price_max"],
-        lodging_price_currency: row["lodging_price_currency"],
-        lodging_price_last_updated: row["lodging_price_last_updated"]
-      )
-      if location.save
+      
+      # Create a hash of attributes that exist on the model
+      attrs = {}
+      
+      # Core attributes that should exist in all environments
+      attrs[:name] = row["name"] if row["name"].present?
+      attrs[:description] = row["description"] if row["description"].present?
+      attrs[:latitude] = row["latitude"] if row["latitude"].present?
+      attrs[:longitude] = row["longitude"] if row["longitude"].present?
+      attrs[:region] = row["region"] if row["region"].present?
+      attrs[:state] = row["state"] if row["state"].present?
+      attrs[:country] = row["country"] if row["country"].present?
+      
+      # Optional attributes that might not exist in all environments
+      if row["best_months"].present? && Location.column_names.include?("best_months")
+        attrs[:best_months] = row["best_months"]
+      end
+      
+      if row["nearest_airports"].present? && Location.column_names.include?("nearest_airports")
+        attrs[:nearest_airports] = row["nearest_airports"]
+      end
+      
+      if row["weather_info"].present? && Location.column_names.include?("weather_info")
+        attrs[:weather_info] = row["weather_info"]
+      end
+      
+      if row["avg_green_fee"].present? && Location.column_names.include?("avg_green_fee")
+        attrs[:avg_green_fee] = row["avg_green_fee"]
+      end
+      
+      if row["avg_lodging_cost_per_night"].present? && Location.column_names.include?("avg_lodging_cost_per_night")
+        attrs[:avg_lodging_cost_per_night] = row["avg_lodging_cost_per_night"]
+      end
+      
+      if row["estimated_trip_cost"].present? && Location.column_names.include?("estimated_trip_cost")
+        attrs[:estimated_trip_cost] = row["estimated_trip_cost"]
+      end
+      
+      if row["tags"].present? && Location.column_names.include?("tags")
+        attrs[:tags] = row["tags"].split("|")
+      end
+      
+      if row["summary"].present? && Location.column_names.include?("summary")
+        attrs[:summary] = row["summary"]
+      end
+      
+      if row["image_url"].present? && Location.column_names.include?("image_url")
+        attrs[:image_url] = row["image_url"]
+      end
+      
+      if row["reviews_count"].present? && Location.column_names.include?("reviews_count")
+        attrs[:reviews_count] = row["reviews_count"]
+      end
+      
+      if row["lodging_price_min"].present? && Location.column_names.include?("lodging_price_min")
+        attrs[:lodging_price_min] = row["lodging_price_min"]
+      end
+      
+      if row["lodging_price_max"].present? && Location.column_names.include?("lodging_price_max")
+        attrs[:lodging_price_max] = row["lodging_price_max"]
+      end
+      
+      if row["lodging_price_currency"].present? && Location.column_names.include?("lodging_price_currency")
+        attrs[:lodging_price_currency] = row["lodging_price_currency"]
+      end
+      
+      if row["lodging_price_last_updated"].present? && Location.column_names.include?("lodging_price_last_updated")
+        attrs[:lodging_price_last_updated] = row["lodging_price_last_updated"]
+      end
+      
+      if location.update(attrs)
         print "."
       else
         print "F"
+        puts "\nError saving location #{row['id']}: #{location.errors.full_messages.join(', ')}"
       end
     end
     puts "\n✓ Locations imported"
 
+    # Diagnostic information
+    puts "\nDiagnostic information for Course model:"
+    puts "Available columns: #{Course.column_names.inspect}"
+    
     # Import Courses
     puts "\nImporting courses..."
     CSV.foreach("courses.csv", headers: true) do |row|
       course = Course.find_or_initialize_by(id: row["id"])
-      course.assign_attributes(
-        name: row["name"],
-        description: row["description"],
-        latitude: row["latitude"],
-        longitude: row["longitude"],
-        course_type: row["course_type"],
-        green_fee_range: row["green_fee_range"],
-        number_of_holes: row["number_of_holes"],
-        par: row["par"],
-        yardage: row["yardage"],
-        website_url: row["website_url"],
-        layout_tags: row["layout_tags"]&.split("|"),
-        notes: row["notes"],
-        green_fee: row["green_fee"],
-        image_url: row["image_url"]
-      )
-      if course.save
+      
+      # Create a hash of attributes that exist on the model
+      attrs = {}
+      
+      # Core attributes that should exist in all environments
+      attrs[:name] = row["name"] if row["name"].present?
+      attrs[:description] = row["description"] if row["description"].present?
+      attrs[:latitude] = row["latitude"] if row["latitude"].present?
+      attrs[:longitude] = row["longitude"] if row["longitude"].present?
+      
+      if row["course_type"].present? && Course.column_names.include?("course_type")
+        attrs[:course_type] = row["course_type"]
+      end
+      
+      if row["green_fee_range"].present? && Course.column_names.include?("green_fee_range")
+        attrs[:green_fee_range] = row["green_fee_range"]
+      end
+      
+      if row["number_of_holes"].present? && Course.column_names.include?("number_of_holes")
+        attrs[:number_of_holes] = row["number_of_holes"]
+      end
+      
+      if row["par"].present? && Course.column_names.include?("par")
+        attrs[:par] = row["par"]
+      end
+      
+      if row["yardage"].present? && Course.column_names.include?("yardage")
+        attrs[:yardage] = row["yardage"]
+      end
+      
+      if row["website_url"].present? && Course.column_names.include?("website_url")
+        attrs[:website_url] = row["website_url"]
+      end
+      
+      if row["layout_tags"].present? && Course.column_names.include?("layout_tags")
+        attrs[:layout_tags] = row["layout_tags"].split("|")
+      end
+      
+      if row["notes"].present? && Course.column_names.include?("notes")
+        attrs[:notes] = row["notes"]
+      end
+      
+      if row["green_fee"].present? && Course.column_names.include?("green_fee")
+        attrs[:green_fee] = row["green_fee"]
+      end
+      
+      if row["image_url"].present? && Course.column_names.include?("image_url")
+        attrs[:image_url] = row["image_url"]
+      end
+      
+      if course.update(attrs)
         # Create or update location association
         if row["location_id"].present?
           LocationCourse.find_or_create_by(
@@ -158,6 +248,7 @@ namespace :export do
         print "."
       else
         print "F"
+        puts "\nError saving course #{row['id']}: #{course.errors.full_messages.join(', ')}"
       end
     end
     puts "\n✓ Courses imported"
