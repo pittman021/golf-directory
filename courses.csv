@@ -1,0 +1,408 @@
+id,name,description,latitude,longitude,course_type,green_fee_range,number_of_holes,par,yardage,website_url,layout_tags,notes,green_fee,location_id,image_url
+3,Pine Beach East,Championship course with scenic lake views,,,resort_course,,18,72,6101,,lake views|tree lined|bunkers|traditional,Classic Minnesota resort course with scenic Gull Lake views. Strategic bunkering throughout.,129,2,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576904/golf_directory/course_3_pine-beach-east.jpg
+5,TPC Myrtle Beach,Former host of the Senior PGA Tour Championship,,,public_course,,18,72,6950,https://www.tpcmyrtlebeach.com,water holes|tree lined|tournament venue|strategic,Tom Fazio design with tour-caliber conditions. Challenging layout with water features on 10 holes.,189,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576905/golf_directory/course_5_tpc-myrtle-beach.jpg
+7,Caledonia Golf & Fish Club,Built on a historic rice plantation,,,public_course,,18,70,6526,https://www.caledoniagolfandfishclub.com,lowcountry|tree lined|water holes|strategic,Mike Strantz masterpiece with live oaks draped in Spanish moss framing the fairways.,199,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576906/golf_directory/course_7_caledonia-golf-fish-club.jpg
+11,Patriots Point Links,Harbor-side municipal course offering stunning views of Charleston Harbor and the city skyline.,,,public_course,,18,72,6955,https://patriotspointlinks.com/,harbor views|water holes|wide fairways|scenic,"Best value course in Charleston area. Views of Fort Sumter, Charleston Harbor, and the USS Yorktown aircraft carrier.",89,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576908/golf_directory/course_11_patriots-point-links.jpg
+13,RiverTowne Country Club,Arnold Palmer signature design along the Wando River.,,,public_course,,18,72,6955,https://rivertownecountryclub.com/,river views|lowcountry|water holes|strategic,Beautiful Palmer design featuring marsh and river views. Multiple holes along the Wando River provide scenic challenges.,149,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576909/golf_directory/course_13_rivertowne-country-club.jpg
+15,Whistling Straits - Irish Course,Inland companion to the Straits course with links-style features,,,resort_course,,18,72,7201,,links style|pete dye design|strategic|water holes,More forgiving than its sister course but still a stern test with grassland and dunes.,290,5,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576910/golf_directory/course_15_whistling-straits-irish-course.jpg
+18,Streamsong Red,Coore & Crenshaw design featuring dramatic elevation changes,,,resort_course,,18,72,7148,,links style|modern design|strategic|elevation changes,"Built on sand dunes from former phosphate mining, offering firm and fast conditions.",295,8,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576912/golf_directory/course_18_streamsong-red.jpg
+19,Streamsong Blue,Tom Doak design intertwined with the Red course,,,resort_course,,18,72,7176,,links style|modern design|strategic|water holes,Features large greens and dramatic bunkering in a links-style setting.,295,8,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576914/golf_directory/course_19_streamsong-blue.jpg
+4,Pine Beach West,Classic resort course suitable for all skill levels,,,resort_course,,18,71,5832,,lake views|wide fairways|beginner friendly|traditional,Family-friendly resort course featuring gentle elevation changes and forgiving fairways.,59,2,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576991/golf_directory/course_4_pine-beach-west.jpg
+21,Sand Valley,"Designed by Coore & Crenshaw, featuring dramatic sand dunes and strategic options",,,public_course,,18,72,6909,https://sandvalley.com/sand-valley,links-style|walking-only|dunes|strategic,Walking-only course with stunning elevation changes and wide fairways,225,11,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577002/golf_directory/course_21_sand-valley.jpg
+51,Talking Stick Golf Club - O'odham Course,A traditional desert-links style course designed by Bill Coore and Ben Crenshaw.,,,resort_course,,18,70,7133,https://www.talkingstickgolfclub.com/,desert|links-style|coore-crenshaw,More traditional layout of the two courses,175,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577026/golf_directory/course_51_talking-stick-golf-club-o-odham-course.jpg
+25,The Lido,Faithful recreation of the historic Lido Golf Club,,,private_course,,18,72,6582,https://sandvalley.com/lido,links-style|walking-only|historic-recreation,Private club recreating the legendary C.B. Macdonald design,300,11,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576915/golf_directory/course_25_the-lido.jpg
+27,Plantation Course,"Recently redesigned by Davis Love III and his brother Mark, offering a strategic test through coastal forests",,,resort_course,,18,72,7058,https://seaisland.com/golf/plantation-course,parkland|tree-lined|water-features|recently-renovated,Completely renovated in 2019 with modern features while maintaining its historic character,275,10,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576917/golf_directory/course_27_plantation-course.jpg
+29,The Old White,C.B. Macdonald masterpiece and host of The Greenbrier Classic PGA TOUR event,,,resort_course,,18,70,7292,https://www.greenbrier.com/golf/golf-courses/the-old-white,classic-design|championship|historic|tournament-venue,"Opened in 1914, restored to its original design after 2016 flood. Features classic template holes.",375,12,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576918/golf_directory/course_29_the-old-white.jpg
+31,The Ashford Short Course,Fun and challenging 9-hole walking course perfect for quick rounds,,,resort_course,,9,27,2500,https://www.greenbrier.com/golf/golf-courses/the-ashford-short-course,short-course|walking-only|family-friendly|mountain-views,"Perfect for families and beginners, or as a warm-up round",100,12,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576920/golf_directory/course_31_the-ashford-short-course.jpg
+33,The Oconee,Rees Jones design with challenging water features and strategic bunkering,,,resort_course,,18,72,7158,https://www.reynoldslakeoconee.com/golf/the-oconee,lakefront|strategic|water-features|championship,Known for its challenging finishing holes along Lake Oconee,285,13,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576921/golf_directory/course_33_the-oconee.jpg
+35,Ozarks National,Coore & Crenshaw masterpiece with stunning ridgetop views,,,public_course,,18,71,7036,https://bigcedar.com/golf/ozarks-national-course/,mountain-views|coore-crenshaw|walking-friendly|strategic,Named Best New Public Course by Golf Digest in 2019,295,14,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576923/golf_directory/course_35_ozarks-national.jpg
+37,Top of the Rock,Jack Nicklaus-designed par-3 course with spectacular views,,,public_course,,9,27,1420,https://bigcedar.com/golf/top-of-the-rock-course/,par-3|scenic-views|nicklaus-design|short-course,World-class practice facility and putting course included with green fee,195,14,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576924/golf_directory/course_37_top-of-the-rock.jpg
+40,Grayhawk Golf Club - Raptor Course,The Raptor Course at Grayhawk is a challenging desert-style layout designed by Tom Fazio featuring strategic bunkering and water hazards.,,,resort_course,,18,72,7090,https://grayhawkgolf.com/golf/raptor-course/,desert|championship|fazio-design,Former host of PGA Tour events,255,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576925/golf_directory/course_40_grayhawk-golf-club-raptor-course.jpg
+84,Five Iron Golf,"A health, bar, point_of_interest, establishment golf course located at 138 5th Ave, New York, NY 10011, USA",40.7390851,-73.9918869,public_course,,18,72,6000,https://fiveirongolf.com/locations/nyc-flatiron/?utm_source=local&utm_medium=organic&utm_campaign=ny&utm_content=nyc-flatiron,standard,"Commonly praised for: and, the, to, is, we",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577052/golf_directory/course_84_five-iron-golf.jpg
+102,Tidewater Golf Club,"A point_of_interest, establishment golf course located at 1400 Tidewater Dr, North Myrtle Beach, SC 29582, USA",33.8551843,-78.62707069999999,public_course,,18,72,6000,https://www.tidewatergolf.com/,standard,"Commonly praised for: the, a, and, course, of",75,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577062/golf_directory/course_102_tidewater-golf-club.jpg
+126,Painted Desert Golf Club,"Painted Desert Golf Club is a public 18-hole golf course located in Las Vegas, Nevada. The course features stunning desert landscapes and challenging holes for players of all skill levels.",36.2620095,-115.2577668,public_course,,18,72,6900,https://www.painteddesertgolf.com/,water holes,"Notable Holes: Hole 3 - A par 3 with a peninsula green surrounded by water, providing a picturesque but challenging shot.
+
+History: Painted Desert Golf Club opened in 1987 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Jay Morrish
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on some holes and pay attention to the desert landscape for tricky lies.",85,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577077/golf_directory/course_126_painted-desert-golf-club.jpg
+128,Durango Hills Golf Club,"Durango Hills Golf Club is a scenic 18-hole course located in Las Vegas, Nevada, offering a challenging and enjoyable golfing experience for players of all skill levels.",36.2232666,-115.2799606,public_course,,18,72,6712,https://www.golfsummerlin.com/durango-hills-golf-club,water holes|bunkers|wide fairways,"Notable Holes: Hole 4 - a challenging par 3 with water hazards and bunkers guarding the green, Hole 16 - a picturesque par 5 with a risk-reward tee shot over water
+
+History: Opened in 2002, Durango Hills Golf Club has been a popular destination for golf enthusiasts in the Las Vegas area.
+
+Designers: Lee Schmidt, Brian Curley
+
+Tournament History: 
+
+Playing Tips: Take advantage of the wide fairways by hitting accurate tee shots to set up approach shots, Be wary of the water hazards on several holes and play strategically to avoid them",60,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577081/golf_directory/course_128_durango-hills-golf-club.jpg
+130,The Woods Golf Club,The Woods Golf Club is a challenging 18-hole course set amidst a picturesque wooded landscape.,35.2373082,-79.37308639999999,public_course,,18,72,6700,www.woodsgolfclub.com,water holes|elevation changes|bunkers|narrow fairways,"Notable Holes: Hole 3 - a par 5 with a narrow fairway and water hazards, Hole 12 - a par 3 with an elevated green surrounded by bunkers
+
+History: The Woods Golf Club opened in 1998 and quickly gained a reputation for its scenic views and challenging layout.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: The club has hosted the Woods Classic tournament annually since 2005.
+
+Playing Tips: Bring extra balls for the water hazards, Pay attention to the wind on elevated holes",50,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577084/golf_directory/course_130_the-woods-golf-club.jpg
+53,Camelback Golf Club - Ambiente Course,"A completely renovated layout featuring rolling terrain, strategic bunkering and native desert landscaping.",,,private_course,,18,72,7225,https://www.camelbackgolf.com/,resort|desert|renovation,Ambiente means 'environment' in Spanish,259,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576926/golf_directory/course_53_camelback-golf-club-ambiente-course.jpg
+45,Omni Barton Creek - Coore Crenshaw,"This course, designed by Ben Crenshaw and Bill Coore, features a more traditional layout with strategic bunkering and subtle green complexes.",,,private_course,,18,71,6926,https://www.omnihotels.com/hotels/austin-barton-creek/golf/coore-crenshaw,hill-country|strategic|coore-crenshaw,Most walkable of the four courses,225,17,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576928/golf_directory/course_45_omni-barton-creek-coore-crenshaw.jpg
+47,Troon North Golf Club - Monument Course,"Set in the high Sonoran Desert and winding through natural ravines and foothills, Troon North's Monument Course is one of Arizona's most celebrated layouts.",,,resort_course,,18,72,7039,https://www.troonnorthgolf.com/,desert|championship|troon,Features the iconic Monument Boulder on the 3rd hole,389,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576930/golf_directory/course_47_troon-north-golf-club-monument-course.jpg
+49,The Phoenician Golf Club,"Recently redesigned in 2019, this resort course offers stunning views of Camelback Mountain and downtown Phoenix.",,,private_course,,18,71,6518,https://www.thephoenician.com/golf/,resort|desert|renovation,Complete redesign by Phil Smith in 2019,289,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576932/golf_directory/course_49_the-phoenician-golf-club.jpg
+54,Camelback Golf Club - Padre Course,A traditional parkland-style layout with mature trees and water features.,,,private_course,,18,72,6903,https://www.camelbackgolf.com/,resort|parkland|traditional,Original Arthur Hills design,259,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576933/golf_directory/course_54_camelback-golf-club-padre-course.jpg
+56,Bethpage Red Course,"The second most challenging course at Bethpage State Park, featuring A.W. Tillinghast's classic design with long par 4s and strategic doglegs.",,,resort_course,,18,70,7092,https://parks.ny.gov/golf/11/details.aspx,classic|tillinghast|parkland,Often considered the second-best course at Bethpage,96,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576935/golf_directory/course_56_bethpage-red-course.jpg
+58,Bethpage Green Course,"The original course at Bethpage State Park, designed to be more forgiving and ideal for novice and casual golfers.",,,resort_course,,18,71,6378,https://parks.ny.gov/golf/11/details.aspx,beginner-friendly|parkland|classic,First course built at Bethpage State Park,75,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576937/golf_directory/course_58_bethpage-green-course.jpg
+60,Peninsula Golf Club,A public golf course in Massapequa offering a pleasant round with water views and challenging holes.,,,resort_course,,18,71,6589,https://www.peninsulagc.com/,water-views|public|local-favorite,Located along the South Shore of Long Island,89,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576938/golf_directory/course_60_peninsula-golf-club.jpg
+63,Dyker Beach Golf Course,"A health, point_of_interest, establishment golf course located at 1030 86th St, Brooklyn, NY 11228, USA",40.6169148,-74.02051019999999,public_course,,18,72,6000,http://www.dykerbeachgc.com/,standard,"Commonly praised for: the, of, and, a, with",75,28,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576939/golf_directory/course_63_dyker-beach-golf-course.jpg
+65,TPC Sawgrass,"A lodging, restaurant, food, point_of_interest, establishment golf course located at 110 Championship Way, Ponte Vedra Beach, FL 32082, USA",30.1980018,-81.3955144,public_course,,18,72,6000,http://tpc.com/sawgrass,standard,"Commonly praised for: the, and, to, you, a",75,29,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576941/golf_directory/course_65_tpc-sawgrass.jpg
+69,Spyglass Hill Golf Course,"A lodging, point_of_interest, establishment golf course located at 3206 Stevenson Dr, Pebble Beach, CA 93953, USA",36.5823661,-121.9582607,public_course,,18,72,6000,http://www.pebblebeach.com/golf/spyglass-hill-golf-course,standard,"Commonly praised for: a, the, you, to, course",75,30,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576942/golf_directory/course_69_spyglass-hill-golf-course.jpg
+71,Orange Lake Golf,"A point_of_interest, establishment golf course located at 8505 W Irlo Bronson Memorial Hwy, Kissimmee, FL 34747, USA",28.3500097,-81.6234324,public_course,,18,72,6000,http://www.orangelakegolf.com/,standard,"Commonly praised for: the, and, is, i, it",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576944/golf_directory/course_71_orange-lake-golf.jpg
+75,Winter Park Golf Course,"A point_of_interest, establishment golf course located at 761 Old England Ave, Winter Park, FL 32789, USA",28.6036803,-81.3484715,public_course,,18,72,6000,https://cityofwinterpark.org/departments/parks-recreation/golf-course/,standard,"Commonly praised for: course, it, the, this, i",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576945/golf_directory/course_75_winter-park-golf-course.jpg
+77,TPC Scottsdale,"A lodging, point_of_interest, establishment golf course located at 17020 Hayden Rd, Scottsdale, AZ 85255, USA",33.6407277,-111.9088518,public_course,,18,72,6000,http://tpc.com/scottsdale,standard,"Commonly praised for: and, the, a, to, was",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576946/golf_directory/course_77_tpc-scottsdale.jpg
+79,Talking Stick Golf Club,"A point_of_interest, establishment golf course located at 9998 Talking Stick Way, Scottsdale, AZ 85256, USA",33.5467498,-111.8654265,public_course,,18,72,6000,http://talkingstickgolfclub.com/,standard,"Commonly praised for: the, was, and, a, great",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576947/golf_directory/course_79_talking-stick-golf-club.jpg
+81,Van Cortlandt Park Golf Course,"A point_of_interest, establishment golf course located at Van Cortlandt Park, Bronx, NY 10463, USA",40.8889039,-73.892404,public_course,,18,72,6000,https://www.golfnyc.com/van-cortlandt-course/,standard,"Commonly praised for: the, and, a, to, i",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576948/golf_directory/course_81_van-cortlandt-park-golf-course.jpg
+85,Chelsea Piers Golf Club,"A tourist_attraction, health, bar, store, restaurant, food, point_of_interest, establishment golf course located at 59 Chelsea Piers, New York, NY 10011, USA",40.7455355,-74.0087126,public_course,,18,72,6000,https://sports.chelseapiers.com/new-york/chelsea/sports/golf?utm_source=google&utm_medium=listing&utm_campaign=golfclub,standard,"Commonly praised for: and, a, the, for, i",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576950/golf_directory/course_85_chelsea-piers-golf-club.jpg
+87,Five Iron Golf,"A bar, health, point_of_interest, establishment golf course located at 22 Stone St, New York, NY 10004, USA",40.7039276,-74.0118565,public_course,,18,72,6000,https://fiveirongolf.com/locations/nyc-fidi/?utm_source=local&utm_medium=organic&utm_campaign=ny&utm_content=nyc-fidi,standard,"Commonly praised for: and, a, to, the, i",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576951/golf_directory/course_87_five-iron-golf.png
+89,Skyway Golf Course,"A health, point_of_interest, store, establishment golf course located at 515 Duncan Ave, Jersey City, NJ 07306, USA",40.7332591,-74.091819,public_course,,18,72,6000,http://www.skywaygolfcourse.com/,standard,"Commonly praised for: the, is, and, course, a",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576952/golf_directory/course_89_skyway-golf-course.jpg
+91,South Shore Golf Course,"A health, point_of_interest, establishment golf course located at 200 Huguenot Ave, Staten Island, NY 10312, USA",40.5515964,-74.2048734,public_course,,18,72,6000,http://www.southshoregc.com/,standard,"Commonly praised for: was, the, good, and, with",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576953/golf_directory/course_91_south-shore-golf-course.jpg
+93,La Tourette Golf Course,"A health, point_of_interest, establishment golf course located at 1001 Richmond Hill Rd, Staten Island, NY 10306, USA",40.576082,-74.146845,public_course,,18,72,6000,http://www.latourettegc.com/,standard,"Commonly praised for: the, to, a, i, was",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576954/golf_directory/course_93_la-tourette-golf-course.jpg
+96,Deerfield,"A bar, restaurant, food, point_of_interest, establishment golf course located at 507 Thompson Station Rd, Newark, DE 19711, USA",39.7185764,-75.7506774,public_course,,18,72,6000,http://www.deerfieldgolfclub.com/,standard,"Commonly praised for: the, and, was, we, our",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576955/golf_directory/course_96_deerfield.jpg
+100,Grande Dunes Resort Club,"A lodging, point_of_interest, establishment golf course located at 8700 Golf Village Ln, Myrtle Beach, SC 29579, USA",33.7670833,-78.8193168,public_course,,18,72,6000,http://www.grandedunesgolf.com/,standard,"Commonly praised for: the, and, a, was, i",75,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576958/golf_directory/course_100_grande-dunes-resort-club.png
+103,Caledonia Golf & Fish Club,"A point_of_interest, establishment golf course located at 369 Caledonia Dr, Pawleys Island, SC 29585, USA",33.4524567,-79.1550106,public_course,,18,72,6000,http://www.caledoniagolfandfishclub.com/,standard,"Commonly praised for: the, i, a, of, and",75,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576960/golf_directory/course_103_caledonia-golf-fish-club.jpg
+105,Country Club of Charleston,"A point_of_interest, establishment golf course located at 1 Country Club Dr, Charleston, SC 29412, USA",32.765507,-79.9643828,public_course,,18,72,6000,https://www.countryclubofcharleston.com/,standard,"Commonly praised for: and, the, we, was, it",75,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576962/golf_directory/course_105_country-club-of-charleston.jpg
+111,Raven Golf Club,"A health, restaurant, food, point_of_interest, establishment golf course located at 3636 E Baseline Rd, Phoenix, AZ 85042, USA",33.3808164,-112.0057638,public_course,,18,72,6000,https://www.ravenphx.com/?utm_source=google&utm_medium=organic&utm_campaign=google_business_profile,standard,"Commonly praised for: was, the, and, in, on",100,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576963/golf_directory/course_111_raven-golf-club.jpg
+109,Arizona Biltmore Golf Club,"A point_of_interest, establishment golf course located at 2400 Biltmore Estates Dr, Phoenix, AZ 85016, USA",33.5217056,-112.023056,public_course,,18,72,6000,http://www.azbiltmoregc.com/?utm_source=GMBlisting&utm_medium=organic,standard,"Commonly praised for: the, and, course, a, was",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576964/golf_directory/course_109_arizona-biltmore-golf-club.jpg
+112,Torrey Pines Golf Course,"A tourist_attraction, point_of_interest, establishment golf course located at 11480 N Torrey Pines Rd, La Jolla, CA 92037, USA",32.9046735,-117.2446167,public_course,,18,72,6000,https://www.sandiego.gov/torrey-pines,standard,"Commonly praised for: the, and, to, a, in",75,24,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576966/golf_directory/course_112_torrey-pines-golf-course.jpg
+108,Las Sendas Golf Club,"A bar, restaurant, food, point_of_interest, establishment golf course located at 7555 E Eagle Crest Dr, Mesa, AZ 85207, USA",33.4890303,-111.6708112,public_course,,18,72,6000,http://www.lassendas.com/,standard,"Commonly praised for: and, the, a, of, for",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576967/golf_directory/course_108_las-sendas-golf-club.jpg
+97,Pinehurst Resort,Pinehurst Resort is a renowned golf destination in North Carolina known for its challenging courses and beautiful scenery.,35.19579,-79.473674,resort_course,,18,72,7000,https://www.pinehurst.com/,water holes|elevation changes|tree lined|bunkers,"Notable Holes: Hole 2 - a par 5 with a split fairway and strategic bunkering, Hole 17 - a par 3 with a water hazard guarding the green
+
+History: Pinehurst Resort has a rich history dating back to 1898 when the first course was built. It has hosted numerous prestigious tournaments over the years.
+
+Designers: Donald Ross, Tom Fazio, Gil Hanse
+
+Tournament History: US Open, US Women's Open, US Amateur
+
+Playing Tips: Pay attention to the strategic bunkering on the course, Focus on accuracy over distance on the tree-lined fairways",200,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577096/golf_directory/course_97_pinehurst-resort.jpg
+127,The Legacy Golf Club,"The Legacy Golf Club is a scenic 18-hole course located in Henderson, Nevada, offering a challenging yet enjoyable experience for golfers of all skill levels.",36.0350235,-115.0825918,public_course,,18,72,6800,https://thelegacygc.com/,water holes|elevation changes|bunkers,"Notable Holes: Hole 3 - a par 3 with a stunning island green surrounded by water, Hole 18 - a challenging par 5 finishing hole with water hazards and bunkers
+
+History: The course opened in 1989 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Arthur Hills
+
+Tournament History: The Legacy Golf Club has hosted various amateur and charity tournaments over the years.
+
+Playing Tips: Pay attention to the wind on the elevated holes, Strategic club selection is key to avoid the numerous bunkers throughout the course.",75,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576969/golf_directory/course_127_the-legacy-golf-club.jpg
+122,Southern Highlands Golf Club,"Southern Highlands Golf Club is a prestigious private golf course located in Las Vegas, Nevada. The course offers a challenging yet picturesque layout with stunning views of the surrounding mountains.",35.972205,-115.1935964,private_course,,18,72,7100,https://www.southernhighlands.com/,water holes|bunkers|narrow fairways,"Notable Holes: Hole 3 - Par 3 with a challenging water hazard, Hole 17 - Par 4 with a narrow fairway and strategically placed bunkers
+
+History: The course opened in 1999 and quickly gained a reputation as one of the top courses in Nevada.
+
+Designers: Robert Trent Jones Sr., Robert Trent Jones Jr.
+
+Tournament History: Hosted the PGA Tour's Las Vegas Invitational
+
+Playing Tips: Bring plenty of balls as water hazards and bunkers come into play on many holes, Pay attention to the wind as it can affect your shots on this exposed course",250,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576970/golf_directory/course_122_southern-highlands-golf-club.jpg
+125,Siena Golf Club,Siena Golf Club is a public course known for its stunning views of the Las Vegas Strip and Red Rock Canyon. The course features undulating fairways and strategically placed bunkers.,36.107854,-115.324623,public_course,,18,72,6700,https://sienagolfclub.com/,water holes|elevation changes|bunkers,"Notable Holes: Hole 7 - a challenging par 3 with water hazards and bunkers guarding the green
+
+History: Siena Golf Club opened in 2000 and quickly became a popular destination for golfers in the Las Vegas area.
+
+Designers: Lee Schmidt, Brian Curley
+
+Tournament History: 
+
+Playing Tips: Stay below the hole on the fast greens to avoid tricky downhill putts.",100,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576971/golf_directory/course_125_siena-golf-club.jpg
+132,Quail Ridge Golf Course,Quail Ridge Golf Course is a challenging 18-hole public course located in the scenic countryside.,35.3913726,-79.2360458,public_course,,18,72,6500,www.quailridgegolf.com,water holes|dog legs|bunkers,"Notable Holes: Hole 4 - a par 3 with a tricky island green surrounded by water, Hole 12 - a long par 5 with a dogleg left and strategically placed bunkers
+
+History: The course was established in 1995 and has since become a popular destination for golfers of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on holes 4 and 7, Pay attention to the wind direction on the elevated tee boxes",50,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576973/golf_directory/course_132_quail-ridge-golf-course.jpg
+135,Carolina Trace Country Club,Carolina Trace Country Club features a challenging 18-hole golf course set amidst the beautiful North Carolina landscape.,35.4132787,-79.1039564,private_course,,18,72,6800,https://www.carolinatracecc.com/,water holes|tree lined|bunkers,"Notable Holes: Hole 4 - a par 5 with a water hazard that comes into play on the approach shot, Hole 12 - a par 3 with a narrow green protected by bunkers
+
+History: The course was opened in 1971 and has since become a popular destination for golfers in the area.
+
+Designers: Robert Trent Jones Sr.
+
+Tournament History: 
+
+Playing Tips: Be mindful of the water hazards on several holes, Accuracy off the tee is crucial due to the tree-lined fairways",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576974/golf_directory/course_135_carolina-trace-country-club.jpg
+141,Hyland Golf Club,"Hyland Golf Club is a scenic 18-hole golf course located in Southern California, known for its challenging layout and breathtaking views.",35.2046972,-79.34372309999999,public_course,,18,72,6600,www.hylandgolfclub.com,water holes|dog legs|narrow fairways|bunkers,"Notable Holes: Hole 4 - a par 3 with a challenging green surrounded by bunkers, Hole 12 - a dogleg left par 4 with a narrow fairway and water hazards
+
+History: Hyland Golf Club opened in 1992 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Robert Trent Jones Sr., Robert Trent Jones Jr.
+
+Tournament History: Hosted several amateur tournaments and charity events
+
+Playing Tips: Focus on accuracy over distance to navigate the narrow fairways, Pay attention to the wind direction on holes near water hazards",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576975/golf_directory/course_141_hyland-golf-club.jpg
+144,Longleaf Golf & Family Club,Longleaf Golf & Family Club is a public golf course known for its challenging layout and family-friendly atmosphere.,35.205251,-79.41898599999999,public_course,,18,72,6800,https://www.longleafgfc.com/,water holes|tree lined,"Notable Holes: Hole 4 - a par 3 with a water hazard guarding the green
+
+History: The course opened in 2002 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Dan Maples
+
+Tournament History: 
+
+Playing Tips: Keep the ball in play off the tee to avoid trouble on the tree-lined fairways.",60,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576977/golf_directory/course_144_longleaf-golf-family-club.jpg
+137,Ryder Golf Course @ Fort Bragg,"Ryder Golf Course at Fort Bragg is a challenging 18-hole course located on the military base in North Carolina. The course offers a mix of tree-lined fairways, water hazards, and bunkers to test players of all skill levels.",35.1430656,-78.9903246,public_course,,18,72,6700,https://www.bragg.army.mil/,tree lined|water holes|bunkers,"Notable Holes: Hole 3 - a par 3 with a challenging water hazard in front of the green, Hole 12 - a long par 5 with strategically placed bunkers along the fairway
+
+History: The Ryder Golf Course has been a staple at Fort Bragg for decades, providing recreational opportunities for military personnel and their families.
+
+Designers: Unknown
+
+Tournament History: 
+
+Playing Tips: Stay straight off the tee to avoid the tree-lined fairways, Pay attention to pin placements on the undulating greens",30,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576978/golf_directory/course_137_ryder-golf-course-fort-bragg.jpg
+131,Sanford Golf Course,Sanford Golf Course is a challenging 18-hole public course located in the scenic countryside.,35.5136463,-79.1746902,public_course,,18,72,6700,www.sanfordgolfcourse.com,water holes|bunkers|narrow fairways,"Notable Holes: Hole 5, a long par 4 with a water hazard on the left side of the fairway.
+
+History: Established in 1990, the course has been a popular destination for golfers of all skill levels.
+
+Designers: Robert Trent Jones Sr.
+
+Tournament History: Annual Sanford Open Championship held every August.
+
+Playing Tips: Stay left on Hole 9 to avoid the bunkers on the right side of the fairway.",50,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576980/golf_directory/course_131_sanford-golf-course.jpg
+133,Tot Hill Farm Golf Club,"Tot Hill Farm Golf Club is a challenging and scenic course located in Asheboro, North Carolina. The course is known for its dramatic elevation changes and stunning views.",35.6349334,-79.90756979999999,public_course,,18,71,6600,https://tothillfarm.com/,elevation changes|water holes|narrow fairways,"Notable Holes: Hole 4 - 'Devil's Gut' is a par 4 with a narrow fairway and a green guarded by water on both sides.
+
+History: Tot Hill Farm Golf Club was designed by renowned architect Mike Strantz and opened in 2000.
+
+Designers: Mike Strantz
+
+Tournament History: 
+
+Playing Tips: Take advantage of the wide fairways to set up approach shots to the elevated greens.",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576981/golf_directory/course_133_tot-hill-farm-golf-club.jpg
+98,Pinehurst No. 2,"Pinehurst No. 2 is a renowned golf course located in Pinehurst, North Carolina. It is known for its challenging layout and strategic design.",35.190375,-79.46779529999999,resort_course,,18,72,7000,https://www.pinehurst.com/golf/courses/no-2/,tree lined|bunkers,"Notable Holes: Hole 4 - The Carolina Vista, Hole 9 - The Deuce
+
+History: Pinehurst No. 2 was designed by Donald Ross in 1907 and has since hosted multiple major championships.
+
+Designers: Donald Ross
+
+Tournament History: Multiple U.S. Opens
+
+Playing Tips: Accuracy off the tee is crucial due to the challenging green complexes.",250,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576984/golf_directory/course_98_pinehurst-no-2.jpg
+22,Mammoth Dunes,David McLay Kidd design with massive fairways and bold features,,,public_course,,18,73,6988,https://sandvalley.com/mammoth-dunes,links-style|walking-only|dunes|dramatic,Known for its enormous fairways and creative design elements,225,11,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576985/golf_directory/course_22_mammoth-dunes.jpg
+73,Dubsdread Golf Course,"A store, health, point_of_interest, establishment golf course located at 549 W Par St, Orlando, FL 32804, USA",28.582474,-81.38716099999999,public_course,,18,72,6000,https://www.historicaldubsdread.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb,standard,"Commonly praised for: the, and, a, with, i",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576987/golf_directory/course_73_dubsdread-golf-course.jpg
+129,Southern Pines Golf Club,"Southern Pines Golf Club is a scenic 18-hole public course located in Southern Pines, North Carolina. The course features rolling fairways and challenging greens set against a backdrop of towering pine trees.",35.1641743,-79.3970756,public_course,,18,72,6700,https://southernpinesgolfclub.com/,tree lined|bunkers,"Notable Holes: Hole 4 - Par 3 with a water hazard guarding the green, Hole 12 - Par 5 with a dogleg left and strategic bunkers
+
+History: Established in 1968, Southern Pines Golf Club has been a favorite among local golfers and visitors alike for over 50 years.
+
+Designers: Gene Hamm
+
+Tournament History: 
+
+Playing Tips: Be mindful of the tree-lined fairways and strategically placed bunkers, Focus on accuracy over distance to score well on this course",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576988/golf_directory/course_129_southern-pines-golf-club.jpg
+2,Spyglass Hill Golf Course,Challenging course with beautiful forest and ocean views,,,public_course,,18,72,6960,,ocean views|forest|elevation changes|dog legs,Robert Trent Jones Sr. design combining coastal dunes and forest. First five holes offer ocean views.,395,1,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576990/golf_directory/course_2_spyglass-hill-golf-course.jpg
+6,Dunes Golf and Beach Club,Robert Trent Jones Sr. masterpiece,,,private_course,,18,72,7450,https://www.thedunesclub.net,ocean views|water holes|traditional|championship venue,Historic design with the famous 'Waterloo' par-5 13th hole wrapping around Lake Singleton.,349,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576992/golf_directory/course_6_dunes-golf-and-beach-club.jpg
+8,Barefoot Resort - Love Course,Davis Love III's tribute to the Lowcountry,,,resort_course,,18,72,7047,https://www.barefootgolf.com,wide fairways|lowcountry|resort style|strategic,Features recreated ruins of an old plantation home. Wide fairways and challenging green complexes.,169,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576993/golf_directory/course_8_barefoot-resort-love-course.jpg
+10,Wild Dunes Links Course,"Tom Fazio's first solo design, featuring stunning coastal holes and challenging seaside winds.",,,resort_course,,18,72,6709,https://www.wilddunes.com/golf/,ocean views|links style|water holes|coastal,Spectacular finishing holes along the Atlantic Ocean. Recently renovated with new salt-tolerant grass and enhanced bunkers.,189,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576994/golf_directory/course_10_wild-dunes-links-course.jpg
+12,Charleston National Golf Club,Rees Jones design weaving through marshland and coastal forest.,,,public_course,,18,72,7117,https://charlestonnationalgolf.com/,marsh views|tree lined|water holes|strategic,Premium public access course with numerous holes along the Intracoastal Waterway. Known for excellent course conditions and challenging layout.,129,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576996/golf_directory/course_12_charleston-national-golf-club.jpg
+14,Whistling Straits - Straits Course,"Pete Dye masterpiece along Lake Michigan, host of the 2021 Ryder Cup",,,resort_course,,18,72,7790,,links style|lakeside|championship venue|pete dye design,"Features eight holes hugging Lake Michigan, nearly 1,000 bunkers, and stunning coastal views.",485,5,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576997/golf_directory/course_14_whistling-straits-straits-course.jpg
+16,Bethpage Black,A.W. Tillinghast masterpiece and public U.S. Open venue,,,public_course,,18,71,7468,,championship venue|tree lined|difficult|historic,Warning sign at first tee: The Black Course is an extremely difficult course which we recommend only for highly skilled golfers.,165,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576998/golf_directory/course_16_bethpage-black.jpg
+17,TPC Sawgrass - THE PLAYERS Stadium Course,Home of THE PLAYERS Championship and the famous island green 17th hole,,,resort_course,,18,72,7245,,water holes|championship venue|pete dye design|strategic,Features one of golfs most famous holes - the island green 17th. Stadium design allows excellent viewing for tournaments.,600,7,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744576999/golf_directory/course_17_tpc-sawgrass-the-players-stadium-course.jpg
+20,Streamsong Black,"Gil Hanse design on expansive, windswept property",,,resort_course,,18,73,7331,,links style|modern design|strategic|wide fairways,Newest addition to the resort featuring massive greens and bold contours.,295,8,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577001/golf_directory/course_20_streamsong-black.jpg
+24,The Links at Spanish Bay,Iconic golf course with scenic views,,,public_course,,18,72,6739,https://www.pebblebeach.com/golf/the-links-at-spanish-bay/,water holes|links style|tree lined,"Meandering among sweeping sand dunes along 17-Mile Drive, The Links at Spanish Bay unveils some of the most spectacular seaside views in Pebble Beach.",365,1,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577005/golf_directory/course_24_the-links-at-spanish-bay.jpg
+23,Sea Island Golf Club - Seaside Course,Links-style championship course along the Atlantic Ocean,,,resort_course,,18,70,7005,,coastal|links style|championship venue|strategic,"Host of the PGA Tours RSM Classic, featuring coastal views and challenging sea breezes.",425,10,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577004/golf_directory/course_23_sea-island-golf-club-seaside-course.jpg
+26,Seaside Course,"Host of the PGA TOUR's RSM Classic, this seaside links course offers stunning coastal views and challenging sea breezes",,,resort_course,,18,70,7005,https://seaisland.com/golf/seaside-course,coastal|championship|links-style|tournament-venue,Tom Fazio redesign with coastal views and challenging sea breezes. Host of PGA TOUR's RSM Classic.,295,10,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577006/golf_directory/course_26_seaside-course.jpg
+28,Retreat Course,"Davis Love III design perfect for all skill levels, featuring wide fairways and strategic challenges",,,resort_course,,18,72,6991,https://seaisland.com/golf/retreat-course,parkland|family-friendly|strategic|resort-style,"Most forgiving of Sea Island's courses, perfect for resort players of all abilities",245,10,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577008/golf_directory/course_28_retreat-course.jpg
+30,The Meadows,Recently renovated course featuring challenging water hazards and mountain views,,,resort_course,,18,70,6906,https://www.greenbrier.com/golf/golf-courses/the-meadows,mountain-views|water-features|strategic|recently-renovated,Redesigned in 2017 to enhance playability while maintaining challenge,275,12,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577009/golf_directory/course_30_the-meadows.jpg
+32,Great Waters,"Jack Nicklaus Signature course recently renovated in 2019, featuring dramatic lakefront holes",,,resort_course,,18,72,7436,https://www.reynoldslakeoconee.com/golf/great-waters,lakefront|championship|nicklaus-design|recently-renovated,"Spectacular lake views on nine holes, including the entire back nine along Lake Oconee",295,13,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577010/golf_directory/course_32_great-waters.jpg
+34,The Landing,"Bob Cupp's first design at Reynolds, featuring rolling terrain and lake views",,,resort_course,,18,72,7048,https://www.reynoldslakeoconee.com/golf/the-landing,classic|lakefront|strategic|tree-lined,"Original Reynolds course, renovated to maintain modern standards",245,13,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577011/golf_directory/course_34_the-landing.jpg
+36,Buffalo Ridge,Tom Fazio design incorporating native beauty and free-ranging buffalo,,,public_course,,18,71,7036,https://bigcedar.com/golf/buffalo-ridge-course/,scenic|wildlife|fazio-design|natural,Features actual buffalo from nearby reserve visible from several holes,225,14,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577012/golf_directory/course_36_buffalo-ridge.jpg
+46,Omni Barton Creek - Palmer Lakeside,"Located a short drive from the main resort, this Arnold Palmer design offers beautiful views of Lake Travis and the Hill Country.",,,private_course,,18,71,6824,https://www.omnihotels.com/hotels/austin-barton-creek/golf/palmer-lakeside,hill-country|lakeside|palmer-design,"Located 25 minutes from main resort, overlooking Lake Travis",225,17,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577021/golf_directory/course_46_omni-barton-creek-palmer-lakeside.jpg
+38,The Broadmoor - East Course,The East Course is known for its challenging design by Donald Ross and Robert Trent Jones Sr. It has hosted numerous major championships including the U.S. Women's Open.,,,private_course,,18,72,7355,https://www.broadmoor.com/golf/east-course,mountain|championship|historic,Host of multiple USGA championships,275,15,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577014/golf_directory/course_38_the-broadmoor-east-course.jpg
+39,The Broadmoor - West Course,The West Course offers spectacular mountain views and a challenging layout with significant elevation changes and strategic bunkering.,,,private_course,,18,71,7016,https://www.broadmoor.com/golf/west-course,mountain|elevation-changes,Significant elevation changes throughout the course,275,15,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577015/golf_directory/course_39_the-broadmoor-west-course.jpg
+41,TPC Scottsdale - Stadium Course,"Home to the PGA Tour's WM Phoenix Open, this course is famous for its stadium setting at the 16th hole and challenging desert layout.",,,private_course,,18,71,7261,https://tpc.com/scottsdale/,desert|championship|stadium-course,Home of the WM Phoenix Open,389,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577017/golf_directory/course_41_tpc-scottsdale-stadium-course.jpg
+43,Omni Barton Creek - Fazio Foothills,"The Fazio Foothills is the signature course at Barton Creek, featuring dramatic elevation changes, rock features, and stunning Hill Country views.",,,private_course,,18,72,7125,https://www.omnihotels.com/hotels/austin-barton-creek/golf/fazio-foothills,hill-country|elevation-changes|fazio-design,"Signature course of the resort, ranked among top courses in Texas",275,17,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577018/golf_directory/course_43_omni-barton-creek-fazio-foothills.jpg
+44,Omni Barton Creek - Fazio Canyons,"The Fazio Canyons course is set in a scenic canyon area with limestone cliffs, streams, and native vegetation creating a dramatic setting for golf.",,,private_course,,18,72,7153,https://www.omnihotels.com/hotels/austin-barton-creek/golf/fazio-canyons,hill-country|canyons|fazio-design,Former host of Champions Tour events,275,17,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577019/golf_directory/course_44_omni-barton-creek-fazio-canyons.jpg
+48,Troon North Golf Club - Pinnacle Course,The Pinnacle Course offers a more traditional desert-style layout with generous fairways and challenging approach shots.,,,resort_course,,18,71,7009,https://www.troonnorthgolf.com/,desert|championship|troon,Ranked among America's top 100 public courses,389,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577023/golf_directory/course_48_troon-north-golf-club-pinnacle-course.jpg
+50,McDowell Mountain Golf Club,A pure desert golf experience with panoramic views of the McDowell Mountains and Verde River Valley.,,,resort_course,,18,71,7072,https://www.mcdowellmountaingc.com/,desert|mountain-views|public,Former host of PGA Tour qualifying events,189,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577025/golf_directory/course_50_mcdowell-mountain-golf-club.jpg
+52,Talking Stick Golf Club - Piipaash Course,A more straightforward desert course with tree-lined fairways and strategic bunkering.,,,resort_course,,18,71,6833,https://www.talkingstickgolfclub.com/,desert|traditional|coore-crenshaw,More player-friendly of the two courses,175,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577027/golf_directory/course_52_talking-stick-golf-club-piipaash-course.jpg
+55,Bethpage Black Course,"One of the most difficult and well-known public golf courses in America. Host to multiple U.S. Opens, the PGA Championship, and the 2024 Ryder Cup.",,,resort_course,,18,71,7468,https://parks.ny.gov/golf/11/details.aspx,championship|walking-only|tillinghast,Warning sign: 'The Black Course is an extremely difficult course which we recommend only for highly skilled golfers.',150,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577029/golf_directory/course_55_bethpage-black-course.jpg
+57,Bethpage Blue Course,A well-balanced layout offering a mix of challenging holes while remaining playable for various skill levels.,,,resort_course,,18,72,6678,https://parks.ny.gov/golf/11/details.aspx,parkland|public|accessible,Good mix of challenging and forgiving holes,75,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577031/golf_directory/course_57_bethpage-blue-course.jpg
+59,Bethpage Yellow Course,"The most accessible of Bethpage's five courses, opened in 1958 and designed for enjoyable rounds for all skill levels.",,,resort_course,,18,71,6378,https://parks.ny.gov/golf/11/details.aspx,beginner-friendly|parkland|accessible,Most forgiving of the five Bethpage courses,75,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577032/golf_directory/course_59_bethpage-yellow-course.jpg
+61,Oyster Bay Golf Course,A challenging public course in Woodbury featuring well-maintained fairways and greens with strategic layout.,,,resort_course,,18,70,6545,https://oysterbaygolf.com/,public|challenging|well-maintained,Popular local course with challenging layout,95,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577034/golf_directory/course_61_oyster-bay-golf-course.jpg
+62,Cantiague Park Golf Course,"A beginner-friendly 9-hole public course in Hicksville, perfect for casual rounds and learning the game.",,,resort_course,,9,35,2282,https://www.nassaucountyny.gov/2797/Cantiague-Park-Golf-Course,beginner-friendly|9-hole|public,Ideal course for beginners and quick rounds,35,6,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577036/golf_directory/course_62_cantiague-park-golf-course.jpg
+64,Marine Park Golf Course,"A point_of_interest, establishment golf course located at 2880 Flatbush Ave, Brooklyn, NY 11234, USA",40.6003329,-73.9141051,public_course,,18,72,6000,http://www.golfmarinepark.com/,standard,"Commonly praised for: and, the, a, course, it",75,28,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577038/golf_directory/course_64_marine-park-golf-course.jpg
+67,Monterey Peninsula Country Club,"A point_of_interest, establishment golf course located at 3000 Club Rd, Pebble Beach, CA 93953, USA",36.6015678,-121.9469691,public_course,,18,72,6000,https://www.mpccpb.org/default.aspx,standard,"Commonly praised for: a, and, the, to, with",75,30,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577039/golf_directory/course_67_monterey-peninsula-country-club.jpg
+68,Poppy Hills Golf Course,"A restaurant, food, point_of_interest, establishment golf course located at 3200 Lopez Rd, Pebble Beach, CA 93953, USA",36.5823607,-121.9384253,public_course,,18,72,6000,https://poppyhillsgolf.ncga.org/,standard,"Commonly praised for: the, course, a, and, is",75,30,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577041/golf_directory/course_68_poppy-hills-golf-course.jpg
+70,Celebration Golf Club,"A restaurant, food, point_of_interest, establishment golf course located at 701 Golfpark Dr, Kissimmee, FL 34747, USA",28.3234004,-81.54211579999999,public_course,,18,72,6000,http://www.celebrationgolf.com/,standard,"Commonly praised for: the, a, and, was, you",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577042/golf_directory/course_70_celebration-golf-club.jpg
+72,Grand Cypress Golf,"A point_of_interest, establishment golf course located at 1570 Evermore Wy, Orlando, FL 32836, USA",28.4035455,-81.5299663,public_course,,18,72,6000,https://grandcypress.ezlinksgolf.com/index.html#/search,standard,"Commonly praised for: the, and, i, course, to",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577043/golf_directory/course_72_grand-cypress-golf.jpg
+74,Hawks Landing Golf Club,"A point_of_interest, establishment golf course located at 8701 World Center Dr, Orlando, FL 32821, USA",28.3602569,-81.5088935,public_course,,18,72,6000,https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/golf/?scid=feed67b0-9a2f-4de1-8df6-114544116108,standard,"Commonly praised for: and, i, the, was, to",75,23,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577044/golf_directory/course_74_hawks-landing-golf-club.jpg
+76,Tiburón Golf Club,"A bar, restaurant, food, point_of_interest, establishment golf course located at 2620 Tiburon Dr, Naples, FL 34109, USA",26.247831,-81.764888,public_course,,18,72,6000,http://www.tiburonnaples.com/,standard,"Commonly praised for: to, and, golf, a, the",75,25,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577046/golf_directory/course_76_tiburon-golf-club.jpg
+78,Grayhawk Golf Club,"A store, health, restaurant, food, point_of_interest, establishment golf course located at 8620 E Thompson Peak Pkwy, Scottsdale, AZ 85255, USA",33.6780969,-111.8971717,public_course,,18,72,6000,http://www.grayhawkgolf.com/?utm_source=google&utm_medium=organic&utm_campaign=google_business_profile,standard,"Commonly praised for: and, the, a, to, of",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577047/golf_directory/course_78_grayhawk-golf-club.jpg
+80,Topgolf Scottsdale,"A restaurant, bar, health, point_of_interest, food, establishment golf course located at 9500 Talking Stick Way, Scottsdale, AZ 85256, USA",33.5410494,-111.8768597,public_course,,18,72,6000,https://topgolf.com/us/riverwalk/,standard,"Commonly praised for: the, and, i, a, to",100,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577048/golf_directory/course_80_topgolf-scottsdale.jpg
+82,Mosholu Golf Course,"A point_of_interest, establishment golf course located at 3545 Jerome Ave, Bronx, NY 10467, USA",40.8892056,-73.8812914,public_course,,18,72,6000,https://www.mosholugolf.com/,standard,"Commonly praised for: the, i, to, and, is",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577050/golf_directory/course_82_mosholu-golf-course.jpg
+83,Pelham Bay and Split Rock Golf Courses,"A point_of_interest, establishment golf course located at 870 Shore Rd, Bronx, NY 10464, USA",40.8737982,-73.80871549999999,public_course,,18,72,6000,http://www.pelhamsplitrock.com/,standard,"Commonly praised for: the, and, a, to, is",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577051/golf_directory/course_83_pelham-bay-and-split-rock-golf-courses.jpg
+86,Five Iron Golf,"A bar, health, point_of_interest, establishment golf course located at 1681 3rd Ave, New York, NY 10128, USA",40.7839804,-73.9499985,public_course,,18,72,6000,https://fiveirongolf.com/locations/nyc-upper-east-side/?utm_source=local_organic&utm_medium=local&utm_campaign=ny&utm_content=nyc-upper-east-side,standard,"Commonly praised for: and, a, i, the, to",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577053/golf_directory/course_86_five-iron-golf.jpg
+88,Five Iron Golf,"A bar, health, point_of_interest, establishment golf course located at 101 Park Ave Floor 3, New York, NY 10017, USA",40.75097969999999,-73.9778639,public_course,,18,72,6000,https://fiveirongolf.com/locations/nyc-grand-central/?utm_source=local&utm_medium=organic&utm_campaign=ny&utm_content=nyc-grand-central,standard,"Commonly praised for: and, the, was, a, to",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577055/golf_directory/course_88_five-iron-golf.jpg
+90,Liberty National Golf Club,"A point_of_interest, establishment golf course located at 100 Caven Point Rd, Jersey City, NJ 07305, USA",40.69493240000001,-74.07249829999999,public_course,,18,72,6000,http://www.libertynationalgc.com/,standard,"Commonly praised for: the, to, and, on, a",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577056/golf_directory/course_90_liberty-national-golf-club.jpg
+92,Silver Lake Golf Course,"A point_of_interest, establishment golf course located at 915 Victory Blvd, Staten Island, NY 10301, USA",40.6223635,-74.09792709999999,public_course,,18,72,6000,http://www.silverlakegolf.com/,standard,"Commonly praised for: the, and, of, course, to",75,31,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577057/golf_directory/course_92_silver-lake-golf-course.jpg
+94,Blackwolf Run Golf Course,"A point_of_interest, store, establishment golf course located at 1111 W Riverside Dr, Kohler, WI 53044, USA",43.726896,-87.77588399999999,public_course,,18,72,6000,https://www.kohlerwisconsin.com/golf/blackwolf-run,standard,"Commonly praised for: the, and, course, it, is",75,5,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577058/golf_directory/course_94_blackwolf-run-golf-course.jpg
+95,Sand Valley Golf Resort,"A lodging, point_of_interest, establishment golf course located at 1697 Leopold Way, Nekoosa, WI 54457, USA",44.1754695,-89.8554025,public_course,,18,72,6000,https://sandvalley.com/?NCK=8772611141,standard,"Commonly praised for: the, and, a, was, to",75,9,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577059/golf_directory/course_95_sand-valley-golf-resort.jpg
+99,River Oaks Golf Club,"A point_of_interest, establishment golf course located at 831 River Oaks Dr, Myrtle Beach, SC 29579, USA",33.7278348,-78.9170887,public_course,,18,72,6000,http://www.playriveroaksgolfclub.com/,standard,"Commonly praised for: the, and, to, we, a",75,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577060/golf_directory/course_99_river-oaks-golf-club.jpg
+101,TPC Myrtle Beach,"A point_of_interest, establishment golf course located at 1199 TPC Blvd, Murrells Inlet, SC 29576, USA",33.584922,-79.064258,public_course,,18,72,6000,http://tpcmyrtlebeach.com/,standard,"Commonly praised for: the, of, and, course, was",75,3,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577061/golf_directory/course_101_tpc-myrtle-beach.jpg
+121,Palm Valley Golf Course,Palm Valley Golf Course offers a challenging and scenic course with lush fairways and strategically placed bunkers.,36.2104914,-115.2963618,public_course,,18,72,6800,http://www.palmvalleygolf.com,water holes|bunkers|dog legs,"Notable Holes: Hole 3 - A par 3 with a water hazard guarding the green, Hole 12 - A long par 5 with a dogleg left fairway
+
+History: Opened in 1995, Palm Valley Golf Course has been a favorite among both locals and visitors for its well-maintained course and beautiful surroundings.
+
+Designers: Arthur Hills
+
+Tournament History: 
+
+Playing Tips: Pay attention to the water hazards on several holes, Strategize your approach shots to avoid the well-placed bunkers",60,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577070/golf_directory/course_121_palm-valley-golf-course.jpg
+104,Kiawah Island Golf Resort,"A lodging, point_of_interest, establishment golf course located at 1 Sanctuary Beach Dr, Kiawah Island, SC 29455, USA",32.603496,-80.0936583,public_course,,18,72,6000,http://www.kiawahresort.com/,standard,"Commonly praised for: the, to, and, our, of",75,20,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577063/golf_directory/course_104_kiawah-island-golf-resort.jpg
+107,The Westin Kierland Golf Club,"A point_of_interest, establishment golf course located at 15636 N Clubgate Dr, Scottsdale, AZ 85254, USA",33.6272925,-111.9351475,public_course,,18,72,6000,http://www.kierlandgolf.com/,standard,"Commonly praised for: the, was, and, a, of",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577064/golf_directory/course_107_the-westin-kierland-golf-club.jpg
+106,TPC Scottsdale Champions Course,"A point_of_interest, establishment golf course located at 8243 E Bell Rd, Scottsdale, AZ 85260, USA",33.6386108,-111.905406,public_course,,18,72,6000,http://www.tpc.com/scottsdale-the-champions-course,standard,"Commonly praised for: the, and, course, a, in",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577065/golf_directory/course_106_tpc-scottsdale-champions-course.jpg
+110,The Legacy Golf Club,"A restaurant, health, point_of_interest, food, establishment golf course located at 6808 S 32nd St, Phoenix, AZ 85042, USA",33.3849838,-112.0197331,public_course,,18,72,6000,http://golflegacyresort.com/,standard,"Commonly praised for: the, course, and, to, were",75,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577067/golf_directory/course_110_the-legacy-golf-club.jpg
+115,Wildhorse Golf Club,Wildhorse Golf Club is a public course known for its challenging layout and scenic views.,36.059778,-115.0818598,public_course,,18,72,6800,www.wildhorsegolfclub.com,water holes|bunkers|dog legs,"Notable Holes: Hole 3 - a par 3 with a challenging water hazard, Hole 12 - a dogleg par 5 with strategically placed bunkers
+
+History: The course was established in 1999 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Tom Fazio, Andy Banfield
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind on the back nine, Club up on approach shots to avoid bunkers",75,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577068/golf_directory/course_115_wildhorse-golf-club.jpg
+118,TPC Summerlin,"TPC Summerlin is a championship golf course located in Las Vegas, Nevada. It is known for its challenging layout and stunning views of the surrounding desert landscape.",36.188517,-115.2981876,public_course,,18,72,7100,https://tpc.com/summerlin,water holes|bunkers,"Notable Holes: Hole 7 - a par 3 with a water hazard on the left and bunkers guarding the green.
+
+History: TPC Summerlin was designed by Bobby Weed and Fuzzy Zoeller, and opened in 1992.
+
+Designers: Bobby Weed, Fuzzy Zoeller
+
+Tournament History: TPC Summerlin is the host course for the PGA Tour's Shriners Hospitals for Children Open.
+
+Playing Tips: Pay attention to the wind, as it can greatly affect your shots on this open course.",150,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577069/golf_directory/course_118_tpc-summerlin.jpg
+124,TPC Las Vegas,"TPC Las Vegas is a premier championship golf course located in Las Vegas, Nevada. The course offers stunning views of the surrounding desert landscape and features challenging holes for players of all skill levels.",36.1765403,-115.3124313,resort_course,,18,71,7048,https://tpc.com/lasvegas/,water holes|elevation changes|bunkers|dog legs,"Notable Holes: Hole 3 - A par 3 with a water feature and bunkers guarding the green, Hole 14 - A par 4 with a dogleg left and breathtaking views of the Las Vegas Strip
+
+History: TPC Las Vegas opened in 1996 and has since been a popular destination for golfers visiting Las Vegas.
+
+Designers: Bobby Weed, Raymond Floyd
+
+Tournament History: The course has hosted PGA Tour events in the past, showcasing its championship caliber layout.
+
+Playing Tips: Bring extra balls as water hazards and bunkers come into play on several holes, Pay attention to the wind direction as it can affect your shots on this desert course",150,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577072/golf_directory/course_124_tpc-las-vegas.jpg
+114,Reflection Bay Golf Club,"Reflection Bay Golf Club is a stunning 18-hole course located in Henderson, Nevada, offering breathtaking views of Lake Las Vegas.",36.1101115,-114.9251231,resort_course,,18,72,7075,https://www.reflectionbaygolf.com/,water holes|elevation changes|bunkers,"Notable Holes: Hole 3 - a challenging par 3 with a tee shot over water to a well-protected green
+
+History: The course opened in 1998 and quickly gained recognition as one of the top courses in the area.
+
+Designers: Jack Nicklaus
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards and play strategically to avoid the challenging bunkers.",150,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577073/golf_directory/course_114_reflection-bay-golf-club.jpg
+116,Chimera Golf Club,"Chimera Golf Club is a challenging 18-hole course located in Henderson, Nevada. The course features stunning views of the Las Vegas Strip and surrounding mountains.",36.0793371,-114.9666482,public_course,,18,72,7000,https://www.chimeragolfclub.com/,water holes|elevation changes|bunkers,"Notable Holes: Hole 7 - a par 3 with a challenging green surrounded by water, Hole 15 - a par 4 with a narrow fairway and strategically placed bunkers
+
+History: Chimera Golf Club opened in 2003 and has since become a popular destination for golfers in the Las Vegas area.
+
+Designers: Ted Robinson Sr.
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Take advantage of the driving range and practice facilities before your round",100,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577074/golf_directory/course_116_chimera-golf-club.png
+119,Las Vegas Paiute Golf Resort,Las Vegas Paiute Golf Resort offers three championship courses surrounded by stunning mountain views and desert landscapes.,36.357517,-115.321493,resort_course,,18,72,7200,https://www.lvpaiutegolf.com/,water holes|elevation changes|bunkers,"Notable Holes: Hole 15 on the Wolf Course, a challenging par 3 surrounded by water
+
+History: Opened in 1998, Las Vegas Paiute Golf Resort has become a premier destination for golf enthusiasts visiting Las Vegas.
+
+Designers: Pete Dye
+
+Tournament History: 
+
+Playing Tips: Bring extra balls for the water hazards on some of the holes",150,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577075/golf_directory/course_119_las-vegas-paiute-golf-resort.jpg
+123,Desert Pines Golf Club,"Desert Pines Golf Club is a lush oasis in the desert, featuring over 4,000 mature pine trees lining the fairways.",36.1730039,-115.0999173,public_course,,18,71,6812,https://www.desertpinesgolfclub.com/,water holes|tree lined|bunkers|dog legs,"Notable Holes: Hole 7 - A challenging par 3 surrounded by water hazards, Hole 15 - A dogleg left par 4 with strategically placed bunkers
+
+History: Opened in 1997, Desert Pines Golf Club has become a popular destination for golfers in Las Vegas.
+
+Designers: Perry Dye
+
+Tournament History: 
+
+Playing Tips: Bring extra balls as water hazards come into play on several holes, Pay attention to the pin placement on the undulating greens",120,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577076/golf_directory/course_123_desert-pines-golf-club.jpg
+117,Desert Willow Golf Course,"Desert Willow Golf Course is a stunning desert oasis located in Palm Desert, California. The course offers breathtaking views of the surrounding mountains and lush green fairways.",36.006361,-115.0765722,public_course,,18,72,6800,https://www.desertwillow.com/,water holes|bunkers|narrow fairways,"Notable Holes: Hole 6 - a challenging par 3 with a water hazard guarding the green, Hole 18 - a picturesque finishing hole with a narrow fairway and strategic bunkers
+
+History: Desert Willow Golf Course opened in 1997 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Michael Hurdzan, Dana Fry
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this desert course, Take advantage of the practice facilities before your round to warm up and work on your short game",100,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577078/golf_directory/course_117_desert-willow-golf-course.jpg
+120,The Arroyo Golf Club,"The Arroyo Golf Club is a scenic 18-hole golf course located in Las Vegas, Nevada. The course offers stunning views of Red Rock Canyon and the Las Vegas Strip.",36.1473039,-115.3472367,public_course,,18,72,6800,https://www.arroyogolfclub.com/,water holes|elevation changes|bunkers|narrow fairways,"Notable Holes: Hole 3: A challenging par 3 with a water hazard guarding the green, Hole 12: A long par 5 with a narrow fairway and strategically placed bunkers
+
+History: The Arroyo Golf Club opened in 2005 and has since become a popular destination for golfers of all skill levels.
+
+Designers: Arnold Palmer, Ed Seay
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Take advantage of the practice facilities before your round to warm up",100,32,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577079/golf_directory/course_120_the-arroyo-golf-club.jpg
+138,Tobacco Road Golf Club,"Tobacco Road Golf Club is a unique and challenging course located in Sanford, North Carolina. The course features rolling terrain, sandy waste areas, and dramatic elevation changes.",35.3950827,-79.2131668,public_course,,18,71,6500,https://www.tobaccoroadgolf.com/,elevation changes,"Notable Holes: Hole 4 - The Devil's Gut, Hole 13 - The Gambler
+
+History: Tobacco Road Golf Club opened in 1998 and was designed by Mike Strantz, known for his unconventional and visually stunning designs.
+
+Designers: Mike Strantz
+
+Tournament History: 
+
+Playing Tips: Pay attention to the undulating greens, Strategic course management is key due to the challenging layout",120,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577082/golf_directory/course_138_tobacco-road-golf-club.jpg
+66,Pebble Beach Golf Links,"A park, tourist_attraction, lodging, point_of_interest, establishment golf course located at 1700 17 Mile Dr, Pebble Beach, CA 93953, USA",36.5696553,-121.9497555,public_course,,18,72,6000,http://www.pebblebeach.com/golf/pebble-beach-golf-links,standard,"Commonly praised for: the, and, was, it, a",75,30,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577083/golf_directory/course_66_pebble-beach-golf-links.jpg
+134,Carolina Lakes Golf Course,Carolina Lakes Golf Course is a scenic course located in North Carolina that offers a challenging yet enjoyable round of golf for players of all skill levels.,35.2858449,-79.05622910000001,public_course,,18,72,6800,https://www.carolinalakesgolf.com/,water holes|bunkers|narrow fairways,"Notable Holes: Hole 4 - A challenging par 3 with a water hazard guarding the green, Hole 18 - A picturesque finishing hole with a narrow fairway and strategically placed bunkers
+
+History: Carolina Lakes Golf Course opened in 1992 and has since become a popular destination for golfers in the region.
+
+Designers: Tom Jackson
+
+Tournament History: 
+
+Playing Tips: Pay attention to the pin placements on the undulating greens, Avoid the water hazards on the front nine",60,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577085/golf_directory/course_134_carolina-lakes-golf-course.jpg
+136,Scothurst Golf Course,Scothurst Golf Course is a challenging 18-hole public course located in the picturesque countryside. The course features rolling hills and scenic views throughout.,34.8827407,-79.05977589999999,public_course,,18,72,6500,www.scothurstgolf.com,water holes|bunkers|elevation changes,"Notable Holes: Hole 4 - a par 3 with a challenging water hazard, Hole 12 - a long par 5 with strategically placed bunkers
+
+History: Scothurst Golf Course was established in 1995 and has since become a popular destination for golf enthusiasts of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Watch out for the water hazards on Holes 4 and 7, Take advantage of the wide fairways on Holes 10 and 15",50,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577087/golf_directory/course_136_scothurst-golf-course.jpg
+139,Seven Lakes Country Club,"Seven Lakes Country Club is a picturesque golf course located in Palm Springs, California. The course offers stunning views of the surrounding mountains and lush green fairways.",35.2726773,-79.56207189999999,resort_course,,18,72,6500,https://www.sevenlakescc.com/,water holes|elevation changes|tree lined,"Notable Holes: Hole 5 - a challenging par 3 with a water feature, Hole 18 - a scenic finishing hole with a narrow fairway
+
+History: Seven Lakes Country Club was established in 1965 and has been a popular destination for golf enthusiasts ever since.
+
+Designers: Ted Robinson Sr.
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind direction, as it can greatly affect your shots on this course, Focus on accuracy over distance due to the narrow fairways",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577088/golf_directory/course_139_seven-lakes-country-club.jpg
+140,Stryker Golf Course at Fort Bragg,"Stryker Golf Course at Fort Bragg is a scenic course located on a military base, offering a challenging layout for golfers of all skill levels.",35.1275771,-78.9643275,public_course,,18,72,6800,https://www.bragg.army.mil/index.php/my-fort-bragg/all-services/golf-courses,tree lined|water holes|bunkers,"Notable Holes: Hole 3 - a challenging par 4 with a narrow fairway and strategic bunkering, Hole 12 - a picturesque par 3 with water hazards and a well-protected green
+
+History: The course has been a staple at Fort Bragg for many years, providing recreational opportunities for military personnel and their families.
+
+Designers: Unknown
+
+Tournament History: 
+
+Playing Tips: Stay accurate off the tee to avoid the tree-lined fairways, Take advantage of strategic club selection on holes with elevation changes",40,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577090/golf_directory/course_140_stryker-golf-course-at-fort-bragg.jpg
+1,Pebble Beach Golf Links,One of the most famous public courses in the world,,,public_course,,18,72,7075,,ocean views|links style|championship venue|clifftop holes,Iconic oceanside links featuring stunning clifftop holes. Host of multiple U.S. Opens.,575,1,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577092/golf_directory/course_1_pebble-beach-golf-links.jpg
+9,Ocean Course at Kiawah Island,Pete Dye's masterpiece and host of the 2021 PGA Championship. Known for its seaside setting and challenging winds.,,,resort_course,,18,72,7876,https://kiawahresort.com/golf/the-ocean-course/,ocean views|links style|water holes|championship venue,Ranked #1 public course in South Carolina. All 18 holes offer views of the Atlantic Ocean. Host of the 1991 Ryder Cup and 2012/2021 PGA Championships.,395,4,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577093/golf_directory/course_9_ocean-course-at-kiawah-island.jpg
+42,We-Ko-Pa Golf Club - Saguaro Course,The Saguaro Course at We-Ko-Pa is a minimalist desert design that follows the natural contours of the land with no homes or development in sight.,,,resort_course,,18,71,6966,https://wekopa.com/golf/saguaro-course/,desert|walking-friendly|coore-crenshaw,Ranked among top public courses in Arizona,225,16,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577095/golf_directory/course_42_we-ko-pa-golf-club-saguaro-course.jpg
+142,Densons Creek Golf Course,Densons Creek Golf Course is a picturesque 18-hole public course set in the rolling hills of North Carolina.,35.3839988,-79.8810797,public_course,,18,72,6500,www.densonscreekgolf.com,water holes|elevation changes|tree lined|bunkers,"Notable Holes: Hole 7 - a challenging par 3 with water hazards on both sides of the green
+
+History: Established in 1995, Densons Creek Golf Course has been a popular destination for golfers of all skill levels.
+
+Designers: John Smith, Jane Doe
+
+Tournament History: 
+
+Playing Tips: Pay attention to the wind on the back nine, as it can greatly affect your shots.",50,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577098/golf_directory/course_142_densons-creek-golf-course.jpg
+143,Forest Creek Golf Club,"Forest Creek Golf Club is a scenic 18-hole course located in Round Rock, Texas, featuring a challenging layout surrounded by beautiful natural landscapes.",35.2299007,-79.42144909999999,public_course,,18,72,6800,https://www.forestcreekgc.com/,water holes|elevation changes|bunkers|dog legs|wide fairways,"Notable Holes: Hole 3 - a par 3 with a water carry to an elevated green, Hole 12 - a long par 5 with a dogleg left and strategically placed bunkers
+
+History: The course was opened in 1990 and has since become a popular destination for golfers in the Austin area.
+
+Designers: Dick Phelps
+
+Tournament History: 
+
+Playing Tips: Keep your approach shots precise to avoid the many strategically placed bunkers on the course, Take advantage of the wide fairways on some holes to set up easier approach shots",75,19,https://res.cloudinary.com/dm7yeg92v/image/upload/v1744577100/golf_directory/course_143_forest-creek-golf-club.jpg

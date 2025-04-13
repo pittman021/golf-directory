@@ -12,7 +12,9 @@ namespace :export do
         "region", "state", "country", "best_months", 
         "nearest_airports", "weather_info", "avg_green_fee",
         "avg_lodging_cost_per_night", "estimated_trip_cost",
-        "tags", "summary"
+        "tags", "summary", "image_url", "reviews_count",
+        "lodging_price_min", "lodging_price_max", "lodging_price_currency", 
+        "lodging_price_last_updated"
       ]
 
       # Data rows
@@ -33,7 +35,13 @@ namespace :export do
           location.avg_lodging_cost_per_night,
           location.estimated_trip_cost,
           location.tags&.join("|"),
-          location.summary
+          location.summary,
+          location.image_url,
+          location.reviews_count,
+          location.lodging_price_min,
+          location.lodging_price_max,
+          location.lodging_price_currency,
+          location.lodging_price_last_updated
         ]
       end
     end
@@ -47,7 +55,7 @@ namespace :export do
         "id", "name", "description", "latitude", "longitude",
         "course_type", "green_fee_range", "number_of_holes",
         "par", "yardage", "website_url", "layout_tags",
-        "notes", "green_fee", "location_id"
+        "notes", "green_fee", "location_id", "image_url"
       ]
 
       # Data rows
@@ -68,7 +76,8 @@ namespace :export do
           course.layout_tags&.join("|"),
           course.notes,
           course.green_fee,
-          location_id
+          location_id,
+          course.image_url
         ]
       end
     end
@@ -102,7 +111,13 @@ namespace :export do
         avg_lodging_cost_per_night: row["avg_lodging_cost_per_night"],
         estimated_trip_cost: row["estimated_trip_cost"],
         tags: row["tags"]&.split("|"),
-        summary: row["summary"]
+        summary: row["summary"],
+        image_url: row["image_url"],
+        reviews_count: row["reviews_count"],
+        lodging_price_min: row["lodging_price_min"],
+        lodging_price_max: row["lodging_price_max"],
+        lodging_price_currency: row["lodging_price_currency"],
+        lodging_price_last_updated: row["lodging_price_last_updated"]
       )
       if location.save
         print "."
@@ -129,7 +144,8 @@ namespace :export do
         website_url: row["website_url"],
         layout_tags: row["layout_tags"]&.split("|"),
         notes: row["notes"],
-        green_fee: row["green_fee"]
+        green_fee: row["green_fee"],
+        image_url: row["image_url"]
       )
       if course.save
         # Create or update location association
