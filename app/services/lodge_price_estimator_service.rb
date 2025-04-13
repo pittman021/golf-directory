@@ -14,36 +14,47 @@ class LodgePriceEstimatorService
   def build_prompt
     <<~PROMPT
       Based on the following information about a lodging establishment, estimate the typical price range per night in USD.
-      Only respond with the price range in the format "min-max" (e.g., "200-400").
-      
-      Name: #{@lodge.name}
-      Location: #{@lodge.location.name}
-      Rating: #{@lodge.rating}
-      Address: #{@lodge.address}
-      
-      Consider factors like:
+      Consider the following factors:
       - Location and proximity to golf courses
       - Rating and likely quality
       - Type of establishment (hotel, resort, etc.)
       - Typical prices for similar establishments in the area
-      
-      Respond only with the price range in the format "min-max".
+      - Seasonal variations
+      - Current market conditions
+
+      Establishment Details:
+      Name: #{@lodge.name}
+      Location: #{@lodge.location.name}, #{@lodge.location.state}
+      Rating: #{@lodge.rating}
+      Address: #{@lodge.formatted_address}
+      Types: #{@lodge.types.join(', ')}
+
+      Please provide a realistic price range in the format "min-max" (e.g., "200-400").
+      Consider that this is a golf destination, which may affect pricing.
+      Only respond with the price range in the format "min-max".
     PROMPT
   end
   
   def call_chatgpt(prompt)
-    # TODO: Implement actual ChatGPT API call
-    # For now, return a mock response
-    "300-500"
+    client = OpenAI::Client.new(access_token: Rails.application.credentials.openai[:api_key])
+    
+    response = client.chat(
+      parameters: {
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7
+      }
+    )
+    
+    response.dig("choices", 0, "message", "content").strip
   end
   
   def parse_response(response)
-    min_price, max_price = response.split('-').map(&:to_i)
-    {
-      min: min_price,
-      max: max_price,
-      source: 'ChatGPT Estimate',
-      notes: "Estimated based on establishment details and market analysis"
-    }
+    if response.is_a?(Hash) && response[:min].is_a?(Numeric) && response[:max].is_a?(Numeric)
+      response
+    else
+      puts "  Invalid price estimate for #{@lodge.name}: #{response.inspect}"
+      nil
+    end
   end
 end 

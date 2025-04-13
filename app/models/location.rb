@@ -36,6 +36,48 @@ class Location < ApplicationRecord
       'mountains'
     ]
 
+    # Set a default image URL for when none is provided
+    DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"
+
+    # Update image_url directly with a Cloudinary URL
+    def update_image_url(url)
+      update(image_url: url)
+    end
+
+    # Upload an image file directly to Cloudinary and store the URL
+    def upload_image(file)
+      return false unless file.respond_to?(:read)
+      
+      require 'cloudinary'
+      
+      begin
+        # Configure Cloudinary if needed
+        unless Cloudinary.config.cloud_name
+          Cloudinary.config do |config|
+            config.cloud_name = ENV['CLOUDINARY_CLOUD_NAME']
+            config.api_key = ENV['CLOUDINARY_API_KEY']
+            config.api_secret = ENV['CLOUDINARY_API_SECRET']
+            config.secure = true
+          end
+        end
+        
+        # Upload the image to Cloudinary
+        result = Cloudinary::Uploader.upload(file, 
+          folder: "golf_directory/locations",
+          public_id: "#{self.id}-#{self.name.parameterize}",
+          overwrite: true,
+          resource_type: "auto"
+        )
+        
+        # Store the URL in the image_url field
+        update(image_url: result['secure_url'])
+        true
+      rescue => e
+        Rails.logger.error "Error uploading image to Cloudinary: #{e.message}"
+        false
+      end
+    end
+
     def full_address
       [region, state, country].compact.join(', ')
     end
@@ -111,32 +153,39 @@ class Location < ApplicationRecord
       update_column(:estimated_trip_cost, new_total) unless estimated_trip_cost == new_total
     end
 
+    # Get URL for featured image
     def featured_image_url
-      if featured_image.attached?
-        # In production, this will use Cloudinary's URL
-        # In development, it will use the local storage URL
-        featured_image
-      else
-        # Default placeholder image
-        ActionController::Base.helpers.asset_path('placeholder_golf_course.jpg')
+      return image_url if image_url.present?
+      return nil unless featured_image.attached?
+      
+      begin
+        # Use ActiveStorage's URL generation
+        Rails.application.routes.url_helpers.url_for(featured_image)
+      rescue StandardError => e
+        Rails.logger.error "Error generating URL for featured image: #{e.message}"
+        nil
       end
     end
 
-    def featured_image_variant(size: 'medium')
-      return unless featured_image.attached?
-
-      case size
-      when 'thumbnail'
-        featured_image.variant(resize_to_fill: [150, 150])
-      when 'small'
-        featured_image.variant(resize_to_fill: [300, 200])
-      when 'medium'
-        featured_image.variant(resize_to_fill: [600, 400])
-      when 'large'
-        featured_image.variant(resize_to_fill: [1200, 800])
-      else
-        featured_image
-      end
+    # Generate a variant of the featured image
+    def featured_image_variant(size = 'medium')
+      return nil unless featured_image.attached?
+      
+      transformation = case size
+                       when 'thumbnail'
+                         { resize_to_fill: [150, 150] }
+                       when 'small'
+                         { resize_to_fill: [300, 200] }
+                       when 'medium'
+                         { resize_to_fill: [600, 400] }
+                       when 'large'
+                         { resize_to_fill: [1200, 800] }
+                       else
+                         { resize_to_fill: [600, 400] }
+                       end
+      
+      # Create the variant
+      featured_image.variant(transformation).processed
     end
 
     def destination_overview
@@ -194,6 +243,82 @@ class Location < ApplicationRecord
       lodging_cost = average_lodging_price * 3
       golf_cost = avg_green_fee * 3
       self.estimated_trip_cost = lodging_cost + golf_cost
+    end
+
+    def avg_lodging_cost_per_night
+      return nil unless lodging_price_min && lodging_price_max
+      (lodging_price_min + lodging_price_max) / 2
+    end
+
+    def has_lodging_data?
+      lodging_price_min.present? && lodging_price_max.present?
+    end
+
+    # Cloudinary helpers for direct URL transformations
+    def image_with_transformation(options = {})
+      return DEFAULT_IMAGE_URL if image_url.blank?
+      
+      # Default transformations
+      default_options = { width: 600, height: 400, crop: 'fill' }
+      
+      # Merge with provided options
+      transform_options = default_options.merge(options)
+      
+      # Generate Cloudinary URL with transformations
+      if image_url.include?('cloudinary')
+        # Parse existing URL and add transformations
+        uri = URI.parse(image_url)
+        path_parts = uri.path.split('/')
+        
+        # Find upload part and insert transformations
+        upload_index = path_parts.index('upload')
+        if upload_index
+          transform_string = transform_options.map { |k, v| "#{k}_#{v}" }.join(',')
+          path_parts.insert(upload_index + 1, transform_string)
+          uri.path = path_parts.join('/')
+          uri.to_s
+        else
+          image_url # Return original if we can't parse
+        end
+      else
+        image_url # Return original for non-Cloudinary URLs
+      end
+    end
+    
+    def thumbnail_image
+      image_with_transformation(width: 150, height: 150, crop: 'fill')
+    end
+    
+    def small_image
+      image_with_transformation(width: 300, height: 200, crop: 'fill')
+    end
+    
+    def medium_image
+      image_with_transformation(width: 600, height: 400, crop: 'fill')
+    end
+    
+    def large_image
+      image_with_transformation(width: 1200, height: 800, crop: 'fill')
+    end
+
+    # Get Cloudinary URL directly for featured image
+    def cloudinary_url
+      # If image_url is already a Cloudinary URL, use it directly
+      if image_url.present? && image_url.include?('cloudinary')
+        image_url
+      # Otherwise, try to get the featured image URL
+      elsif featured_image.attached?
+        begin
+          # Use ActiveStorage URL generation
+          Rails.application.routes.url_helpers.url_for(featured_image)
+        rescue => e
+          # If all else fails, use default image
+          DEFAULT_IMAGE_URL
+        end
+      else
+        # Default image as fallback
+        DEFAULT_IMAGE_URL
+      end
     end
 
     private

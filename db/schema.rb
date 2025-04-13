@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_13_163139) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,6 +58,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
     t.string "layout_tags", default: [], array: true
     t.string "notes"
     t.integer "green_fee"
+    t.string "image_url"
     t.index ["course_type"], name: "index_courses_on_course_type"
     t.index ["green_fee"], name: "index_courses_on_green_fee"
     t.index ["layout_tags"], name: "index_courses_on_layout_tags", using: :gin
@@ -96,6 +97,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_191357) do
     t.integer "lodging_price_max"
     t.string "lodging_price_currency", default: "USD"
     t.datetime "lodging_price_last_updated"
+    t.string "image_url"
     t.index ["latitude", "longitude"], name: "index_locations_on_latitude_and_longitude"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["region"], name: "index_locations_on_region"

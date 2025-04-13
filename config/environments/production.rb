@@ -39,6 +39,17 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :cloudinary
 
+  # Configure ActiveStorage URL options
+  config.after_initialize do
+    ActiveStorage::Current.url_options = { host: ENV['HOST'], protocol: 'https' }
+  end
+
+  # Configure Active Storage service URL expiration
+  config.active_storage.service_urls_expire_in = 1.day
+
+  # Use mini_magick for variant processing
+  config.active_storage.variant_processor = :mini_magick
+
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
   # config.action_cable.url = "wss://example.com/cable"

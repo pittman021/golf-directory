@@ -32,10 +32,18 @@ Rails.application.configure do
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  config.active_storage.service = :cloudinary
 
-  # Configure Active Storage host
-  Rails.application.routes.default_url_options[:host] = 'localhost:3000'
+  # Configure ActiveStorage URL options
+  config.after_initialize do
+    ActiveStorage::Current.url_options = { host: 'localhost:3000', protocol: 'http' }
+  end
+
+  # Configure Active Storage to use Cloudinary
+  config.active_storage.service_urls_expire_in = 1.hour
+
+  # Use mini_magick for variant processing
+  config.active_storage.variant_processor = :mini_magick
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

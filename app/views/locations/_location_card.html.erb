@@ -9,8 +9,20 @@
   
   <%= link_to location_path(location), class: "group" do %>
     <div class="relative rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div class="aspect-w-16 aspect-h-9 bg-gray-200">
-        <!-- Add image here when implemented -->
+      <div class="w-24 h-24 flex-shrink-0">
+        <% if location.present? && location.featured_image.attached? %>
+          <%= image_tag location.small_image || location.image_url,
+              class: "w-full h-full object-cover rounded-lg",
+              alt: "#{location.name} featured image" %>
+        <% elsif location.present? && location.image_url.present? %>
+          <%= image_tag location.image_url,
+              class: "w-full h-full object-cover rounded-lg",
+              alt: "#{location.name} image" %>
+        <% else %>
+          <%= image_tag 'placeholder_golf_course.jpg',
+              class: "w-full h-48 object-cover rounded-lg",
+              alt: "Golf course placeholder" %>
+        <% end %>
       </div>
       <div class="p-4">
         <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>

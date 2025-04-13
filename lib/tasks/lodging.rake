@@ -20,6 +20,155 @@
 # when you don't need to regenerate all destination data.
 
 namespace :lodging do
+  desc "Find and enrich lodging data for all locations"
+  task find_and_enrich_all: :environment do
+    puts "Starting comprehensive lodging enrichment for all locations..."
+    
+    Location.find_each do |location|
+      puts "\nProcessing #{location.name}..."
+      
+      # Step 1: Find lodging data
+      puts "Finding lodging options..."
+      enrichment_service = LodgingEnrichmentService.new(location)
+      lodgings = enrichment_service.enrich
+      
+      if lodgings.any?
+        puts "Found #{lodgings.size} lodging options"
+        
+        # Step 2: Get price estimates
+        puts "Estimating prices..."
+        price_estimates = lodgings.map do |lodge|
+          begin
+            estimator = LodgePriceEstimatorService.new(lodge)
+            estimate = estimator.estimate_price
+            
+            # Validate the estimate
+            if estimate.is_a?(Hash) && estimate[:min].is_a?(Numeric) && estimate[:max].is_a?(Numeric)
+              # Update the lodge's research status
+              lodge.complete_price_research(estimate)
+              puts "  #{lodge.name}: $#{estimate[:min]}-$#{estimate[:max]}"
+              estimate
+            else
+              puts "  Invalid price estimate for #{lodge.name}: #{estimate.inspect}"
+              nil
+            end
+          rescue => e
+            puts "  Error estimating price for #{lodge.name}: #{e.message}"
+            nil
+          end
+        end.compact
+        
+        if price_estimates.any?
+          # Calculate min and max from all estimates
+          min_price = price_estimates.map { |e| e[:min] }.min
+          max_price = price_estimates.map { |e| e[:max] }.max
+          
+          # Update location with price range
+          location.update_lodging_prices(
+            min: min_price,
+            max: max_price,
+            source: 'ChatGPT Estimate',
+            notes: "Based on analysis of #{price_estimates.size} lodging options"
+          )
+          
+          # Update estimated trip cost
+          location.calculate_estimated_trip_cost
+          location.save
+          
+          puts "\nUpdated #{location.name}:"
+          puts "- Lodging Options: #{lodgings.size}"
+          puts "- Lodging Price Range: $#{min_price}-$#{max_price}"
+          puts "- Estimated Trip Cost: $#{location.estimated_trip_cost}"
+        else
+          puts "  No valid price estimates were obtained for any lodgings"
+        end
+      else
+        puts "No lodgings found for #{location.name}"
+      end
+    end
+    
+    puts "\nEnrichment complete!"
+  end
+
+  desc "Find and enrich lodging data for a specific location"
+  task :find_and_enrich, [:location_name] => :environment do |t, args|
+    if args[:location_name].blank?
+      puts "Please provide a location name"
+      puts "Usage: rails lodging:find_and_enrich[Pebble Beach]"
+      exit
+    end
+    
+    location = Location.find_by(name: args[:location_name])
+    if location.nil?
+      puts "Error: Location not found"
+      exit
+    end
+    
+    puts "\nProcessing #{location.name}..."
+    
+    # Step 1: Find lodging data
+    puts "Finding lodging options..."
+    enrichment_service = LodgingEnrichmentService.new(location)
+    lodgings = enrichment_service.enrich
+    
+    if lodgings.any?
+      puts "Found #{lodgings.size} lodging options:"
+      lodgings.each do |lodge|
+        puts "- #{lodge.name} (Rating: #{lodge.rating})"
+      end
+      
+      # Step 2: Get price estimates
+      puts "\nEstimating prices..."
+      price_estimates = lodgings.map do |lodge|
+        begin
+          estimator = LodgePriceEstimatorService.new(lodge)
+          estimate = estimator.estimate_price
+          
+          # Validate the estimate
+          if estimate.is_a?(Hash) && estimate[:min].is_a?(Numeric) && estimate[:max].is_a?(Numeric)
+            # Update the lodge's research status
+            lodge.complete_price_research(estimate)
+            puts "  #{lodge.name}: $#{estimate[:min]}-$#{estimate[:max]}"
+            estimate
+          else
+            puts "  Invalid price estimate for #{lodge.name}: #{estimate.inspect}"
+            nil
+          end
+        rescue => e
+          puts "  Error estimating price for #{lodge.name}: #{e.message}"
+          nil
+        end
+      end.compact
+      
+      if price_estimates.any?
+        # Calculate min and max from all estimates
+        min_price = price_estimates.map { |e| e[:min] }.min
+        max_price = price_estimates.map { |e| e[:max] }.max
+        
+        # Update location with price range
+        location.update_lodging_prices(
+          min: min_price,
+          max: max_price,
+          source: 'ChatGPT Estimate',
+          notes: "Based on analysis of #{price_estimates.size} lodging options"
+        )
+        
+        # Update estimated trip cost
+        location.calculate_estimated_trip_cost
+        location.save
+        
+        puts "\nUpdated #{location.name}:"
+        puts "- Lodging Options: #{lodgings.size}"
+        puts "- Lodging Price Range: $#{min_price}-$#{max_price}"
+        puts "- Estimated Trip Cost: $#{location.estimated_trip_cost}"
+      else
+        puts "  No valid price estimates were obtained for any lodgings"
+      end
+    else
+      puts "No lodgings found for #{location.name}"
+    end
+  end
+
   desc "Enrich all locations with lodging data"
   task enrich_all: :environment do
     puts "Starting lodging enrichment for all locations..."

@@ -32,11 +32,14 @@ class GolfDestinationEnrichmentService
     puts "\nEnriching #{@location.name} with ChatGPT data..."
     
     begin
-      # Get data from ChatGPT
+      # Step 1: Get general destination data from ChatGPT
       data = get_chatgpt_data
       
-      # Update location with the data
-      if update_location(data)
+      # Step 2: Get lodging data and price estimates
+      lodging_data = enrich_lodging_data
+      
+      # Step 3: Update location with all data
+      if update_location(data, lodging_data)
         puts "✓ Successfully enriched #{@location.name}"
         true
       else
@@ -68,7 +71,7 @@ class GolfDestinationEnrichmentService
       - golf_culture
     PROMPT
 
-    client = OpenAI::Client.new
+    client = OpenAI::Client.new(access_token: Rails.application.credentials.openai[:api_key])
     response = client.chat(
       parameters: {
         model: "gpt-4",
@@ -80,14 +83,78 @@ class GolfDestinationEnrichmentService
     JSON.parse(response.dig("choices", 0, "message", "content"))
   end
 
-  def update_location(data)
-    @location.update!(
-      description: data['description'],
-      notable_courses: data['notable_courses'],
-      best_time_to_visit: data['best_time_to_visit'],
-      special_events: data['special_events'],
-      golf_culture: data['golf_culture']
-    )
+  def enrich_lodging_data
+    puts "Finding lodging options..."
+    enrichment_service = LodgingEnrichmentService.new(@location)
+    lodgings = enrichment_service.enrich
+    
+    if lodgings.any?
+      puts "Found #{lodgings.size} lodging options"
+      
+      # Get price estimates for each lodging
+      price_estimates = lodgings.map do |lodge|
+        begin
+          estimator = LodgePriceEstimatorService.new(lodge)
+          estimate = estimator.estimate_price
+          
+          # Validate the estimate
+          if estimate.is_a?(Hash) && estimate[:min].is_a?(Numeric) && estimate[:max].is_a?(Numeric)
+            # Update the lodge's research status
+            lodge.complete_price_research(estimate)
+            puts "  #{lodge.name}: $#{estimate[:min]}-$#{estimate[:max]}"
+            estimate
+          else
+            puts "  Invalid price estimate for #{lodge.name}: #{estimate.inspect}"
+            nil
+          end
+        rescue => e
+          puts "  Error estimating price for #{lodge.name}: #{e.message}"
+          nil
+        end
+      end.compact
+      
+      if price_estimates.any?
+        # Calculate min and max from all estimates
+        min_price = price_estimates.map { |e| e[:min] }.min
+        max_price = price_estimates.map { |e| e[:max] }.max
+        
+        {
+          lodging_price_min: min_price,
+          lodging_price_max: max_price,
+          lodging_price_source: 'ChatGPT Estimate',
+          lodging_price_notes: "Based on analysis of #{price_estimates.size} lodging options"
+        }
+      else
+        puts "  No valid price estimates were obtained for any lodgings"
+        nil
+      end
+    else
+      puts "No lodgings found for #{@location.name}"
+      nil
+    end
+  end
+
+  def update_location(data, lodging_data)
+    # Store the ChatGPT data in the summary field as JSON
+    update_params = {
+      summary: data.to_json
+    }
+    
+    # Add lodging data if available
+    if lodging_data.present?
+      update_params.merge!(
+        lodging_price_min: lodging_data[:lodging_price_min],
+        lodging_price_max: lodging_data[:lodging_price_max],
+        lodging_price_source: lodging_data[:lodging_price_source],
+        lodging_price_notes: lodging_data[:lodging_price_notes]
+      )
+    end
+    
+    @location.update!(update_params)
+    
+    # Update estimated trip cost if we have lodging data
+    @location.calculate_estimated_trip_cost if lodging_data.present?
+    @location.save
   rescue => e
     puts "Error updating location: #{e.message}"
     false

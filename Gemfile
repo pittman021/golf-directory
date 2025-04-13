@@ -91,3 +91,4 @@ group :test do
 end
 
 gem 'ruby-openai'
+gem 'activestorage-cloudinary-service'
