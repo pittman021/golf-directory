@@ -1,25 +1,75 @@
 <% content_for :google_maps, true %>
 
+<style>
+  /* Add scroll margin to account for the sticky header */
+  #information, #courses, #lodging {
+    scroll-margin-top: 60px;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Ensure the navigation stays fixed */
+  .sticky-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Add active state for navigation */
+  .nav-link.active {
+    background-color: rgba(53, 94, 59, 0.1);
+    font-weight: 600;
+  }
+</style>
+
 <div class="relative">
   <!-- Hero Image Section -->
   <div class="relative h-96 overflow-hidden">
     <%= image_tag @location.cloudinary_url,
-        class: "w-full h-64 object-cover rounded-lg",
+        class: "w-full h-96 object-cover rounded-lg",
         alt: "#{@location.name} featured image" %>
     <!-- Gradient Overlay -->
     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-  </div>
-</div>
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative -mt-32">
-  <!-- Location Header -->
-  <div class="mb-8">
-    <div class="flex justify-between items-start mb-4">
-      <div>
+    
+    <!-- Location Header Moved into Hero Image -->
+    <div class="absolute inset-x-0 bottom-0 p-6">
+      <div class="max-w-7xl mx-auto">
         <h1 class="text-4xl font-bold text-white drop-shadow-lg"><%= @location.name %></h1>
         <div class="text-lg text-white/90 mt-2 drop-shadow-md"><%= @location.state %></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Page Navigation - Sticky at top when scrolling -->
+<div class="sticky-nav">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="flex justify-center py-3">
+      <a href="#information" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Information
+      </a>
+      <a href="#courses" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Courses
+      </a>
+      <a href="#lodging" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Lodging
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- Add a spacer to prevent content jump when navigation becomes fixed -->
+<div class="h-4"></div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Location Header -->
+  <div class="mb-8">
     <div class="bg-white rounded-lg shadow-sm p-6">
       <div class="flex justify-between">
         <div class="flex-1">
@@ -81,12 +131,60 @@
                 <p class="text-lg font-semibold text-gray-900"><%= @location.nearest_airports %></p>
               </div>
             </div>
+            
+            <!-- Location Vibes / Tags -->
+            <% if @location.tags.present? %>
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-indigo-100 rounded-full p-2">
+                  <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="text-sm font-medium text-gray-500">Vibes</p>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <% @location.tags.each do |tag| %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                        <%= tag.titleize %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
 
-        <div class="ml-8 text-right">
-          <p class="text-4xl font-bold text-[#355E3B]">$<%= number_with_delimiter(@location.estimated_trip_cost) %></p>
-          <p class="text-sm text-gray-500">3 days and 4 rounds</p>
+        <div class="ml-8 flex flex-col items-end">
+          <div class="bg-[#f0f5f0] border border-[#355E3B]/20 rounded-lg p-4">
+            <p class="text-sm font-medium text-[#355E3B]">Est. Trip Cost</p>
+            <% if @location.estimated_trip_cost.present? %>
+              <p class="text-4xl font-bold text-[#355E3B]">$<%= number_with_delimiter(@location.estimated_trip_cost.to_i) %></p>
+            <% else %>
+              <p class="text-4xl font-bold text-[#355E3B]">Call for pricing</p>
+            <% end %>
+            <div class="mt-2 text-xs text-gray-600 border-t border-[#355E3B]/10 pt-2">
+              <p>Includes:</p>
+              <ul class="list-disc list-inside mt-1">
+                <li>3 nights lodging</li>
+                <li>3 rounds of golf</li>
+              </ul>
+            </div>
+            <div class="mt-2 text-xs text-gray-600">
+              <p class="flex justify-between">
+                <span>Lodging:</span>
+                <% if @location.has_lodging_data? %>
+                  <span class="font-medium">$<%= number_with_delimiter((@location.avg_lodging_cost_per_night * 3).to_i) %></span>
+                <% else %>
+                  <span class="font-medium">N/A</span>
+                <% end %>
+              </p>
+              <p class="flex justify-between">
+                <span>Golf:</span>
+                <span class="font-medium">$<%= number_with_delimiter((@location.avg_green_fee * 3).to_i) %></span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -95,76 +193,149 @@
   <!-- Main Content Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     <!-- Left Column: Information -->
-    <div>
+    <div id="information">
       <h2 class="text-2xl font-bold mb-4">Information</h2>
       <div class="bg-white rounded-lg shadow-sm p-6">
+        <% if @location.weather_info.present? %>
+          <!-- Weather Information -->
+          <div class="mb-6 pb-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Weather</h3>
+            <div class="flex items-center bg-blue-50 rounded-lg p-4">
+              <div class="flex-shrink-0 mr-4">
+                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+              </div>
+              <div class="prose text-gray-700">
+                <%= simple_format(@location.weather_info) %>
+                <div class="font-medium mt-2">Best time to visit: <%= @location.best_months %></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
         <% if @location.summary.present? %>
-          <% 
-            # Parse the summary JSON
-            summary_data = begin
-              JSON.parse(@location.summary)
-            rescue JSON::ParserError
-              nil
-            end
-          %>
-          
-          <% if summary_data.present? %>
-            <div class="space-y-6">
-              <!-- Destination Overview -->
-              <% if summary_data['destination_overview'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-                  <div class="prose max-w-none text-gray-700">
-                    <%= summary_data %>
-                  </div>
+          <div class="space-y-6">
+            <!-- Destination Overview -->
+            <% if @location.destination_overview.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <% paragraphs = @location.destination_overview.split("\n\n") %>
+                  <% paragraphs.each do |paragraph| %>
+                    <% if paragraph.strip.present? %>
+                      <p>
+                        <% lines = paragraph.split("\n") %>
+                        <% lines.each_with_index do |line, index| %>
+                          <% if index == 0 && lines.size > 1 %>
+                            <strong class="text-gray-900"><%= line %></strong><br>
+                          <% else %>
+                            <%= line %><%= '<br>'.html_safe unless index == lines.size - 1 %>
+                          <% end %>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
+            <% end %>
 
-              <!-- Golf Experience -->
-              <% if summary_data['golf_experience'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
-                  <div class="prose max-w-none text-gray-700">
-                    <%= simple_format(summary_data['golf_experience']) %>
-                  </div>
+            <!-- Golf Experience -->
+            <% if @location.golf_experience.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <% paragraphs = @location.golf_experience.split("\n\n") %>
+                  <% paragraphs.each do |paragraph| %>
+                    <% if paragraph.strip.present? %>
+                      <p>
+                        <% lines = paragraph.split("\n") %>
+                        <% lines.each_with_index do |line, index| %>
+                          <% if index == 0 && lines.size > 1 %>
+                            <strong class="text-gray-900"><%= line %></strong><br>
+                          <% else %>
+                            <%= line %><%= '<br>'.html_safe unless index == lines.size - 1 %>
+                          <% end %>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
+            <% end %>
 
-              <!-- Travel Information -->
-              <% if summary_data['travel_information'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
-                  <div class="prose max-w-none text-gray-700">
-                    <%= simple_format(summary_data['travel_information']) %>
-                  </div>
+            <!-- Travel Information -->
+            <% if @location.travel_information.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <% paragraphs = @location.travel_information.split("\n\n") %>
+                  <% paragraphs.each do |paragraph| %>
+                    <% if paragraph.strip.present? %>
+                      <p>
+                        <% lines = paragraph.split("\n") %>
+                        <% lines.each_with_index do |line, index| %>
+                          <% if index == 0 && lines.size > 1 %>
+                            <strong class="text-gray-900"><%= line %></strong><br>
+                          <% else %>
+                            <%= line %><%= '<br>'.html_safe unless index == lines.size - 1 %>
+                          <% end %>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
+            <% end %>
 
-              <!-- Local Attractions -->
-              <% if summary_data['local_attractions'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-                  <div class="prose max-w-none text-gray-700">
-                    <%= simple_format(summary_data['local_attractions']) %>
-                  </div>
+            <!-- Local Attractions -->
+            <% if @location.local_attractions.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <% paragraphs = @location.local_attractions.split("\n\n") %>
+                  <% paragraphs.each do |paragraph| %>
+                    <% if paragraph.strip.present? %>
+                      <p>
+                        <% lines = paragraph.split("\n") %>
+                        <% lines.each_with_index do |line, index| %>
+                          <% if index == 0 && lines.size > 1 %>
+                            <strong class="text-gray-900"><%= line %></strong><br>
+                          <% else %>
+                            <%= line %><%= '<br>'.html_safe unless index == lines.size - 1 %>
+                          <% end %>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
+            <% end %>
 
-              <!-- Practical Tips -->
-              <% if summary_data['practical_tips'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
-                  <div class="prose max-w-none text-gray-700">
-                    <%= simple_format(summary_data['practical_tips']) %>
-                  </div>
+            <!-- Practical Tips -->
+            <% if @location.practical_tips.present? %>
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <% paragraphs = @location.practical_tips.split("\n\n") %>
+                  <% paragraphs.each do |paragraph| %>
+                    <% if paragraph.strip.present? %>
+                      <p>
+                        <% lines = paragraph.split("\n") %>
+                        <% lines.each_with_index do |line, index| %>
+                          <% if index == 0 && lines.size > 1 %>
+                            <strong class="text-gray-900"><%= line %></strong><br>
+                          <% else %>
+                            <%= line %><%= '<br>'.html_safe unless index == lines.size - 1 %>
+                          <% end %>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  <% end %>
                 </div>
-              <% end %>
-            </div>
-          <% else %>
-            <div class="text-gray-500 italic">
-              The summary data is not in the correct format. Please regenerate the summary.
-            </div>
-          <% end %>
+              </div>
+            <% end %>
+          </div>
         <% else %>
           <div class="text-gray-500 italic">
             No detailed information available yet. Check back soon!
@@ -208,14 +379,14 @@
   </div>
 
   <!-- Courses Section -->
-  <div>
+  <div id="courses">
     <h2 class="text-2xl font-bold mb-6">Courses at <%= @location.name %></h2>
     <div class="space-y-4">
       <% @location.courses.each do |course| %>
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div class="flex">
+          <div class="flex flex-col md:flex-row">
             <!-- Image Column -->
-            <div class="w-48 flex-shrink-0">
+            <div class="w-full md:w-48 flex-shrink-0">
               <%= image_tag course.cloudinary_url,
                   class: "w-full h-48 object-cover rounded-lg",
                   alt: "#{course.name} image" %>
@@ -223,48 +394,83 @@
 
             <!-- Content Column -->
             <div class="flex-1 p-6">
-              <div class="flex justify-between items-start">
-                <div>
-                  <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row justify-between items-start">
+                <div class="flex-grow">
+                  <div class="flex flex-wrap items-center gap-4 mb-2">
                     <h3 class="text-xl font-semibold text-gray-900"><%= course.name %></h3>
-                    <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
-                  </div>
-                  
-                  <div class="mt-2 flex items-center gap-4">
-                    <div class="flex items-center">
-                      <span class="text-sm text-gray-600"><%= course.number_of_holes %> Holes</span>
-                      <span class="mx-2 text-gray-300">•</span>
-                      <span class="text-sm text-gray-600">Par <%= course.par %></span>
-                      <% if course.yardage.present? %>
-                        <span class="mx-2 text-gray-300">•</span>
-                        <span class="text-sm text-gray-600"><%= course.yardage %> yards</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
+                      <% if course.green_fee_range.present? %>
+                        <span class="text-sm font-medium px-2 py-1 bg-green-50 text-green-700 rounded-full">
+                          <%= course.green_fee_range %>
+                        </span>
                       <% end %>
                     </div>
                   </div>
+                  
+                  <div class="flex flex-wrap gap-2 mb-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <%= course.course_type.humanize.gsub('_', ' ') %>
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <%= course.number_of_holes %> Holes
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Par <%= course.par %>
+                    </span>
+                    <% if course.yardage.present? %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <%= course.yardage %> yards
+                      </span>
+                    <% end %>
+                  </div>
 
-                  <p class="mt-4 text-gray-600"><%= course.description %></p>
+                  <p class="text-gray-600 mb-4"><%= course.description %></p>
+                  
+                  <% if course.notes.present? %>
+                    <div class="mb-4 p-3 bg-amber-50 rounded-md text-amber-800 text-sm">
+                      <strong>Notes:</strong> <%= course.notes %>
+                    </div>
+                  <% end %>
 
-                  <div class="mt-4 flex flex-wrap gap-2">
+                  <div class="flex flex-wrap gap-2 mb-4">
                     <% course.layout_tags.each do |tag| %>
-                      <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <%= tag.titleize %>
                       </span>
                     <% end %>
                   </div>
-                </div>
-
-                <div class="flex items-center gap-4">
-                  <% if course.average_rating.present? %>
-                    <div class="flex items-center">
-                      <% course.average_rating.to_i.times do %>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  
+                  <% if course.website_url.present? %>
+                    <div class="mt-2">
+                      <%= link_to course.website_url, target: "_blank", class: "inline-flex items-center text-blue-600 hover:text-blue-800" do %>
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
+                        Visit Course Website
                       <% end %>
-                      <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %>)</span>
                     </div>
                   <% end %>
-                  <%= link_to "View Course", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+                </div>
+
+                <div class="flex flex-col items-end gap-4 mt-4 lg:mt-0">
+                  <% if course.average_rating.present? %>
+                    <div class="flex items-center bg-amber-50 rounded-lg p-2">
+                      <div class="mr-2 text-amber-500 text-sm font-medium">
+                        Rating:
+                      </div>
+                      <div class="flex items-center">
+                        <% course.average_rating.to_i.times do %>
+                          <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                        <% end %>
+                        <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %> reviews)</span>
+                      </div>
+                    </div>
+                  <% end %>
+                  
+                  <%= link_to "View Course Details", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
                 </div>
               </div>
             </div>
@@ -275,7 +481,7 @@
   </div>
 
   <!-- Lodging Section -->
-  <div class="mt-8">
+  <div id="lodging" class="mt-8">
     <h2 class="text-2xl font-bold mb-4">Lodging Options</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @location.lodgings.each do |lodging| %>
@@ -332,3 +538,48 @@
     </div>
   <% end %>
 </div>
+
+<!-- JavaScript for highlighting active section -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements to observe
+    const sections = document.querySelectorAll('#information, #courses, #lodging');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Create an intersection observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // If section is in view
+        if (entry.isIntersecting) {
+          // Get the corresponding nav link
+          const targetId = entry.target.id;
+          const targetLink = document.querySelector(`a[href="#${targetId}"]`);
+          
+          // Remove active class from all links
+          navLinks.forEach(link => link.classList.remove('active'));
+          
+          // Add active class to current link
+          if (targetLink) {
+            targetLink.classList.add('active');
+          }
+        }
+      });
+    }, {
+      rootMargin: '-80px 0px -80% 0px', // Adjust rootMargin to consider top navbar and trigger earlier
+      threshold: 0
+    });
+    
+    // Observe each section
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+    
+    // Initially highlight the first link
+    if (navLinks.length > 0) {
+      navLinks[0].classList.add('active');
+    }
+  });
+</script>
+
+</body>
+</html>

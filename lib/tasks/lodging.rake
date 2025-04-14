@@ -5,9 +5,15 @@
 # - Process lodging-specific data
 #
 # Usage:
-#   rails lodging:enrich_pebble_beach
-#   rails lodging:enrich_bandon_dunes
-#   etc.
+#   rails lodging:find_and_enrich[location_name]  # Find and enrich a specific location by name
+#   rails lodging:find_and_enrich_all             # Find and enrich all locations
+#   rails lodging:enrich[location_id]             # Enrich a specific location by ID
+#   rails lodging:enrich_all                      # Enrich all locations
+#   rails lodging:list[location_name]             # List lodgings for a location
+#
+# Examples:
+#   rails lodging:find_and_enrich["Pebble Beach"]
+#   rails lodging:list["Pebble Beach"]
 #
 # This task is useful for:
 # - Quick lodging-only updates
@@ -303,5 +309,40 @@ namespace :lodging do
     service = LodgingEnrichmentTestService.new
     result = service.enrich(args[:location_name])
     puts result
+  end
+
+  desc "List all lodgings for a specific location"
+  task :list, [:location_name] => :environment do |t, args|
+    if args[:location_name].blank?
+      puts "Please provide a location name"
+      puts "Usage: rails lodging:list[Pebble Beach]"
+      exit
+    end
+    
+    location = Location.find_by(name: args[:location_name])
+    if location.nil?
+      puts "Error: Location not found"
+      exit
+    end
+    
+    lodgings = location.lodgings.order(rating: :desc)
+    
+    if lodgings.any?
+      puts "\nLodgings for #{location.name}:"
+      puts "-" * 50
+      lodgings.each_with_index do |lodge, index|
+        puts "#{index + 1}. #{lodge.name}"
+        puts "   Rating: #{lodge.rating} ★"
+        puts "   Address: #{lodge.formatted_address}"
+        puts "   Price Range: #{lodge.price_range_display}" if lodge.respond_to?(:price_range_display)
+        puts "   Website: #{lodge.website}" if lodge.website.present?
+        puts "   Phone: #{lodge.formatted_phone_number}" if lodge.formatted_phone_number.present?
+        puts "-" * 50
+      end
+      puts "Total: #{lodgings.count} lodgings"
+    else
+      puts "No lodgings found for #{location.name}"
+      puts "To find lodgings, run: rails lodging:find_and_enrich[\"#{location.name}\"]"
+    end
   end
 end 

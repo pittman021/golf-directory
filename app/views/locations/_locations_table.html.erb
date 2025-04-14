@@ -1,17 +1,4 @@
-<div class="bg-white rounded-lg shadow">
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-      <tr>
-        <!-- Table headers -->
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <% locations.each do |location| %>
-        <tr>
-          <td><%= location.name %></td>
-          <!-- Add other table data here -->
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+<%# This is a redirection partial to avoid duplication %>
+<%# The main implementation is in app/views/pages/_locations_table.html.erb %>
+
+<%= render partial: "pages/locations_table", locals: { locations: locations } %>

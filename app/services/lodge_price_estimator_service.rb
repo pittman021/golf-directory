@@ -50,10 +50,24 @@ class LodgePriceEstimatorService
   end
   
   def parse_response(response)
-    if response.is_a?(Hash) && response[:min].is_a?(Numeric) && response[:max].is_a?(Numeric)
-      response
+    return nil unless response.is_a?(String)
+    
+    puts "Raw price response for #{@lodge.name}: #{response}"
+    
+    # Extract price range using regex (looking for pattern like "100-200")
+    if match = response.match(/(\d+)-(\d+)/)
+      min_price = match[1].to_i
+      max_price = match[2].to_i
+      
+      # Ensure min is actually less than max
+      if min_price > max_price
+        min_price, max_price = max_price, min_price
+      end
+      
+      # Return a hash with min and max prices
+      { min: min_price, max: max_price }
     else
-      puts "  Invalid price estimate for #{@lodge.name}: #{response.inspect}"
+      puts "  Invalid price estimate format for #{@lodge.name}: #{response.inspect}"
       nil
     end
   end

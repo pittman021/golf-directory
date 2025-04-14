@@ -21,18 +21,18 @@
           controller: "filters comparison",
           filters_target: "form"
         } do %>
-      <div class="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
+      <div class="mb-6 grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-3 sm:gap-4 sm:flex sm:items-center sm:justify-center">
         <%= select_tag :region,
             options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
-            { prompt: "All Regions",
-              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+            { prompt: "Regions",
+              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter", filters_target: "regionSelect" },
               id: "region" } %>
         
         <%= select_tag :state,
             options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
-            { prompt: "All States",
-              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+            { prompt: "States",
+              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter", filters_target: "stateSelect" },
               id: "state" } %>
         
@@ -43,8 +43,8 @@
               ['Premium ($2,501 - $4,000)', 'premium'],
               ['Luxury ($4,000+)', 'luxury']
             ], params[:price_category]),
-            { prompt: "All Price Ranges",
-              class: "w-full sm:w-auto rounded-lg border-gray-300 py-2 pl-3 pr-10 text-base focus:ring-[#355E3B] focus:border-[#355E3B]",
+            { prompt: "Prices",
+              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter" } } %>
       </div>
     <% end %>
@@ -78,7 +78,7 @@
                     Avg Green Fee
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Avg Lodging
+                    Lodging
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Est Trip Cost
@@ -114,11 +114,10 @@
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-900">
                       <div class="text-gray-900">
-                        <span class="font-medium">Lodging:</span>
-                        <% if location.has_lodging_data? %>
+                        <% if location.avg_lodging_cost_per_night.present? %>
                           <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %>
                         <% else %>
-                          <span class="text-gray-500">No lodging data available</span>
+                          <span class="text-gray-500">No data</span>
                         <% end %>
                       </div>
                     </td>
@@ -162,5 +161,11 @@
   
   .sort-indicator {
     @apply opacity-50 group-hover:opacity-100 transition-opacity duration-200;
+  }
+  
+  @media (min-width: 480px) {
+    .xs\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>

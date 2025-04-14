@@ -55,7 +55,7 @@ class PagesController < ApplicationController
     when 'estimated_trip_cost'
       locations.order("estimated_trip_cost #{sort_direction}, name")
     else
-      locations.order('avg_rating DESC, name')
+      locations.order('estimated_trip_cost DESC, name')
     end
   end
 

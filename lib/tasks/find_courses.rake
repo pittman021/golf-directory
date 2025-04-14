@@ -23,11 +23,11 @@ namespace :golf do
     
     # Update location statistics
     location.update_avg_green_fee
-    location.update_estimated_trip_cost
+    location.calculate_and_update_trip_cost
     
     puts "\nFound #{location.courses.count} courses in Las Vegas:"
     location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
+      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
     end
     
     puts "\nLocation Statistics:"
@@ -62,11 +62,11 @@ namespace :golf do
     
     # Update location statistics
     location.update_avg_green_fee
-    location.update_estimated_trip_cost
+    location.calculate_and_update_trip_cost
     
     puts "\nFound #{location.courses.count} courses in #{location.name}:"
     location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
+      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
     end
     
     puts "\nLocation Statistics:"
