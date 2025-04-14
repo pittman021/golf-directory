@@ -18,6 +18,17 @@ class PagesController < ApplicationController
     @locations = @locations.where(region: params[:region]) if params[:region].present?
     @locations = @locations.where(state: params[:state]) if params[:state].present?
     
+    # Handle multiple tags for filtering
+    if params[:tags].present?
+      if params[:tags].is_a?(Array)
+        # Handle multiple selected tags
+        @locations = @locations.where("tags && ARRAY[?]::varchar[]", params[:tags])
+      else
+        # Handle single tag (backward compatibility)
+        @locations = @locations.by_tag(params[:tags])
+      end
+    end
+    
     # Filter by price category
     if params[:price_category].present?
       case params[:price_category]

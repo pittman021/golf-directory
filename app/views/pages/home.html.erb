@@ -21,7 +21,7 @@
           controller: "filters comparison",
           filters_target: "form"
         } do %>
-      <div class="mb-6 grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-3 sm:gap-4 sm:flex sm:items-center sm:justify-center">
+      <div class="mb-6 grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-3 sm:gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
         <%= select_tag :region,
             options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
             { prompt: "Regions",
@@ -46,6 +46,13 @@
             { prompt: "Prices",
               class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter" } } %>
+              
+        <%= select_tag :tags,
+            options_for_select(Location::VIBES.map { |tag| [tag.titleize, tag] }, params[:tags]),
+            { multiple: true, size: 2,
+              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+              data: { action: "change->filters#filter" },
+              title: "Hold Ctrl/Cmd to select multiple vibes" } %>
       </div>
     <% end %>
 

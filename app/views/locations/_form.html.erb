@@ -61,6 +61,18 @@
     <%= f.label :longitude %>
     <%= f.text_field :longitude %>
   </div>
+  
+  <div class="field">
+    <%= f.label :tags, "Location Vibes" %>
+    <div class="flex flex-wrap gap-2">
+      <%= f.collection_check_boxes :tags, Location::VIBES, :to_s, :titleize do |b| %>
+        <div class="flex items-center">
+          <%= b.check_box(class: "mr-1") %>
+          <%= b.label %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <div class="actions">
     <%= f.submit %>

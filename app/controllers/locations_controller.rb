@@ -18,9 +18,15 @@ class LocationsController < ApplicationController
       @locations = @locations.by_state(params[:state])
     end
     
-    # Filter by tag if parameter present
-    if params[:tag].present?
-      @locations = @locations.by_tag(params[:tag])
+    # Handle multiple tags for filtering
+    if params[:tags].present?
+      if params[:tags].is_a?(Array)
+        # Handle multiple selected tags
+        @locations = @locations.where("tags && ARRAY[?]::varchar[]", params[:tags])
+      else
+        # Handle single tag (backward compatibility)
+        @locations = @locations.by_tag(params[:tag])
+      end
     end
     
     # Filter by budget if parameter present

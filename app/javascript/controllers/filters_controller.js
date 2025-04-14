@@ -47,15 +47,39 @@ export default class extends Controller {
   submitForm() {
     console.log("SubmitForm method called")
     const url = new URL(window.location.href)
-    const formData = new FormData(this.formTarget)
     
-    formData.forEach((value, key) => {
-      if (value) {
-        url.searchParams.set(key, value)
-      } else {
+    // Clear existing params except those we want to preserve
+    for (const key of [...url.searchParams.keys()]) {
+      if (!['utf8', 'authenticity_token'].includes(key)) {
         url.searchParams.delete(key)
       }
-    })
+    }
+    
+    // Use FormData to gather all inputs, including multi-selects
+    const form = this.formTarget
+    const formElements = form.elements
+    
+    for (let i = 0; i < formElements.length; i++) {
+      const element = formElements[i]
+      const name = element.name
+      
+      // Skip buttons and elements without names
+      if (!name || element.type === 'submit') continue
+      
+      // Handle select multiple
+      if (element.type === 'select-multiple') {
+        const selectedOptions = Array.from(element.selectedOptions)
+        if (selectedOptions.length > 0) {
+          selectedOptions.forEach(option => {
+            url.searchParams.append(name, option.value)
+          })
+        }
+      } 
+      // Handle regular inputs
+      else if (element.value) {
+        url.searchParams.set(name, element.value)
+      }
+    }
 
     console.log("Fetching URL:", url.toString())
 
