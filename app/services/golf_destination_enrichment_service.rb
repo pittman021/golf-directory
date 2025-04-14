@@ -56,19 +56,18 @@ class GolfDestinationEnrichmentService
 
   def get_chatgpt_data
     prompt = <<~PROMPT
-      Please provide information about #{@location.name} as a golf destination. Include:
-      1. A brief description of the golf scene
-      2. Notable golf courses in the area
-      3. Best time of year to visit for golf
-      4. Any special events or tournaments
-      5. Local golf culture and atmosphere
+      Please provide comprehensive information about #{@location.name} as a golf destination. 
+      Format the response as a detailed JSON object with these exact keys:
       
-      Format the response as a JSON object with these keys:
-      - description
-      - notable_courses
-      - best_time_to_visit
-      - special_events
-      - golf_culture
+      - description: A detailed overview of #{@location.name} as a golf destination (2-3 paragraphs)
+      - notable_courses: A bullet-point list of 3-5 notable golf courses in the area with brief descriptions
+      - best_time_to_visit: Information about weather patterns and optimal seasons for golfing
+      - special_events: Any tournaments, golf festivals, or special events held in the area
+      - golf_culture: The local golf atmosphere, traditions, and unique aspects of golfing in this area
+      - local_attractions: Brief overview of non-golf attractions visitors might enjoy
+      - practical_tips: Useful information like transportation options, golf packages, or booking advice
+      
+      Return only the JSON object without any additional text or explanations.
     PROMPT
 
     client = OpenAI::Client.new(access_token: Rails.application.credentials.openai[:api_key])
@@ -120,9 +119,7 @@ class GolfDestinationEnrichmentService
         
         {
           lodging_price_min: min_price,
-          lodging_price_max: max_price,
-          lodging_price_source: 'ChatGPT Estimate',
-          lodging_price_notes: "Based on analysis of #{price_estimates.size} lodging options"
+          lodging_price_max: max_price
         }
       else
         puts "  No valid price estimates were obtained for any lodgings"
@@ -135,9 +132,27 @@ class GolfDestinationEnrichmentService
   end
 
   def update_location(data, lodging_data)
-    # Store the ChatGPT data in the summary field as JSON
+    # Transform the ChatGPT data into the expected format for the Location model
+    transformed_data = {
+      'destination_overview' => data['description'] || '',
+      'golf_experience' => [
+        (data['notable_courses'].present? ? "Notable Courses:\n#{data['notable_courses']}" : ''),
+        (data['special_events'].present? ? "Events & Tournaments:\n#{data['special_events']}" : ''),
+        (data['golf_culture'].present? ? "Golf Culture:\n#{data['golf_culture']}" : '')
+      ].reject(&:empty?).join("\n\n"),
+      'travel_information' => data['best_time_to_visit'] || '',
+      'local_attractions' => data['local_attractions'] || '',
+      'practical_tips' => data['practical_tips'] || ''
+    }
+    
+    # Remove any empty fields
+    transformed_data.each do |key, value|
+      transformed_data[key] = nil if value.blank?
+    end
+    
+    # Store the transformed data in the summary field as JSON
     update_params = {
-      summary: data.to_json
+      summary: transformed_data.to_json
     }
     
     # Add lodging data if available
@@ -145,8 +160,8 @@ class GolfDestinationEnrichmentService
       update_params.merge!(
         lodging_price_min: lodging_data[:lodging_price_min],
         lodging_price_max: lodging_data[:lodging_price_max],
-        lodging_price_source: lodging_data[:lodging_price_source],
-        lodging_price_notes: lodging_data[:lodging_price_notes]
+        lodging_price_currency: 'USD',
+        lodging_price_last_updated: Time.current
       )
     end
     

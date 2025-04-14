@@ -82,10 +82,89 @@ namespace :export do
       end
     end
     puts "✓ Courses exported to courses.csv"
+    
+    # Export Lodgings
+    puts "\nExporting lodgings..."
+    CSV.open("lodgings.csv", "wb") do |csv|
+      # Header row
+      csv << [
+        "id", "google_place_id", "name", "types", "rating",
+        "latitude", "longitude", "formatted_address", "formatted_phone_number",
+        "website", "research_notes", "research_status", "research_last_attempted",
+        "research_attempts", "location_id", "is_featured", "display_order",
+        "photo_reference"
+      ]
+
+      # Data rows
+      Lodging.includes(:location).each do |lodging|
+        csv << [
+          lodging.id,
+          lodging.google_place_id,
+          lodging.name,
+          lodging.types&.join("|"),
+          lodging.rating,
+          lodging.latitude,
+          lodging.longitude,
+          lodging.formatted_address,
+          lodging.formatted_phone_number,
+          lodging.website,
+          lodging.research_notes,
+          lodging.research_status,
+          lodging.research_last_attempted,
+          lodging.research_attempts,
+          lodging.location_id,
+          lodging.is_featured,
+          lodging.display_order,
+          lodging.photo_reference
+        ]
+      end
+    end
+    puts "✓ Lodgings exported to lodgings.csv"
 
     puts "\nExport complete! Files created:"
     puts "- locations.csv"
     puts "- courses.csv"
+    puts "- lodgings.csv"
+  end
+
+  desc "Export only lodgings to CSV file"
+  task lodgings: :environment do
+    puts "Exporting lodgings..."
+    CSV.open("lodgings.csv", "wb") do |csv|
+      # Header row
+      csv << [
+        "id", "google_place_id", "name", "types", "rating",
+        "latitude", "longitude", "formatted_address", "formatted_phone_number",
+        "website", "research_notes", "research_status", "research_last_attempted",
+        "research_attempts", "location_id", "is_featured", "display_order",
+        "photo_reference"
+      ]
+
+      # Data rows
+      Lodging.includes(:location).each do |lodging|
+        csv << [
+          lodging.id,
+          lodging.google_place_id,
+          lodging.name,
+          lodging.types&.join("|"),
+          lodging.rating,
+          lodging.latitude,
+          lodging.longitude,
+          lodging.formatted_address,
+          lodging.formatted_phone_number,
+          lodging.website,
+          lodging.research_notes,
+          lodging.research_status,
+          lodging.research_last_attempted,
+          lodging.research_attempts,
+          lodging.location_id,
+          lodging.is_featured,
+          lodging.display_order,
+          lodging.photo_reference
+        ]
+      end
+    end
+    puts "✓ Lodgings exported to lodgings.csv"
   end
 
   desc "Import locations and courses from CSV files"
@@ -252,6 +331,89 @@ namespace :export do
       end
     end
     puts "\n✓ Courses imported"
+
+    # Diagnostic information
+    puts "\nDiagnostic information for Lodging model:"
+    puts "Available columns: #{Lodging.column_names.inspect}"
+    
+    # Import Lodgings
+    puts "\nImporting lodgings..."
+    CSV.foreach("lodgings.csv", headers: true) do |row|
+      lodging = Lodging.find_or_initialize_by(id: row["id"])
+      
+      # Create a hash of attributes that exist on the model
+      attrs = {}
+      
+      # Core attributes that should exist in all environments
+      attrs[:google_place_id] = row["google_place_id"] if row["google_place_id"].present?
+      attrs[:name] = row["name"] if row["name"].present?
+      attrs[:location_id] = row["location_id"] if row["location_id"].present?
+      
+      # Optional attributes that might not exist in all environments
+      if row["types"].present? && Lodging.column_names.include?("types")
+        attrs[:types] = row["types"].split("|")
+      end
+      
+      if row["rating"].present? && Lodging.column_names.include?("rating")
+        attrs[:rating] = row["rating"]
+      end
+      
+      if row["latitude"].present? && Lodging.column_names.include?("latitude")
+        attrs[:latitude] = row["latitude"]
+      end
+      
+      if row["longitude"].present? && Lodging.column_names.include?("longitude")
+        attrs[:longitude] = row["longitude"]
+      end
+      
+      if row["formatted_address"].present? && Lodging.column_names.include?("formatted_address")
+        attrs[:formatted_address] = row["formatted_address"]
+      end
+      
+      if row["formatted_phone_number"].present? && Lodging.column_names.include?("formatted_phone_number")
+        attrs[:formatted_phone_number] = row["formatted_phone_number"]
+      end
+      
+      if row["website"].present? && Lodging.column_names.include?("website")
+        attrs[:website] = row["website"]
+      end
+      
+      if row["research_notes"].present? && Lodging.column_names.include?("research_notes")
+        attrs[:research_notes] = row["research_notes"]
+      end
+      
+      if row["research_status"].present? && Lodging.column_names.include?("research_status")
+        attrs[:research_status] = row["research_status"]
+      end
+      
+      if row["research_last_attempted"].present? && Lodging.column_names.include?("research_last_attempted")
+        attrs[:research_last_attempted] = row["research_last_attempted"]
+      end
+      
+      if row["research_attempts"].present? && Lodging.column_names.include?("research_attempts")
+        attrs[:research_attempts] = row["research_attempts"]
+      end
+      
+      if row["is_featured"].present? && Lodging.column_names.include?("is_featured")
+        attrs[:is_featured] = row["is_featured"] == "true"
+      end
+      
+      if row["display_order"].present? && Lodging.column_names.include?("display_order")
+        attrs[:display_order] = row["display_order"]
+      end
+      
+      if row["photo_reference"].present? && Lodging.column_names.include?("photo_reference")
+        attrs[:photo_reference] = row["photo_reference"]
+      end
+      
+      if lodging.update(attrs)
+        print "."
+      else
+        print "F"
+        puts "\nError saving lodging #{row['id']}: #{lodging.errors.full_messages.join(', ')}"
+      end
+    end
+    puts "\n✓ Lodgings imported"
 
     puts "\nImport complete!"
   end
