@@ -1,0 +1,99 @@
+<%= form_with(model: course, local: true, html: { multipart: true }) do |f| %>
+  <% if course.errors.any? %>
+    <div class="error-messages">
+      <h2><%= pluralize(course.errors.count, "error") %> prohibited this course from being saved:</h2>
+      <ul>
+        <% course.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :featured_image, "Course Image" %>
+    <%= f.file_field :featured_image, direct_upload: true %>
+
+    <% if course.featured_image.attached? %>
+      <div class="mt-2">
+        <p>Current image:</p>
+        <%= image_tag url_for(course.featured_image), class: "w-48 h-32 object-cover" %>
+      </div>
+    <% elsif course.image_url.present? %>
+      <div class="mt-2">
+        <p>Current image:</p>
+        <%= image_tag course.image_url, class: "w-48 h-32 object-cover" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :course_type %>
+    <%= f.select :course_type, Course.course_types.keys.map { |type| [type.humanize, type] } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :location_ids, "Locations" %>
+    <%= f.collection_select :location_ids, @locations, :id, :name, {}, { multiple: true, class: "w-full" } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :number_of_holes %>
+    <%= f.select :number_of_holes, [9, 18] %>
+  </div>
+
+  <div class="field">
+    <%= f.label :par %>
+    <%= f.number_field :par %>
+  </div>
+
+  <div class="field">
+    <%= f.label :yardage %>
+    <%= f.number_field :yardage %>
+  </div>
+
+  <div class="field">
+    <%= f.label :green_fee, "Green Fee ($)" %>
+    <%= f.number_field :green_fee %>
+  </div>
+
+  <div class="field">
+    <%= f.label :website_url %>
+    <%= f.url_field :website_url %>
+  </div>
+
+  <div class="field">
+    <%= f.label :course_tags, "Course Features & Tags" %>
+    
+    <% TAG_CATEGORIES.each do |category, tags| %>
+      <h3 class="font-medium text-gray-700 mt-4 mb-2"><%= category %></h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <% tags.each do |tag| %>
+          <div class="flex items-center">
+            <%= check_box_tag "course[course_tags][]", tag, course.course_tags&.include?(tag), id: "tag_#{tag.parameterize}", class: "mr-1" %>
+            <%= label_tag "tag_#{tag.parameterize}", tag.titleize %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="field">
+    <%= f.label :notes %>
+    <%= f.text_area :notes %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %> 

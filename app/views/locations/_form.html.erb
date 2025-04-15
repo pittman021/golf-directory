@@ -63,8 +63,10 @@
   </div>
   
   <div class="field">
-    <%= f.label :tags, "Location Vibes" %>
-    <div class="flex flex-wrap gap-2">
+    <%= f.label :tags, "Location Tags" %>
+    
+    <h3 class="font-medium text-gray-700 mt-4 mb-2">Location Vibes</h3>
+    <div class="flex flex-wrap gap-2 mb-4">
       <%= f.collection_check_boxes :tags, Location::VIBES, :to_s, :titleize do |b| %>
         <div class="flex items-center">
           <%= b.check_box(class: "mr-1") %>
@@ -72,6 +74,38 @@
         </div>
       <% end %>
     </div>
+    
+    <% # Manual tag selection by category %>
+    <% TAG_CATEGORIES.each do |category, tags| %>
+      <h3 class="font-medium text-gray-700 mt-4 mb-2"><%= category %></h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <% tags.each do |tag| %>
+          <% # Skip layout feature tags as they're managed via courses %>
+          <% next if category == "Layout Features" %>
+          
+          <% # Check if tag is manually added (not derived) %>
+          <% is_manual = location.tags.include?(tag) && !location.derived_tags.include?(tag) %>
+          
+          <div class="flex items-center">
+            <%= check_box_tag "location[tags][]", tag, is_manual, id: "tag_#{tag.parameterize}", class: "mr-1" %>
+            <%= label_tag "tag_#{tag.parameterize}", tag.titleize %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <% # Show derived tags as disabled %>
+    <% if location.persisted? && location.derived_tags.any? %>
+      <h3 class="font-medium text-gray-700 mt-4 mb-2">Tags Derived From Courses</h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <% location.derived_tags.each do |tag| %>
+          <div class="flex items-center">
+            <%= check_box_tag "derived_tag_#{tag}", tag, true, disabled: true, class: "mr-1" %>
+            <%= label_tag "derived_tag_#{tag}", tag.titleize, class: "text-gray-500" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <div class="actions">

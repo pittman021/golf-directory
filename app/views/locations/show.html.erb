@@ -434,7 +434,7 @@
                   <% end %>
 
                   <div class="flex flex-wrap gap-2 mb-4">
-                    <% course.layout_tags.each do |tag| %>
+                    <% course.course_tags.each do |tag| %>
                       <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <%= tag.titleize %>
                       </span>
@@ -537,49 +537,107 @@
       </div>
     </div>
   <% end %>
-</div>
 
-<!-- JavaScript for highlighting active section -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Elements to observe
-    const sections = document.querySelectorAll('#information, #courses, #lodging');
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    // Create an intersection observer
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        // If section is in view
-        if (entry.isIntersecting) {
-          // Get the corresponding nav link
-          const targetId = entry.target.id;
-          const targetLink = document.querySelector(`a[href="#${targetId}"]`);
-          
-          // Remove active class from all links
-          navLinks.forEach(link => link.classList.remove('active'));
-          
-          // Add active class to current link
-          if (targetLink) {
-            targetLink.classList.add('active');
+  <h2 class="text-2xl font-bold text-gray-700 mb-4">About <%= @location.name %></h2>
+  
+  <!-- Location Tags -->
+  <div class="mb-6">
+    <h3 class="text-lg font-semibold text-gray-600 mb-2">Features & Highlights</h3>
+    <div class="flex flex-wrap gap-2">
+      <% # Categorize tags for display %>
+      <% tag_by_category = {} %>
+      <% @location.tags.each do |tag| %>
+        <% category = nil %>
+        <% TAG_CATEGORIES.each do |cat, tags| %>
+          <% if tags.include?(tag) %>
+            <% category = cat %>
+            <% break %>
+          <% end %>
+        <% end %>
+        <% category ||= "Other" %>
+        <% tag_by_category[category] ||= [] %>
+        <% tag_by_category[category] << tag %>
+      <% end %>
+      
+      <% # Display tags by category with different color styling %>
+      <% tag_by_category.each do |category, tags| %>
+        <div class="mb-3 w-full">
+          <h4 class="text-sm font-medium text-gray-500 mb-1"><%= category %></h4>
+          <div class="flex flex-wrap gap-1">
+            <% tags.each do |tag| %>
+              <% 
+                classes = case category
+                  when "Experience" then "bg-blue-100 text-blue-800"
+                  when "Design & Style" then "bg-green-100 text-green-800"
+                  when "Amenities" then "bg-purple-100 text-purple-800"
+                  when "Trip Type" then "bg-amber-100 text-amber-800"
+                  else "bg-gray-100 text-gray-800"
+                end
+              %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= classes %>">
+                <% # Add icon for certain key tags %>
+                <% if tag == "top_100_courses" %>
+                  🎖️ Top 100
+                <% elsif tag == "pga_event_host" || tag == "major_championship_host" %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                <% end %>
+                <%= tag.titleize %>
+                <% # Show a small indicator if tag is derived from courses %>
+                <% if @location.derived_tags.include?(tag) %>
+                  <span class="ml-1 w-2 h-2 rounded-full bg-current opacity-50" title="Derived from courses"></span>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- JavaScript for highlighting active section -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements to observe
+      const sections = document.querySelectorAll('#information, #courses, #lodging');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      // Create an intersection observer
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          // If section is in view
+          if (entry.isIntersecting) {
+            // Get the corresponding nav link
+            const targetId = entry.target.id;
+            const targetLink = document.querySelector(`a[href="#${targetId}"]`);
+            
+            // Remove active class from all links
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Add active class to current link
+            if (targetLink) {
+              targetLink.classList.add('active');
+            }
           }
-        }
+        });
+      }, {
+        rootMargin: '-80px 0px -80% 0px', // Adjust rootMargin to consider top navbar and trigger earlier
+        threshold: 0
       });
-    }, {
-      rootMargin: '-80px 0px -80% 0px', // Adjust rootMargin to consider top navbar and trigger earlier
-      threshold: 0
+      
+      // Observe each section
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+      
+      // Initially highlight the first link
+      if (navLinks.length > 0) {
+        navLinks[0].classList.add('active');
+      }
     });
-    
-    // Observe each section
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-    
-    // Initially highlight the first link
-    if (navLinks.length > 0) {
-      navLinks[0].classList.add('active');
-    }
-  });
-</script>
+  </script>
+</div>
 
 </body>
 </html>

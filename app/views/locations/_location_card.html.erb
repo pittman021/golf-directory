@@ -106,13 +106,55 @@
           
           <!-- Tags -->
           <div class="mt-3 flex flex-wrap gap-1">
-            <% if location.tags.present? %>
-              <% location.tags.take(2).each do |tag| %>
-                <span class="inline-block px-2 py-0.5 bg-gray-100 rounded-md text-xs text-gray-800">
+            <% # Show top priority tags with icons %>
+            <% 
+              top_tags = []
+              top_tags << "top_100_courses" if location.tags.include?("top_100_courses")
+              top_tags << "pga_event_host" if location.tags.include?("pga_event_host")
+              top_tags << "bucket_list" if location.tags.include?("bucket_list")
+              top_tags << "multiple_courses" if location.tags.include?("multiple_courses")
+            %>
+            
+            <% top_tags.take(3).each do |tag| %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
+                           <%= tag == 'top_100_courses' ? 'bg-blue-100 text-blue-800' : 
+                              tag == 'pga_event_host' ? 'bg-purple-100 text-purple-800' :
+                              tag == 'bucket_list' ? 'bg-red-100 text-red-800' : 
+                              'bg-green-100 text-green-800' %>">
+                <% if tag == 'top_100_courses' %>
+                  🎖️ 
+                <% elsif tag == 'pga_event_host' %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
                   <%= tag.titleize %>
-                </span>
-              <% end %>
+                <% elsif tag == 'bucket_list' %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                <% else %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+                  </svg>
+                <% end %>
+                <%= tag.titleize %>
+              </span>
             <% end %>
+            
+            <% 
+              # Show additional tags if we don't have high priority ones
+              remaining_count = 3 - top_tags.size
+              if remaining_count > 0
+                remaining_tags = location.tags.reject { |t| top_tags.include?(t) }.take(remaining_count)
+                remaining_tags.each do |tag| 
+            %>
+              <span class="inline-block px-2 py-0.5 bg-gray-100 rounded-md text-xs text-gray-800">
+                <%= tag.titleize %>
+              </span>
+            <% 
+                end
+              end
+            %>
           </div>
         </div>
         

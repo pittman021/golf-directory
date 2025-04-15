@@ -17,6 +17,123 @@ export default class extends Controller {
         console.error("Error initializing states dropdown:", error)
       })
     }
+
+    // Initialize the hidden tags field with current tag values
+    this.currentTags = new Set(this.getSelectedTags())
+  }
+
+  // Get currently selected tags from URL or DOM
+  getSelectedTags() {
+    // Try to get tags from URL params
+    const url = new URL(window.location.href)
+    const tagParams = url.searchParams.getAll('tags[]')
+    
+    if (tagParams.length > 0) {
+      return tagParams
+    }
+    
+    // If no tags in URL, try to get from existing tag elements
+    const selectedTagElements = document.querySelectorAll('#selected_tags span')
+    return Array.from(selectedTagElements).map(el => {
+      const removeButton = el.querySelector('button')
+      return removeButton ? removeButton.dataset.tag : null
+    }).filter(tag => tag)
+  }
+
+  // Add a tag when a dropdown is changed
+  addTag(event) {
+    const dropdown = event.target
+    const tagValue = dropdown.value
+    
+    if (!tagValue) return // Skip if nothing selected
+    
+    // Add the tag to our collection if it's not already there
+    if (!this.currentTags.has(tagValue)) {
+      this.currentTags.add(tagValue)
+      
+      // Update the hidden field with all current tags
+      this.updateHiddenTagsField()
+      
+      // Update the visual display of selected tags
+      this.updateSelectedTagsDisplay()
+      
+      // Reset the dropdown to placeholder state
+      dropdown.value = ""
+      
+      // Submit the form with the updated tags
+      this.submitForm()
+    }
+  }
+
+  // Remove a tag when the × button is clicked
+  removeTag(event) {
+    const tagValue = event.currentTarget.dataset.tag
+    
+    if (tagValue && this.currentTags.has(tagValue)) {
+      this.currentTags.delete(tagValue)
+      
+      // Update the hidden field with all current tags
+      this.updateHiddenTagsField()
+      
+      // Update the visual display of selected tags
+      this.updateSelectedTagsDisplay()
+      
+      // Submit the form with the updated tags
+      this.submitForm()
+    }
+  }
+
+  // Update the hidden field with all current tags
+  updateHiddenTagsField() {
+    const hiddenField = document.getElementById('hidden_tags_field')
+    if (hiddenField) {
+      // Clear existing tags
+      const form = this.formTarget
+      const existingTagInputs = form.querySelectorAll('input[name="tags[]"]')
+      existingTagInputs.forEach(input => {
+        if (input.id !== 'hidden_tags_field') {
+          input.remove()
+        }
+      })
+      
+      // Add all tags as hidden inputs
+      this.currentTags.forEach(tag => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'tags[]'
+        input.value = tag
+        form.appendChild(input)
+      })
+    }
+  }
+
+  // Update the visual display of selected tags
+  updateSelectedTagsDisplay() {
+    const container = document.getElementById('selected_tags')
+    if (!container) return
+    
+    // Clear existing tags
+    container.innerHTML = ''
+    
+    // Add each tag as a span with remove button
+    this.currentTags.forEach(tag => {
+      const tagSpan = document.createElement('span')
+      tagSpan.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]'
+      
+      // Format the tag for display (replace underscores with spaces and capitalize)
+      const displayTag = tag.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      
+      tagSpan.innerHTML = `
+        ${displayTag}
+        <button type="button" class="ml-1 text-[#355E3B] hover:text-[#355E3B]/80" data-tag="${tag}" data-action="click->filters#removeTag">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `
+      
+      container.appendChild(tagSpan)
+    })
   }
 
   filter(event) {
@@ -107,6 +224,10 @@ export default class extends Controller {
           })
         }
       } 
+      // Handle hidden tag fields
+      else if (name === 'tags[]' && element.value) {
+        url.searchParams.append(name, element.value)
+      }
       // Handle regular inputs
       else if (element.value) {
         url.searchParams.set(name, element.value)
@@ -131,7 +252,7 @@ export default class extends Controller {
       Turbo.renderStreamMessage(html)
       
       // Refresh comparison checkboxes after filter
-      const comparisonController = document.querySelector('[data-controller*="comparison"]')._stimulus
+      const comparisonController = document.querySelector('[data-controller*="comparison"]')?._stimulus
       if (comparisonController) {
         // This will ensure checkboxes are properly checked
         setTimeout(() => {

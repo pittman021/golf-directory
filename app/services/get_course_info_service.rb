@@ -173,10 +173,10 @@ class GetCourseInfoService
     valid_types = Course.course_types.keys
     course_info['course_type'] = 'public_course' unless valid_types.include?(course_info['course_type'])
 
-    # Ensure layout_tags are valid
-    valid_tags = Course::LAYOUT_TAGS
-    course_info['layout_tags'] = course_info['layout_tags'].select { |tag| valid_tags.include?(tag) }
-    course_info['layout_tags'] = ['traditional'] if course_info['layout_tags'].empty?
+    # Ensure course_tags are valid
+    valid_tags = TAG_CATEGORIES.values.flatten
+    course_info['course_tags'] = course_info['course_tags'].select { |tag| valid_tags.include?(tag) }
+    course_info['course_tags'] = ['traditional'] if course_info['course_tags'].empty?
 
     course_info
   end
@@ -189,7 +189,7 @@ class GetCourseInfoService
       yardage: course_info['yardage'],
       green_fee: course_info['green_fee'],
       course_type: course_info['course_type'],
-      layout_tags: course_info['layout_tags'],
+      course_tags: course_info['course_tags'],
       website_url: course_info['website_url'],
       notes: [
         "Notable Holes: #{course_info['notable_holes'].join(', ')}",

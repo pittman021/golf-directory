@@ -21,18 +21,18 @@
           controller: "filters",
           filters_target: "form"
         } do %>
-      <div class="mb-6 grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-3 sm:gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
+      <div class="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7 sm:gap-3">
         <%= select_tag :region,
             options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
             { prompt: "Regions",
-              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter", filters_target: "regionSelect" },
               id: "region" } %>
         
         <%= select_tag :state,
             options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
             { prompt: "States",
-              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter", filters_target: "stateSelect" },
               id: "state" } %>
         
@@ -44,8 +44,45 @@
               ['Luxury ($4,000+)', 'luxury']
             ], params[:price_category]),
             { prompt: "Prices",
-              class: "w-full sm:w-auto rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter" } } %>
+              
+        <!-- Experience Tags Dropdown -->
+        <div class="relative">
+          <%= select_tag "experience_tag",
+              options_for_select([
+                ['🎖️ Top 100 Courses', 'top_100_courses'],
+                ['PGA Event Host', 'pga_event_host'],
+                ['Bucket List', 'bucket_list'],
+                ['Championship Course', 'championship_course'],
+                ['Major Championship Host', 'major_championship_host']
+              ], params[:tags]&.include?('top_100_courses') ? 'top_100_courses' : 
+                 params[:tags]&.include?('pga_event_host') ? 'pga_event_host' : 
+                 params[:tags]&.include?('bucket_list') ? 'bucket_list' : nil),
+              { prompt: "Experience",
+                include_blank: true,
+                class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+                data: { action: "change->filters#addTag" } } %>
+        </div>
+              
+    
+              
+        <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
+      </div>
+      
+      <div id="selected_tags" class="mb-4 flex flex-wrap gap-2">
+        <% if params[:tags].present? %>
+          <% params[:tags].each do |tag| %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]">
+              <%= tag.titleize %>
+              <button type="button" class="ml-1 text-[#355E3B] hover:text-[#355E3B]/80" data-tag="<%= tag %>" data-action="click->filters#removeTag">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          <% end %>
+        <% end %>
       </div>
     <% end %>
 

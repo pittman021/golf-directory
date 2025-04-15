@@ -18,7 +18,8 @@ class CourseImportService
         end
 
         # Convert layout_tags from string to array
-        layout_tags = row[:layout_tags].to_s.split(',').map(&:strip)
+        course_tags = row[:course_tags] || row[:layout_tags]
+        course_tags = course_tags.to_s.split(',').map(&:strip) if course_tags.is_a?(String)
 
         # Update course attributes with all available fields
         course.assign_attributes(
@@ -31,7 +32,7 @@ class CourseImportService
           par: row[:par],
           yardage: row[:yardage],
           green_fee: row[:green_fee],
-          layout_tags: layout_tags,
+          course_tags: course_tags,
           website_url: row[:website_url],
           notes: row[:notes]
         )

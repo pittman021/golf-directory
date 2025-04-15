@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_13_214752) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_15_214755) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,13 +55,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_13_214752) do
     t.string "website_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "layout_tags", default: [], array: true
+    t.string "course_tags", default: [], array: true
     t.string "notes"
     t.integer "green_fee"
     t.string "image_url"
+    t.index ["course_tags"], name: "index_courses_on_course_tags", using: :gin
     t.index ["course_type"], name: "index_courses_on_course_type"
     t.index ["green_fee"], name: "index_courses_on_green_fee"
-    t.index ["layout_tags"], name: "index_courses_on_layout_tags", using: :gin
     t.index ["name"], name: "index_courses_on_name"
   end
 

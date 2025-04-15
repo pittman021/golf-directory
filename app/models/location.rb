@@ -25,6 +25,7 @@ class Location < ApplicationRecord
 
     before_save :calculate_estimated_trip_cost
     after_save :update_avg_green_fee
+    after_create :update_tags_from_courses!
 
     # Available vibes for filtering
     VIBES = [
@@ -289,6 +290,28 @@ class Location < ApplicationRecord
       end
     end
     
+    # Tags that are manually set on the location
+    def manual_tags
+      tags - derived_tags
+    end
+
+    # Tags derived from course data
+    def derived_tags
+      [].tap do |rolled_up|
+        course_tags = courses.flat_map(&:course_tags).uniq.compact
+
+        rolled_up << "top_100_courses" if course_tags.include?("top_100")
+        rolled_up << "pga_event_host" if course_tags.include?("pga_tour_host")
+        rolled_up << "bucket_list" if course_tags.include?("bucket_list")
+        rolled_up << "multiple_courses" if courses.size > 1
+      end
+    end
+
+    # Merge manual and derived tags, and update the tags field
+    def update_tags_from_courses!
+      update_column(:tags, (manual_tags + derived_tags).uniq)
+    end
+
     private
     
     def parse_summary

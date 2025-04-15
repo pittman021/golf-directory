@@ -18,27 +18,16 @@ class Course < ApplicationRecord
     validates :par, presence: true, numericality: { only_integer: true }
     validates :yardage, presence: true, numericality: { only_integer: true }
     validates :green_fee, presence: true, numericality: { greater_than_or_equal_to: 0 }
-    validates :layout_tags, presence: true
+    validates :course_tags, presence: true
     
-    # Available layout tags for courses
-    LAYOUT_TAGS = [
-      'water holes',
-      'elevation changes',
-      'tree lined',
-      'links style',
-      'island greens',
-      'bunkers',
-      'dog legs',
-      'narrow fairways',
-      'wide fairways'
-    ]
-
     # Set a default image URL for when none is provided
     DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"
 
     # Callbacks to update location's average green fee
     after_save :update_locations_avg_green_fee
+    after_save :update_locations_tags
     after_destroy :update_locations_avg_green_fee
+    after_destroy :update_locations_tags
 
     # Scope to order courses by price
     scope :ordered_by_price, -> { order(green_fee: :desc) }
@@ -154,6 +143,12 @@ class Course < ApplicationRecord
     def update_locations_avg_green_fee
       locations.each do |location|
         location.send(:update_avg_green_fee)
+      end
+    end
+    
+    def update_locations_tags
+      locations.each do |location|
+        location.update_tags_from_courses!
       end
     end
   end

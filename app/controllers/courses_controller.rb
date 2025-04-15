@@ -86,7 +86,7 @@ class CoursesController < ApplicationController
         :name, :description, :latitude, :longitude, 
         :course_type, :green_fee_range, :green_fee,
         :number_of_holes, :par, :yardage, :website_url, 
-        :image_url, layout_tags: []
+        :image_url, course_tags: []
       )
     end
     
