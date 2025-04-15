@@ -1,4 +1,10 @@
 <!-- app/views/pages/home.turbo_stream.erb -->
+<%= turbo_stream.update "grid_view" do %>
+  <% @locations.each do |location| %>
+    <%= render partial: "locations/location_card", locals: { location: location } %>
+  <% end %>
+<% end %>
+
 <%= turbo_stream.update "locations_table" do %>
   <div class="bg-white rounded-lg shadow" data-filters-target="table">
     <!-- Mobile View -->

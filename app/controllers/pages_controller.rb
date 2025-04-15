@@ -3,9 +3,6 @@ class PagesController < ApplicationController
   def home
     @locations = Location.all
       .includes(:courses, :reviews)  # Keep the includes for optimization
-      .left_joins(:reviews)  # Add left join to include locations without reviews
-      .group('locations.id')  # Group by location to calculate average
-      .select('locations.*, COALESCE(AVG(reviews.rating), 0) as avg_rating')  # Calculate average rating
 
     # Get counts for stats
     @stats = {
@@ -50,6 +47,15 @@ class PagesController < ApplicationController
       format.html
       format.turbo_stream
     end
+  end
+
+  def states_for_region
+    if params[:region].present? && params[:region] != ""
+      states = Location.where(region: params[:region]).distinct.pluck(:state).compact.sort
+    else
+      states = Location.distinct.pluck(:state).compact.sort
+    end
+    render json: states
   end
 
   private

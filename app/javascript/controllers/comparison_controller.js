@@ -5,7 +5,31 @@ export default class extends Controller {
   
   connect() {
     console.log("Comparison controller connected!")
-    this.selectedLocations = new Set()
+    
+    // Create shared state for selected locations or use existing one
+    if (!window.selectedLocations) {
+      window.selectedLocations = new Set()
+      
+      // Check if we have stored selections in sessionStorage
+      const storedSelections = sessionStorage.getItem('selectedLocations')
+      if (storedSelections) {
+        storedSelections.split(',').forEach(id => {
+          if (id) window.selectedLocations.add(id)
+        })
+      }
+    }
+    
+    // Use the shared window state
+    this.selectedLocations = window.selectedLocations
+    
+    // Set checkboxes based on stored selections
+    this.checkboxTargets.forEach(checkbox => {
+      const locationId = checkbox.dataset.locationId
+      if (this.selectedLocations.has(locationId)) {
+        checkbox.checked = true
+      }
+    })
+    
     this.updateCompareButton()
   }
   
@@ -23,6 +47,16 @@ export default class extends Controller {
     } else {
       this.selectedLocations.delete(locationId)
     }
+    
+    // Store selections in sessionStorage
+    sessionStorage.setItem('selectedLocations', Array.from(this.selectedLocations).join(','))
+    
+    // Update all other checkboxes with the same location ID
+    document.querySelectorAll(`.location-compare-checkbox[data-location-id="${locationId}"]`).forEach(checkbox => {
+      if (checkbox !== event.target) {
+        checkbox.checked = event.target.checked
+      }
+    })
     
     this.updateCompareButton()
   }

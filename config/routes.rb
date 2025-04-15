@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   root 'pages#home'  # Set the root route to our homepage
 
+  # Add a route for states_for_region in the pages controller
+  get 'pages/states_for_region', to: 'pages#states_for_region'
+
   devise_for :users
   
   resources :locations, only: [:index, :show] do

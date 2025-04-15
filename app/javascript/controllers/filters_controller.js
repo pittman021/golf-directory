@@ -7,41 +7,73 @@ export default class extends Controller {
   connect() {
     console.log("Filters controller connected")
     this.submitForm = this.debounce(this.submitForm.bind(this), 300)
+    
+    // If a region is already selected on page load, make sure states dropdown is populated
+    const selectedRegion = this.regionSelectTarget.value
+    if (selectedRegion) {
+      console.log("Region already selected on page load:", selectedRegion)
+      // Don't submit form since we're just initializing
+      this.updateStatesForRegion(selectedRegion).catch(error => {
+        console.error("Error initializing states dropdown:", error)
+      })
+    }
   }
 
   filter(event) {
     console.log("Filter method called", event.target.id)
     
-    // If the region select changed, update the state options
+    // If the region select changed, update the state options first, then submit
     if (event.target.id === 'region') {
       const selectedRegion = event.target.value
       console.log("Selected region:", selectedRegion)
       
       // Fetch states for the selected region (or all states if "All Regions" is selected)
-      fetch(`/locations/states_for_region?region=${encodeURIComponent(selectedRegion)}`, {
+      this.updateStatesForRegion(selectedRegion)
+        .then(() => this.submitForm())
+        .catch(error => {
+          console.error("Error updating states:", error)
+          this.submitForm() // Still submit the form even if states update fails
+        })
+    } else {
+      // For other filters, just submit the form
+      this.submitForm()
+    }
+  }
+  
+  async updateStatesForRegion(selectedRegion) {
+    try {
+      // Determine which endpoint to use based on the current path
+      const endpoint = window.location.pathname === '/' || window.location.pathname === '/pages/home'
+        ? '/pages/states_for_region'
+        : '/locations/states_for_region';
+      
+      const response = await fetch(`${endpoint}?region=${encodeURIComponent(selectedRegion)}`, {
         headers: {
           "Accept": "application/json"
         }
       })
-      .then(response => response.json())
-      .then(states => {
-        console.log("Received states:", states)
-        // Clear current options
-        this.stateSelectTarget.innerHTML = '<option value="">Select State</option>'
-        
-        // Add new options
-        states.forEach(state => {
-          const option = new Option(state, state)
-          this.stateSelectTarget.add(option)
-        })
+      
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.status}`)
+      }
+      
+      const states = await response.json()
+      console.log("Received states:", states)
+      
+      // Clear current options
+      this.stateSelectTarget.innerHTML = '<option value="">Select State</option>'
+      
+      // Add new options
+      states.forEach(state => {
+        const option = new Option(state, state)
+        this.stateSelectTarget.add(option)
       })
-      .catch(error => {
-        console.error("Error fetching states:", error)
-      })
+      
+      return states
+    } catch (error) {
+      console.error("Error in updateStatesForRegion:", error)
+      throw error
     }
-    
-    // Submit the form to update results
-    this.submitForm()
   }
 
   submitForm() {
@@ -95,8 +127,17 @@ export default class extends Controller {
       return response.text()
     })
     .then(html => {
-      console.log("Turbo Stream Response:", html)
+      console.log("Turbo Stream Response received")
       Turbo.renderStreamMessage(html)
+      
+      // Refresh comparison checkboxes after filter
+      const comparisonController = document.querySelector('[data-controller*="comparison"]')._stimulus
+      if (comparisonController) {
+        // This will ensure checkboxes are properly checked
+        setTimeout(() => {
+          comparisonController.connect()
+        }, 100)
+      }
     })
     .catch(error => {
       console.error("Error fetching Turbo Stream:", error)
