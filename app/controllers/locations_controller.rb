@@ -2,8 +2,6 @@
 class LocationsController < ApplicationController
   include ActionView::Helpers::NumberHelper
   before_action :set_location, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate_user!, except: [:index, :show]
-  before_action :authorize_admin!, except: [:index, :show]
 
   def index
     @locations = Location.includes(:courses, :reviews).all.order(:name)
