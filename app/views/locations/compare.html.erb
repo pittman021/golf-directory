@@ -6,78 +6,185 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <% @locations.each do |location| %>
-      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4"><%= location.name %></h2>
+  <!-- Trip Cost Comparison Summary -->
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+    <div class="bg-[#f7f9f7] border-b border-gray-200 p-4">
+      <h2 class="text-xl font-semibold text-[#355E3B]">Trip Cost Comparison</h2>
+      <p class="text-sm text-gray-600">Includes 3 nights lodging and 3 rounds of golf</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+      <% @locations.each_with_index do |location, index| %>
+        <div class="p-6 <%= index == 0 ? 'border-r border-gray-200' : '' %>">
+          <div class="flex items-center mb-4">
+            <%= image_tag location.cloudinary_url, 
+                    class: "w-14 h-14 rounded-full object-cover mr-4", 
+                    alt: "#{location.name}" %>
+            <h3 class="text-xl font-bold text-gray-900"><%= location.name %></h3>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-4xl font-bold text-[#355E3B]"><%= number_to_currency(location.estimated_trip_cost) %></p>
+            <div class="mt-2 text-sm text-gray-600 grid grid-cols-2 gap-2">
+              <p>Lodging (3 nights): <%= number_to_currency(location.avg_lodging_cost_per_night * 3) %></p>
+              <p>Golf (3 rounds): <%= number_to_currency(location.avg_green_fee * 3) %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Main Comparison Grid -->
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+      <!-- Location Cards -->
+      <% @locations.each_with_index do |location, index| %>
+        <div class="p-6 <%= index == 0 ? 'border-r border-gray-200' : '' %>">
+          <!-- Hero Image -->
+          <div class="relative h-48 overflow-hidden rounded-lg mb-6">
+            <%= image_tag location.cloudinary_url,
+                class: "w-full h-48 object-cover",
+                alt: "#{location.name} featured image" %>
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            
+            <!-- Location Header -->
+            <div class="absolute inset-x-0 bottom-0 p-4">
+              <h3 class="text-2xl font-bold text-white drop-shadow-lg"><%= location.name %></h3>
+              <div class="text-sm text-white/90 mt-1 drop-shadow-md"><%= location.state %></div>
+            </div>
+          </div>
+          
+          <!-- Location Overview -->
           <div class="space-y-6">
-            <!-- Basic Info -->
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <!-- Avg Green Fee -->
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-full p-2">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-xs font-medium text-gray-500">Avg Green Fee</p>
+                  <p class="text-md font-semibold text-gray-900">$<%= location.avg_green_fee %>/round</p>
+                </div>
+              </div>
+
+              <!-- Avg Lodging Cost -->
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-full p-2">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-xs font-medium text-gray-500">Avg Lodging</p>
+                  <p class="text-md font-semibold text-gray-900">
+                    <% if location.has_lodging_data? %>
+                      <%= number_to_currency(location.avg_lodging_cost_per_night) %>/night
+                    <% else %>
+                      <span class="text-gray-500">N/A</span>
+                    <% end %>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Number of Courses -->
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-full p-2">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-xs font-medium text-gray-500">Courses</p>
+                  <p class="text-md font-semibold text-gray-900"><%= pluralize(location.courses.count, 'course') %></p>
+                </div>
+              </div>
+
+              <!-- Weather -->
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-full p-2">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-xs font-medium text-gray-500">Best Time</p>
+                  <p class="text-md font-semibold text-gray-900"><%= location.best_months %></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags -->
             <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Location</h3>
-              <p class="text-gray-600"><%= [location.region, location.state, location.country].compact.join(', ') %></p>
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Location Features</h4>
+              <div class="flex flex-wrap gap-1">
+                <% location.tags.each do |tag| %>
+                  <% 
+                    # Determine tag style based on type
+                    bg_class = case tag
+                              when "top_100_courses" then "bg-blue-100 text-blue-800"
+                              when "pga_event_host" then "bg-purple-100 text-purple-800"
+                              when "bucket_list" then "bg-red-100 text-red-800"
+                              when "multiple_courses" then "bg-green-100 text-green-800"
+                              else "bg-gray-100 text-gray-800"
+                              end
+                  %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= bg_class %>">
+                    <%= tag.titleize %>
+                  </span>
+                <% end %>
+              </div>
             </div>
 
             <!-- Courses -->
             <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Golf Courses</h3>
-              <p class="text-gray-600"><%= pluralize(location.courses.count, 'course') %></p>
-              <div class="mt-2">
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Golf Courses</h4>
+              <div class="divide-y divide-gray-200">
                 <% location.courses.each do |course| %>
                   <div class="flex justify-between items-center py-2">
-                    <span class="text-gray-700"><%= course.name %></span>
-                    <span class="text-gray-600"><%= number_to_currency(course.green_fee) %></span>
+                    <span class="text-sm text-gray-700"><%= course.name %></span>
+                    <span class="text-sm text-gray-600"><%= number_to_currency(course.green_fee) %></span>
                   </div>
                 <% end %>
               </div>
             </div>
 
-            <!-- Costs -->
-            <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Average Costs</h3>
-              <div class="space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Green Fee</span>
-                  <span class="font-medium"><%= number_to_currency(location.avg_green_fee) %></span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Lodging (per night)</span>
-                  <span class="font-medium"><%= number_to_currency(location.avg_lodging_cost_per_night) %></span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Estimated Trip Cost</span>
-                  <span class="font-medium"><%= number_to_currency(location.estimated_trip_cost) %></span>
-                </div>
-              </div>
-            </div>
-
             <!-- Reviews -->
             <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Reviews</h3>
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Reviews</h4>
               <div class="flex items-center space-x-2">
-                <div class="text-2xl font-bold text-gray-900">
+                <div class="text-xl font-bold text-gray-900">
                   <%= location.average_rating || 'N/A' %>
                 </div>
-                <div class="text-gray-600">
+                <div class="text-sm text-gray-600">
                   (<%= pluralize(location.reviews_count, 'review') %>)
                 </div>
               </div>
             </div>
 
-            <!-- Best Time to Visit -->
-            <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Best Time to Visit</h3>
-              <p class="text-gray-600"><%= location.best_months %></p>
-            </div>
-
             <!-- Nearest Airports -->
             <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Nearest Airports</h3>
-              <p class="text-gray-600"><%= location.nearest_airports %></p>
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Nearest Airports</h4>
+              <p class="text-sm text-gray-600"><%= location.nearest_airports %></p>
+            </div>
+            
+            <!-- View Button -->
+            <div class="mt-4">
+              <%= link_to location_path(location), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A2F]" do %>
+                View Details 
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              <% end %>
             </div>
           </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>
