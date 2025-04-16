@@ -32,6 +32,9 @@ gem 'pundit'
 # Image Hosting
 gem 'cloudinary'
 
+# Simple Analytics
+gem 'simple_analytics_rails'
+
 # Image processing
 gem 'image_processing'
 

@@ -4,8 +4,6 @@ export default class extends Controller {
   static targets = ["checkbox"]
   
   connect() {
-    console.log("Comparison controller connected!")
-    
     // Create shared state for selected locations or use existing one
     if (!window.selectedLocations) {
       window.selectedLocations = new Set()
@@ -35,7 +33,6 @@ export default class extends Controller {
   
   toggleLocation(event) {
     const locationId = event.target.dataset.locationId
-    console.log("Toggle location:", locationId)
     
     if (event.target.checked) {
       // Clear existing selections if already have 2 selected
@@ -76,15 +73,12 @@ export default class extends Controller {
       // Only set href if we have valid IDs
       if (locationIds) {
         compareButton.href = `/locations/compare?location_ids=${locationIds}`
-        console.log("Compare URL:", compareButton.href)
       } else {
         compareButton.classList.add('hidden')
       }
     } else {
       compareButton.classList.add('hidden')
     }
-    
-    console.log("Selected locations:", Array.from(this.selectedLocations))
   }
 
   // Clear all selections (can be called from a reset button)

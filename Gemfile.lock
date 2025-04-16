@@ -358,6 +358,7 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    simple_analytics_rails (0.3.1)
     simple_form (5.3.1)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -442,6 +443,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   ruby-openai
   selenium-webdriver
+  simple_analytics_rails
   simple_form
   sprockets-rails
   stimulus-rails

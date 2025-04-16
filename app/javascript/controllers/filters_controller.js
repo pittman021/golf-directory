@@ -5,16 +5,14 @@ export default class extends Controller {
   static targets = ["form", "regionSelect", "stateSelect"]
 
   connect() {
-    console.log("Filters controller connected")
     this.submitForm = this.debounce(this.submitForm.bind(this), 300)
     
     // If a region is already selected on page load, make sure states dropdown is populated
     const selectedRegion = this.regionSelectTarget.value
     if (selectedRegion) {
-      console.log("Region already selected on page load:", selectedRegion)
       // Don't submit form since we're just initializing
-      this.updateStatesForRegion(selectedRegion).catch(error => {
-        console.error("Error initializing states dropdown:", error)
+      this.updateStatesForRegion(selectedRegion).catch(() => {
+        // Error handling for states dropdown initialization
       })
     }
 
@@ -137,18 +135,14 @@ export default class extends Controller {
   }
 
   filter(event) {
-    console.log("Filter method called", event.target.id)
-    
     // If the region select changed, update the state options first, then submit
     if (event.target.id === 'region') {
       const selectedRegion = event.target.value
-      console.log("Selected region:", selectedRegion)
       
       // Fetch states for the selected region (or all states if "All Regions" is selected)
       this.updateStatesForRegion(selectedRegion)
         .then(() => this.submitForm())
-        .catch(error => {
-          console.error("Error updating states:", error)
+        .catch(() => {
           this.submitForm() // Still submit the form even if states update fails
         })
     } else {
@@ -175,7 +169,6 @@ export default class extends Controller {
       }
       
       const states = await response.json()
-      console.log("Received states:", states)
       
       // Clear current options
       this.stateSelectTarget.innerHTML = '<option value="">Select State</option>'
@@ -188,13 +181,11 @@ export default class extends Controller {
       
       return states
     } catch (error) {
-      console.error("Error in updateStatesForRegion:", error)
       throw error
     }
   }
 
   submitForm() {
-    console.log("SubmitForm method called")
     const url = new URL(window.location.href)
     
     // Clear existing params except those we want to preserve
@@ -234,8 +225,6 @@ export default class extends Controller {
       }
     }
 
-    console.log("Fetching URL:", url.toString())
-
     fetch(url, {
       headers: {
         "Accept": "text/vnd.turbo-stream.html"
@@ -248,23 +237,38 @@ export default class extends Controller {
       return response.text()
     })
     .then(html => {
-      console.log("Turbo Stream Response received")
-      Turbo.renderStreamMessage(html)
+      // Process Turbo Stream response
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(html, 'text/html')
+      const turboStreamElements = doc.querySelectorAll('turbo-stream')
       
-      // Refresh comparison checkboxes after filter
-      const comparisonController = document.querySelector('[data-controller*="comparison"]')?._stimulus
-      if (comparisonController) {
-        // This will ensure checkboxes are properly checked
-        setTimeout(() => {
-          comparisonController.connect()
-        }, 100)
-      }
+      // Process each turbo-stream element
+      turboStreamElements.forEach(el => {
+        const action = el.getAttribute('action')
+        const target = el.getAttribute('target')
+        const template = el.querySelector('template')
+        
+        if (template && target) {
+          const targetElement = document.getElementById(target)
+          if (targetElement) {
+            if (action === 'replace') {
+              targetElement.innerHTML = template.content.firstElementChild.innerHTML
+            } else if (action === 'update') {
+              targetElement.innerHTML = template.innerHTML
+            }
+          }
+        }
+      })
+      
+      // Update URL in browser without full page reload
+      window.history.pushState({}, '', url)
     })
-    .catch(error => {
-      console.error("Error fetching Turbo Stream:", error)
+    .catch(() => {
+      // Error handling for fetch operation
     })
   }
-
+  
+  // Utility function to prevent rapid multiple submits
   debounce(func, wait) {
     let timeout
     return function executedFunction(...args) {

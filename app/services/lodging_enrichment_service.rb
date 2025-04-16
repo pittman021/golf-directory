@@ -141,7 +141,7 @@ class LodgingEnrichmentService
 
     puts "Making API request to Google Places API..."
     uri = URI('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
-    uri.query = URI.encode_www_form(params)
+    uri.query = URI.encode_www_form(params.except(:key))
 
     begin
       response = Net::HTTP.get_response(uri)
@@ -158,7 +158,7 @@ class LodgingEnrichmentService
           
           rated_places
         else
-          puts "API Error: #{data['status']} - #{data['error_message']}"
+          puts "API Error: #{data['status']}"
           []
         end
       else

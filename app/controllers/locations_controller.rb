@@ -55,16 +55,6 @@ class LocationsController < ApplicationController
                     .includes(:user, :course)
                     .order(created_at: :desc)
                     .limit(5)
-    
-    # Add explicit debugging
-    Rails.logger.debug "=== Location Debug ==="
-    Rails.logger.debug "Location: #{@location.name}"
-    Rails.logger.debug "Courses count: #{@courses.count}"
-    Rails.logger.debug "Course prices:"
-    @courses.each do |course|
-      Rails.logger.debug "  #{course.name}: $#{course.green_fee}"
-    end
-    Rails.logger.debug "===================="
 
     # Get nearby locations if coordinates are available
     if @location.latitude && @location.longitude
@@ -74,10 +64,6 @@ class LocationsController < ApplicationController
     else
       @nearby_locations = Location.where.not(id: @location.id).limit(3)
     end
-
-    # Add these debug lines temporarily
-    puts "DEBUG: Map ID from credentials: #{Rails.application.credentials.google_maps_map_id}"
-    puts "DEBUG: API Key from credentials: #{Rails.application.credentials.google_maps_map_id.present?}"
   end
 
   def compare
@@ -88,14 +74,8 @@ class LocationsController < ApplicationController
                     []
                   end
     
-    # Log the IDs we're trying to find for debugging
-    Rails.logger.info "Looking for locations with IDs: #{location_ids.inspect}"
-    
     # Find the locations, including their courses
     @locations = Location.includes(:courses).where(id: location_ids)
-    
-    # Log what we found
-    Rails.logger.info "Found #{@locations.size} locations: #{@locations.pluck(:id, :name).inspect}"
     
     # Redirect to locations index if fewer than 2 locations selected
     if @locations.size < 2

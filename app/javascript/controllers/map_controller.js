@@ -1,94 +1,75 @@
 import { Controller } from "@hotwired/stimulus"
+import { MarkerClusterer } from "@googlemaps/markerclusterer"
 
 export default class extends Controller {
-  static values = {
-    markers: Array,
-    latitude: Number,
-    longitude: Number
-  }
-
+  static targets = ["container", "markers"]
+  
   connect() {
-    console.log("Map controller connected");
-    this.initializeMapWhenReady();
-  }
-
-  initializeMapWhenReady() {
-    if (window.google && window.google.maps) {
-      this.initializeMap();
+    if (typeof google === 'undefined') {
+      // Add a listener to initialize map when Google Maps API is loaded
+      document.addEventListener('google-maps-callback', this.initializeMap.bind(this))
     } else {
-      // Wait for Google Maps to be ready
-      window.initMap = () => {
-        this.initializeMap();
-      };
+      this.initializeMap()
     }
   }
-
-  async initializeMap() {
-    try {
-      const lat = this.latitudeValue || 0;
-      const lng = this.longitudeValue || 0;
-
-      console.log("Initializing map with coordinates:", { lat, lng });
-
-      const mapOptions = {
-        center: { lat, lng },
-        zoom: 10,
-        mapTypeControl: true,
-        fullscreenControl: true,
-        streetViewControl: true
-      };
-
-      this.map = new google.maps.Map(this.element, mapOptions);
-      
-      if (this.hasMarkersValue) {
-        await this.addMarkers();
-      }
-
-    } catch (error) {
-      console.error("Error initializing map:", error);
-    }
-  }
-
-  async addMarkers() {
-    const bounds = new google.maps.LatLngBounds();
+  
+  initializeMap() {
+    if (!this.hasContainerTarget) return
     
-    this.markersValue.forEach(markerData => {
-      const position = { 
-        lat: parseFloat(markerData.latitude || 0), 
-        lng: parseFloat(markerData.longitude || 0) 
-      };
+    try {
+      // Get coordinates from data attribute or default to center of US
+      const lat = parseFloat(this.containerTarget.dataset.lat) || 37.0902
+      const lng = parseFloat(this.containerTarget.dataset.lng) || -95.7129
+      const zoom = parseInt(this.containerTarget.dataset.zoom) || 4
+      const mapType = this.containerTarget.dataset.mapType || 'standard'
       
-      if (position.lat && position.lng) {
-        bounds.extend(position);
-
-        const marker = new google.maps.Marker({
-          map: this.map,
-          position: position,
-          title: markerData.name
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div class="p-2">
-              <h3 class="font-bold">${markerData.name}</h3>
-              <p class="text-sm">${markerData.info || ''}</p>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          if (this.currentInfoWindow) {
-            this.currentInfoWindow.close();
-          }
-          infoWindow.open(this.map, marker);
-          this.currentInfoWindow = infoWindow;
-        });
+      // Initialize the map
+      this.map = new google.maps.Map(this.containerTarget, {
+        center: { lat, lng },
+        zoom: zoom,
+        mapId: window.googleMapsConfig?.mapId,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false
+      })
+      
+      // If we have markers, add them to the map
+      if (this.hasMarkersTarget) {
+        this.addMarkers()
       }
-    });
-
-    if (this.markersValue.length > 1) {
-      this.map.fitBounds(bounds);
-      this.map.setZoom(Math.min(this.map.getZoom(), 12));
+    } catch (error) {
+      // Handle map initialization errors
+    }
+  }
+  
+  addMarkers() {
+    const markersData = JSON.parse(this.markersTarget.dataset.markers)
+    const markers = []
+    
+    markersData.forEach(markerData => {
+      const marker = new google.maps.Marker({
+        position: { lat: markerData.lat, lng: markerData.lng },
+        map: this.map,
+        title: markerData.title
+      })
+      
+      // Add click event to marker
+      marker.addListener('click', () => {
+        window.location.href = markerData.url
+      })
+      
+      markers.push(marker)
+    })
+    
+    // Create a marker clusterer if we have multiple markers
+    if (markers.length > 1) {
+      new MarkerClusterer({ markers, map: this.map })
+    }
+    
+    // If we have exactly one marker, center on it
+    if (markers.length === 1) {
+      this.map.setCenter(markers[0].getPosition())
+      this.map.setZoom(10)
     }
   }
 }

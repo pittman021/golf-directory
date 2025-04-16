@@ -20,51 +20,26 @@
     <%# Google Maps API loading script %>
     <% if content_for?(:google_maps) %>
       <script>
-        // Debug the configuration
-        console.log('Google Maps Configuration Loading...');
-        
         window.googleMapsConfig = {
           apiKey: '<%= Rails.application.credentials.dig(:google_maps, :api_key) %>',
           mapId: '<%= Rails.application.credentials.dig(:google_maps, :map_id) %>'
         };
         
-        // Log the configuration (this will show first 6 chars of key for security)
-        console.log('API Key (first 6 chars):', window.googleMapsConfig.apiKey?.substring(0, 6));
-        console.log('API Key length:', window.googleMapsConfig.apiKey?.length);
-        console.log('Map ID:', window.googleMapsConfig.mapId);
-
         window.initMap = function() {
-          console.log("Google Maps initialized");
+          // Maps initialization
         };
 
-        // Add error handler
         window.gm_authFailure = function() {
-          console.error('Google Maps Auth Error Details:');
-          console.error('API Key length:', window.googleMapsConfig.apiKey?.length);
-          console.error('API Key first 6 chars:', window.googleMapsConfig.apiKey?.substring(0, 6));
-          console.error('Full script URL:', document.querySelector('script[src*="maps.googleapis.com"]')?.src);
+          // Authentication failure handler
         };
       </script>
       
-      <%# Debug comment that will appear in HTML source %>
-      <!-- 
-        Debug Info:
-        API Key Present: <%= Rails.application.credentials.dig(:google_maps, :api_key).present? %>
-        API Key Length: <%= Rails.application.credentials.dig(:google_maps, :api_key)&.length %>
-        API Key First 6: <%= Rails.application.credentials.dig(:google_maps, :api_key)&.first(6) %>
-        Map ID Present: <%= Rails.application.credentials.dig(:google_maps, :map_id).present? %>
-      -->
-      
       <% api_key = Rails.application.credentials.dig(:google_maps, :api_key) %>
-      <!-- Debug: API Key present: <%= api_key.present? %> -->
       
       <script 
         src="https://maps.googleapis.com/maps/api/js?key=<%= api_key %>&libraries=places&callback=initMap"
         defer
       ></script>
-
-      <!-- Debug: Full URL -->
-      <!-- <%= "https://maps.googleapis.com/maps/api/js?key=#{api_key}&libraries=places&callback=initMap" %> -->
     <% end %>
 
     <%= javascript_importmap_tags %>
@@ -85,8 +60,6 @@
     
     <!-- Built by -->
     <%= link_to "Built by @pittman021", "https://x.com/pittman021", target: "_blank", class: "fixed bottom-4 left-4 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200 z-30" %>
-    
-    <!-- 100% privacy-first analytics -->
-    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+  
   </body>
 </html>

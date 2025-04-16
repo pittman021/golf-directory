@@ -5,7 +5,6 @@ export default class extends Controller {
   static targets = ["input", "preview", "hiddenInput", "progressBar"]
   
   connect() {
-    console.log("Cloudinary controller connected")
     if (this.hasInputTarget) {
       this.inputTarget.addEventListener('change', this.uploadFile.bind(this))
     }
@@ -50,7 +49,7 @@ export default class extends Controller {
       }
       
     } catch (error) {
-      console.error('Upload failed:', error)
+      // Handle upload error
     } finally {
       // Hide progress if we have a progress bar
       if (this.hasProgressBarTarget) {

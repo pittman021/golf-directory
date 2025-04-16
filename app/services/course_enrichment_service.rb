@@ -52,7 +52,6 @@ class CourseEnrichmentService
   def enrich
     puts "\nStarting course enrichment for #{@location.name}"
     puts "Location: #{@location.name} (ID: #{@location.id})"
-    puts "Coordinates: #{@location.latitude}, #{@location.longitude}"
     
     # Fetch course data from Google Places API
     course_data = fetch_course_data
@@ -74,17 +73,13 @@ class CourseEnrichmentService
 
     puts "\nMaking API request to Google Places API..."
     uri = URI('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
-    uri.query = URI.encode_www_form(params)
-    puts "URL: #{uri}"
-    puts "Params: #{params.except(:key)}"
+    uri.query = URI.encode_www_form(params.except(:key))
 
     response = Net::HTTP.get_response(uri)
     puts "Response status: #{response.code}"
 
     if response.is_a?(Net::HTTPSuccess)
       data = JSON.parse(response.body)
-      puts "\nFull API Response:"
-      puts JSON.pretty_generate(data)
       
       if data['status'] == 'OK'
         puts "\nTotal results before filtering: #{data['results'].size}"
@@ -136,44 +131,73 @@ class CourseEnrichmentService
   end
 
   def process_course_data(course_data)
-    return [] unless course_data
-
-    puts "\nProcessing course data..."
-    puts "Total places found: #{course_data.size}"
-
-    # Sort by rating (highest first) and take top 5
-    sorted_places = course_data.sort_by { |place| -place['rating'] }
-    top_places = sorted_places.first(5)
-
-    puts "\nTop 5 courses found:"
-    top_places.each_with_index do |place, index|
-      puts "\n--- Course #{index + 1} ---"
-      puts "Name: #{place['name']}"
-      puts "Place ID: #{place['place_id']}"
-      puts "Rating: #{place['rating']}"
-      puts "Address: #{place['vicinity']}"
-      puts "Phone: #{place['formatted_phone_number'] || 'Not available'}"
-      puts "Website: #{place['website'] || 'Not available'}"
-      puts "Types: #{place['types'].join(', ')}"
-      puts "Location: #{place['geometry']['location']['lat']}, #{place['geometry']['location']['lng']}"
-      puts "Photo Reference: #{place['photos']&.first&.dig('photo_reference') || 'Not available'}"
-
-      # Fetch detailed information
-      details = fetch_course_details(place['place_id'])
-      if details
-        puts "\nDetailed Information:"
-        puts "Full Address: #{details['formatted_address']}"
-        puts "Phone: #{details['formatted_phone_number'] || 'Not available'}"
-        puts "Website: #{details['website'] || 'Not available'}"
-        puts "Price Level: #{details['price_level'] || 'Not available'}"
-        puts "Opening Hours: #{details['opening_hours']&.dig('weekday_text')&.join("\n  ") || 'Not available'}"
-        puts "Number of Reviews: #{details['reviews']&.size || 0}"
-        puts "Types: #{details['types'].join(', ')}"
-        puts "Number of Photos: #{details['photos']&.size || 0}"
+    puts "\nProcessing #{course_data.size} courses for #{@location.name}"
+    
+    course_data.each do |place_data|
+      # Skip if there's no name
+      next unless place_data['name'].present?
+      
+      # Check if this course already exists for this location
+      existing_course = @location.courses.find_by(google_place_id: place_data['place_id'])
+      
+      if existing_course
+        puts "Updating existing course: #{place_data['name']}"
+        course = existing_course
+      else
+        puts "Creating new course: #{place_data['name']}"
+        course = @location.courses.new(
+          google_place_id: place_data['place_id'],
+          name: place_data['name']
+        )
+      end
+      
+      # Update course data
+      course.assign_attributes(
+        rating: place_data['rating'],
+        review_count: place_data['user_ratings_total'],
+        address: place_data['vicinity'],
+        latitude: place_data['geometry']['location']['lat'],
+        longitude: place_data['geometry']['location']['lng'],
+        green_fee: calculate_green_fee(place_data['price_level']) || course.green_fee || random_green_fee
+      )
+      
+      # Add photos if available
+      if place_data['photos'].present? && place_data['photos'][0]['photo_reference'].present?
+        photo_reference = place_data['photos'][0]['photo_reference']
+        course.image_url ||= "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=#{photo_reference}&key=#{@api_key}"
+      end
+      
+      if course.save
+        puts "✅ Saved course: #{course.name} (ID: #{course.id})"
+      else
+        puts "❌ Failed to save course: #{course.errors.full_messages.join(', ')}"
       end
     end
-
-    puts "\nWould save #{top_places.size} courses to database"
-    top_places
+    
+    puts "\nFinished enriching courses for #{@location.name}"
+    course_data.size # Return number of courses processed
+  end
+  
+  def calculate_green_fee(price_level)
+    return nil if price_level.nil?
+    
+    case price_level
+    when 1
+      rand(25..40)
+    when 2
+      rand(40..75)
+    when 3
+      rand(75..150)
+    when 4
+      rand(150..300)
+    when 5
+      rand(300..500)
+    else
+      nil
+    end
+  end
+  
+  def random_green_fee
+    rand(35..250)
   end
 end 
