@@ -38,6 +38,7 @@ export default class extends Controller {
     console.log("Toggle location:", locationId)
     
     if (event.target.checked) {
+      // Clear existing selections if already have 2 selected
       if (this.selectedLocations.size >= 2) {
         event.target.checked = false
         alert("You can only compare two locations at a time")
@@ -67,12 +68,35 @@ export default class extends Controller {
     
     if (this.selectedLocations.size === 2) {
       compareButton.classList.remove('hidden')
-      const locationIds = Array.from(this.selectedLocations).join(',')
-      compareButton.href = `/locations/compare?location_ids=${locationIds}`
+      // Ensure we're using valid IDs by filtering out empty values
+      const locationIds = Array.from(this.selectedLocations)
+        .filter(id => id && id.trim() !== '')
+        .join(',')
+      
+      // Only set href if we have valid IDs
+      if (locationIds) {
+        compareButton.href = `/locations/compare?location_ids=${locationIds}`
+        console.log("Compare URL:", compareButton.href)
+      } else {
+        compareButton.classList.add('hidden')
+      }
     } else {
       compareButton.classList.add('hidden')
     }
     
     console.log("Selected locations:", Array.from(this.selectedLocations))
+  }
+
+  // Clear all selections (can be called from a reset button)
+  clearSelections() {
+    this.selectedLocations.clear()
+    sessionStorage.removeItem('selectedLocations')
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.location-compare-checkbox').forEach(checkbox => {
+      checkbox.checked = false
+    })
+    
+    this.updateCompareButton()
   }
 }

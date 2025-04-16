@@ -81,8 +81,21 @@ class LocationsController < ApplicationController
   end
 
   def compare
-    location_ids = params[:location_ids]&.split(',') || []
+    # Parse location IDs from the params, ensuring they are integers
+    location_ids = if params[:location_ids].present?
+                    params[:location_ids].split(',').map(&:to_i).uniq
+                  else
+                    []
+                  end
+    
+    # Log the IDs we're trying to find for debugging
+    Rails.logger.info "Looking for locations with IDs: #{location_ids.inspect}"
+    
+    # Find the locations, including their courses
     @locations = Location.includes(:courses).where(id: location_ids)
+    
+    # Log what we found
+    Rails.logger.info "Found #{@locations.size} locations: #{@locations.pluck(:id, :name).inspect}"
     
     # Redirect to locations index if fewer than 2 locations selected
     if @locations.size < 2
@@ -90,7 +103,7 @@ class LocationsController < ApplicationController
       return
     end
     
-    # Limit to 2 locations for side-by-side comparison
+    # Take the first 2 locations for side-by-side comparison
     @locations = @locations.limit(2)
   end
 
