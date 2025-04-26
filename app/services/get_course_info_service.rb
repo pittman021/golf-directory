@@ -62,7 +62,7 @@ class GetCourseInfoService
       - Designers
       - Tournament history
       - Playing tips
-      - Layout features (from this list: #{Course::LAYOUT_TAGS.join(', ')})
+      - Layout features (from this list: #{TAG_CATEGORIES["Layout Features"].join(', ')})
       - Number of holes (must be 9 or 18)
       - Par (must be a whole number)
       - Yardage (must be a whole number)

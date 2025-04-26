@@ -42,7 +42,7 @@ namespace :courses do
           puts "- Yardage: #{course.yardage}"
           puts "- Green fee: $#{course.green_fee}"
           puts "- Course type: #{course.course_type}"
-          puts "- Layout tags: #{course.layout_tags.join(', ')}"
+          puts "- Layout tags: #{course.course_tags.join(', ')}"
           
           # Add a small delay to avoid hitting API rate limits
           sleep 2

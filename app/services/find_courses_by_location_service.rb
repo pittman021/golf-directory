@@ -23,7 +23,12 @@ class FindCoursesByLocationService
 
   def initialize(location)
     @location = location
-    @api_key = Rails.application.credentials.google_maps[:api_key]
+    # Use environment-specific API keys
+    if Rails.env.production?
+      @api_key = Rails.application.credentials.google_maps[:api_key]
+    elsif Rails.env.development? || Rails.env.test?
+      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+    end
   end
 
   def find_and_enrich
@@ -143,7 +148,7 @@ class FindCoursesByLocationService
           par: 72,                # Default to par 72 (validated as integer)
           yardage: 6500,          # Default to 6500 yards (validated as integer)
           green_fee: 100,         # Default to $100 (validated as >= 0)
-          layout_tags: course_data['types'] || [], # Required field
+          course_tags: course_data['types'] || [], # Required field
           description: course_data['vicinity'],    # Optional field
           website_url: course_data['website'],     # Optional field
           notes: "Automatically imported from Google Places API" # Optional field

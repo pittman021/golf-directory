@@ -1,10 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
-import { MarkerClusterer } from "@googlemaps/markerclusterer"
 
 export default class extends Controller {
   static targets = ["container", "markers"]
+  static values = {
+    latitude: Number,
+    longitude: Number,
+    markers: Array
+  }
   
   connect() {
+    console.log("Map controller connected");
     if (typeof google === 'undefined') {
       // Add a listener to initialize map when Google Maps API is loaded
       document.addEventListener('google-maps-callback', this.initializeMap.bind(this))
@@ -14,62 +19,84 @@ export default class extends Controller {
   }
   
   initializeMap() {
-    if (!this.hasContainerTarget) return
-    
     try {
-      // Get coordinates from data attribute or default to center of US
-      const lat = parseFloat(this.containerTarget.dataset.lat) || 37.0902
-      const lng = parseFloat(this.containerTarget.dataset.lng) || -95.7129
-      const zoom = parseInt(this.containerTarget.dataset.zoom) || 4
-      const mapType = this.containerTarget.dataset.mapType || 'standard'
+      console.log("Initializing map...");
       
-      // Initialize the map
-      this.map = new google.maps.Map(this.containerTarget, {
+      // Get coordinates from values
+      const lat = this.latitudeValue || 37.0902;
+      const lng = this.longitudeValue || -95.7129;
+      const zoom = 8;
+      
+      console.log(`Map center: ${lat}, ${lng}`);
+      
+      // Initialize the map on the element with the controller
+      this.element.style.height = '400px';
+      this.map = new google.maps.Map(this.element, {
         center: { lat, lng },
         zoom: zoom,
         mapId: window.googleMapsConfig?.mapId,
         mapTypeControl: false,
         fullscreenControl: false,
         streetViewControl: false
-      })
+      });
       
-      // If we have markers, add them to the map
-      if (this.hasMarkersTarget) {
-        this.addMarkers()
+      this.element.style.backgroundColor = "#e5e5e5";
+      
+      // If we have markers data, add them to the map
+      if (this.hasMarkersValue) {
+        this.addMarkers();
       }
     } catch (error) {
-      // Handle map initialization errors
+      console.error("Error initializing map:", error);
     }
   }
   
   addMarkers() {
-    const markersData = JSON.parse(this.markersTarget.dataset.markers)
-    const markers = []
-    
-    markersData.forEach(markerData => {
-      const marker = new google.maps.Marker({
-        position: { lat: markerData.lat, lng: markerData.lng },
-        map: this.map,
-        title: markerData.title
-      })
+    try {
+      const markersData = this.markersValue;
+      const bounds = new google.maps.LatLngBounds();
       
-      // Add click event to marker
-      marker.addListener('click', () => {
-        window.location.href = markerData.url
-      })
+      console.log(`Adding ${markersData.length} markers`);
       
-      markers.push(marker)
-    })
-    
-    // Create a marker clusterer if we have multiple markers
-    if (markers.length > 1) {
-      new MarkerClusterer({ markers, map: this.map })
-    }
-    
-    // If we have exactly one marker, center on it
-    if (markers.length === 1) {
-      this.map.setCenter(markers[0].getPosition())
-      this.map.setZoom(10)
+      markersData.forEach(markerData => {
+        const position = { 
+          lat: markerData.latitude || 0, 
+          lng: markerData.longitude || 0 
+        };
+        
+        const marker = new google.maps.Marker({
+          position: position,
+          map: this.map,
+          title: markerData.name
+        });
+        
+        // Add info window if we have info
+        if (markerData.info) {
+          const infoWindow = new google.maps.InfoWindow({
+            content: markerData.info
+          });
+          
+          marker.addListener('click', () => {
+            infoWindow.open(this.map, marker);
+          });
+        }
+        
+        // Extend bounds to include this marker
+        bounds.extend(position);
+      });
+      
+      // Fit the map to show all markers
+      if (markersData.length > 1) {
+        this.map.fitBounds(bounds);
+      } else if (markersData.length === 1) {
+        this.map.setCenter({ 
+          lat: markersData[0].latitude, 
+          lng: markersData[0].longitude 
+        });
+        this.map.setZoom(10);
+      }
+    } catch (error) {
+      console.error("Error adding markers:", error);
     }
   }
 }

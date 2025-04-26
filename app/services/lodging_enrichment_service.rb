@@ -56,7 +56,12 @@ class LodgingEnrichmentService
   # If no location is provided, it can be used for batch processing
   def initialize(location = nil)
     @location = location
-    @api_key = Rails.application.credentials.google_maps[:api_key]
+    # Use environment-specific API keys
+    if Rails.env.production?
+      @api_key = Rails.application.credentials.google_maps[:api_key]
+    elsif Rails.env.development? || Rails.env.test?
+      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+    end
     @base_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
   end
 

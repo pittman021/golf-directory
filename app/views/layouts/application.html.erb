@@ -21,7 +21,7 @@
     <% if content_for?(:google_maps) %>
       <script>
         window.googleMapsConfig = {
-          apiKey: '<%= Rails.application.credentials.dig(:google_maps, :api_key) %>',
+          apiKey: '<%= Rails.env.production? ? Rails.application.credentials.dig(:google_maps, :api_key) : Rails.application.credentials.dig(:google_maps, :development_api_key) %>',
           mapId: '<%= Rails.application.credentials.dig(:google_maps, :map_id) %>'
         };
         
@@ -35,11 +35,11 @@
         };
       </script>
       
-      <% api_key = Rails.application.credentials.dig(:google_maps, :api_key) %>
+      <% api_key = Rails.env.production? ? Rails.application.credentials.dig(:google_maps, :api_key) : Rails.application.credentials.dig(:google_maps, :development_api_key) %>
       
       <script 
         src="https://maps.googleapis.com/maps/api/js?key=<%= api_key %>&libraries=places&callback=initMap"
-        defer
+        async
       ></script>
     <% end %>
 

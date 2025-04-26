@@ -34,8 +34,15 @@ class Lodging < ApplicationRecord
   def download_photo
     return if photo_reference.blank? || photo.attached?
 
+    # Get environment-specific API key
+    api_key = if Rails.env.production?
+      Rails.application.credentials.google_maps[:api_key]
+    elsif Rails.env.development? || Rails.env.test?
+      Rails.application.credentials.google_maps[:development_api_key]
+    end
+
     # Construct the photo URL
-    photo_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=#{photo_reference}&key=#{Rails.application.credentials.google_maps[:api_key]}"
+    photo_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=#{photo_reference}&key=#{api_key}"
     
     # Download and attach the photo
     begin

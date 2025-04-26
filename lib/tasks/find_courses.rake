@@ -1,3 +1,12 @@
+# This file contains Rake tasks for finding and processing golf courses by location.
+# 
+# Tasks included:
+# - golf:find_las_vegas_courses: Finds and processes golf courses in Las Vegas
+# - golf:find_courses_for_location[location_name]: Finds and processes golf courses for a specified location
+#
+# These tasks use the FindCoursesByLocationService to find courses, update their information,
+# and calculate statistics like average green fees and estimated trip costs.
+
 namespace :golf do
   desc "Find golf courses in Las Vegas"
   task find_las_vegas_courses: :environment do

@@ -46,7 +46,12 @@
 class CourseEnrichmentService
   def initialize(location)
     @location = location
-    @api_key = Rails.application.credentials.google_maps[:api_key]
+    # Use environment-specific API keys
+    if Rails.env.production?
+      @api_key = Rails.application.credentials.google_maps[:api_key]
+    elsif Rails.env.development? || Rails.env.test?
+      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+    end
   end
 
   def enrich
