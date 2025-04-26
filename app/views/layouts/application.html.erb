@@ -27,6 +27,7 @@
         
         window.initMap = function() {
           // Maps initialization
+          document.dispatchEvent(new CustomEvent('google-maps-callback'));
         };
 
         window.gm_authFailure = function() {

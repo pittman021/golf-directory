@@ -41,7 +41,7 @@ Rails.application.configure do
 
   # Configure ActiveStorage URL options
   config.after_initialize do
-    ActiveStorage::Current.url_options = { host: ENV['HOST'], protocol: 'https' }
+    ActiveStorage::Current.url_options = { host: 'www.golftriplist.com', protocol: 'https' }
   end
 
   # Configure Active Storage service URL expiration
