@@ -8,6 +8,15 @@
     
     <div class="relative px-2 sm:px-4 lg:px-6 pt-2 sm:pt-6 md:pt-8">
       <div class="text-center">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#355E3B]">
+          Discover Your Next Golf Destination
+        </h1>
+        <p class="mt-2 text-gray-600 max-w-2xl mx-auto">
+          Browse and compare the best golf destinations across the country. Find your perfect golf getaway.
+        </p>
+      </div>
+    </div>
+  </div>
 
   <!-- Filters and Table Section -->
   <div class="px-2 sm:px-4 lg:px-6 mt-4" data-controller="layout comparison">
@@ -118,6 +127,10 @@
              longitude: location.longitude.to_f,
              name: location.name,
              id: location.id,
+             image_url: location.cloudinary_url,
+             courses_count: location.courses.count,
+             avg_green_fee: number_to_currency(location.avg_green_fee, precision: 0),
+             estimated_trip_cost: number_to_currency(location.estimated_trip_cost, precision: 0),
              info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
            }}.to_json %>">
       </div>
@@ -245,5 +258,36 @@
     z-index: 1000 !important;
     transform: scale(1.2);
     transition: transform 0.2s ease-in-out;
+  }
+  
+  /* Map info window customizations */
+  .gm-style .gm-style-iw-c {
+    padding: 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  
+  .gm-style .gm-style-iw-d {
+    overflow: visible !important;
+    padding: 0 !important;
+    max-height: none !important;
+  }
+  
+  .gm-style .gm-style-iw-t::after {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 51%, rgba(255, 255, 255, 0) 100%) !important;
+  }
+  
+  .gm-ui-hover-effect {
+    top: 0 !important;
+    right: 0 !important;
+    background-color: rgba(255, 255, 255, 0.7) !important;
+    border-radius: 50% !important;
+  }
+  
+  /* Location card highlight effect when marker is clicked */
+  .location-card.highlighted {
+    transition: all 0.3s ease;
   }
 </style>

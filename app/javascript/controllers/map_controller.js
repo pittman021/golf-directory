@@ -70,9 +70,43 @@ export default class extends Controller {
       if (this.hasMarkersValue) {
         this.addMarkers();
       }
+      
+      // Apply info window style fixes
+      this.applyInfoWindowFixes();
     } catch (error) {
       console.error("Error initializing map:", error);
     }
+  }
+  
+  applyInfoWindowFixes() {
+    // Apply CSS fixes for info windows
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `
+      .gm-style .gm-style-iw-c {
+        padding: 0 !important;
+        overflow: visible !important;
+        max-height: none !important;
+      }
+      .gm-style .gm-style-iw-d {
+        overflow: visible !important;
+        max-height: none !important;
+      }
+      .gm-style-iw-d::-webkit-scrollbar { 
+        display: none;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Add event listener to catch any dynamically created info windows
+    google.maps.event.addListener(this.map, 'idle', () => {
+      // Force all info window containers to be visible
+      const infoWindows = document.querySelectorAll('.gm-style-iw, .gm-style-iw-d');
+      infoWindows.forEach(el => {
+        el.style.overflow = 'visible';
+        el.style.maxHeight = 'none';
+      });
+    });
   }
   
   addMarkers() {
@@ -99,9 +133,16 @@ export default class extends Controller {
         
         const position = { lat: latitude, lng: longitude };
         
-        // Create info window first
+        // Create enhanced info window content
+        const infoContent = this.createInfoWindowContent(markerData);
+        
+        // Create info window with custom options
         const infoWindow = new google.maps.InfoWindow({
-          content: markerData.info
+          content: infoContent,
+          maxWidth: 320,
+          pixelOffset: new google.maps.Size(0, -5),
+          disableAutoPan: false,
+          ariaLabel: markerData.name
         });
         
         this.infoWindows.push(infoWindow);
@@ -122,8 +163,15 @@ export default class extends Controller {
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
-            // Open this info window
-            infoWindow.open(this.map, marker);
+            // Open this info window - apply a slight delay to ensure DOM is ready
+            setTimeout(() => {
+              infoWindow.open(this.map, marker);
+              // Fix any display issues with the info window
+              document.querySelectorAll('.gm-style-iw, .gm-style-iw-d').forEach(el => {
+                el.style.overflow = 'visible';
+                el.style.maxHeight = 'none';
+              });
+            }, 10);
             
             // Trigger marker click event
             this.markerClicked(markerData.id);
@@ -141,8 +189,15 @@ export default class extends Controller {
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
-            // Open this info window
-            infoWindow.open(this.map, marker);
+            // Open this info window - apply a slight delay to ensure DOM is ready
+            setTimeout(() => {
+              infoWindow.open(this.map, marker);
+              // Fix any display issues with the info window
+              document.querySelectorAll('.gm-style-iw, .gm-style-iw-d').forEach(el => {
+                el.style.overflow = 'visible';
+                el.style.maxHeight = 'none';
+              });
+            }, 10);
             
             // Trigger marker click event
             this.markerClicked(markerData.id);
@@ -191,20 +246,64 @@ export default class extends Controller {
       const event = new Event('marker-clicked');
       locationElements[0].dispatchEvent(event);
       
-      // Scroll the location into view - use the 3/5 width column as container
-      const container = document.querySelector('.lg\\:w-3\\/5');
+      // Scroll the location into view
+      const container = document.querySelector('.lg\\:w-1\\/2.lg\\:overflow-y-auto');
       if (container && locationElements[0]) {
         container.scrollTo({
           top: locationElements[0].offsetTop - 20,
           behavior: 'smooth'
         });
         
-        // Add a temporary highlight
-        locationElements[0].classList.add('bg-[#355E3B]/10');
-        setTimeout(() => {
-          locationElements[0].classList.remove('bg-[#355E3B]/10');
-        }, 2000);
+        // Add a more noticeable highlight
+        locationElements.forEach(element => {
+          // Remove highlight from all elements first
+          element.classList.remove('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg');
+          
+          // Add highlight
+          element.classList.add('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg');
+          element.style.transition = 'all 0.3s ease';
+          
+          // Remove highlight after a delay
+          setTimeout(() => {
+            element.classList.remove('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg');
+          }, 3000);
+        });
       }
     }
+  }
+  
+  createInfoWindowContent(markerData) {
+    // Create a styled info window with image and details - with better compatibility for Google Maps
+    return `
+      <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif;">
+        <div style="height: 140px; overflow: hidden;">
+          <img src="${markerData.image_url}" alt="${markerData.name}" 
+               style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div style="padding: 12px; background-color: white;">
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #355E3B;">${markerData.name}</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
+            <tr>
+              <td style="padding-bottom: 4px;"><strong>Courses:</strong></td>
+              <td style="padding-bottom: 4px;">${markerData.courses_count}</td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 4px;"><strong>Avg Green Fee:</strong></td>
+              <td style="padding-bottom: 4px;">${markerData.avg_green_fee}</td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 4px;"><strong>Est. Trip Cost:</strong></td>
+              <td style="padding-bottom: 4px;">${markerData.estimated_trip_cost}</td>
+            </tr>
+          </table>
+          <div style="margin-top: 12px; text-align: right;">
+            <a href="/locations/${markerData.id}" 
+               style="display: inline-block; background-color: #355E3B; color: white; text-decoration: none; border: none; border-radius: 4px; padding: 6px 12px; font-size: 13px; cursor: pointer;">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
   }
 }

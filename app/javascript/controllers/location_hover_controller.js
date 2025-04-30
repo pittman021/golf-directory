@@ -25,12 +25,15 @@ export default class extends Controller {
         // Store current marker for reset
         this.currentMarker = marker
         
-        // Highlight the marker
-        marker.element?.classList.add('highlighted-marker')
-        
-        // Open info window for this marker
-        if (this.mapController.infoWindows && this.mapController.infoWindows[markerIndex]) {
-          this.mapController.infoWindows[markerIndex].open(this.mapController.map, marker)
+        // Highlight the marker (using CSS for Advanced Markers or scale for legacy markers)
+        if (marker.element) {
+          marker.element.classList.add('highlighted-marker')
+        } else {
+          // Legacy marker - set a larger icon
+          marker.setAnimation(google.maps.Animation.BOUNCE)
+          setTimeout(() => {
+            marker.setAnimation(null)
+          }, 750)
         }
       }
     }
@@ -41,14 +44,14 @@ export default class extends Controller {
     
     if (this.currentMarker) {
       // Remove highlight
-      this.currentMarker.element?.classList.remove('highlighted-marker')
-      
-      // Close all info windows
-      if (this.mapController.infoWindows) {
-        this.mapController.infoWindows.forEach(infoWindow => {
-          infoWindow.close()
-        })
+      if (this.currentMarker.element) {
+        this.currentMarker.element.classList.remove('highlighted-marker')
+      } else {
+        // Legacy marker - reset animation
+        this.currentMarker.setAnimation(null)
       }
+      
+      this.currentMarker = null
     }
   }
   
@@ -63,42 +66,67 @@ export default class extends Controller {
     const markerData = markers.find(marker => marker.id.toString() === locationId.toString())
     
     if (markerData) {
-      // Center the map on this marker
-      this.mapController.map.setCenter({
-        lat: parseFloat(markerData.latitude),
-        lng: parseFloat(markerData.longitude)
-      })
-      this.mapController.map.setZoom(10)
-      
-      // Highlight and show info for this marker
-      this.highlightMarker(event)
-      
-      // Scroll the clicked location into view if needed
-      this.scrollToLocation(locationId)
+      // Find the marker and info window
+      const markerIndex = markers.findIndex(marker => marker.id.toString() === locationId.toString())
+      if (markerIndex >= 0 && this.mapController.markers && this.mapController.infoWindows) {
+        const marker = this.mapController.markers[markerIndex]
+        const infoWindow = this.mapController.infoWindows[markerIndex]
+        
+        // Center the map on this marker
+        this.mapController.map.setCenter({
+          lat: parseFloat(markerData.latitude),
+          lng: parseFloat(markerData.longitude)
+        })
+        this.mapController.map.setZoom(12)
+        
+        // Close all info windows first
+        this.mapController.infoWindows.forEach(info => info.close())
+        
+        // Open this info window
+        if (infoWindow && marker) {
+          infoWindow.open(this.mapController.map, marker)
+        }
+        
+        // Apply visual highlight to the card
+        this.highlightCard(locationId)
+      }
     }
   }
   
-  scrollToLocation(locationId) {
-    // Get the right container - now the parent 1/2 width column is scrollable
+  highlightCard(locationId) {
+    // Get all cards with this location ID
+    const cards = document.querySelectorAll(`[data-location-id="${locationId}"]`)
+    
+    cards.forEach(card => {
+      // Remove existing highlights from all cards
+      document.querySelectorAll('.location-card, .location-row').forEach(element => {
+        element.classList.remove('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg', 'z-10')
+      })
+      
+      // Add highlight to this card
+      card.classList.add('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg', 'z-10')
+      card.style.transition = 'all 0.3s ease'
+      
+      // Scroll the card into view
+      this.scrollToElement(card)
+      
+      // Remove highlight after some time
+      setTimeout(() => {
+        card.classList.remove('ring-2', 'ring-[#355E3B]', 'ring-offset-2', 'shadow-lg', 'z-10')
+      }, 3000)
+    })
+  }
+  
+  scrollToElement(element) {
+    // Find the scrollable container
     const container = document.querySelector('.lg\\:w-1\\/2.lg\\:overflow-y-auto')
-    const element = document.querySelector(`[data-location-id="${locationId}"]`)
     
     if (container && element) {
-      // Calculate position - need to account for container's own offset
-      const containerRect = container.getBoundingClientRect()
-      const elementRect = element.getBoundingClientRect()
-      
-      // Scroll the container
+      // Scroll element into view
       container.scrollTo({
         top: element.offsetTop - 20,
         behavior: 'smooth'
       })
-      
-      // Add a temporary highlight
-      element.classList.add('bg-[#355E3B]/10')
-      setTimeout(() => {
-        element.classList.remove('bg-[#355E3B]/10')
-      }, 2000)
     }
   }
   
