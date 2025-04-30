@@ -3,6 +3,8 @@ class PagesController < ApplicationController
   def home
     @locations = Location.all
       .includes(:courses, :reviews)  # Keep the includes for optimization
+      .where.not(latitude: nil)      # Ensure we only get locations with coordinates for the map
+      .where.not(longitude: nil)
 
     # Get counts for stats
     @stats = {

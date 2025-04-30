@@ -10,11 +10,35 @@ export default class extends Controller {
   
   connect() {
     console.log("Map controller connected");
-    if (typeof google === 'undefined') {
-      // Add a listener to initialize map when Google Maps API is loaded
-      document.addEventListener('google-maps-callback', this.initializeMap.bind(this))
+    
+    // Set a timer to check if Google Maps API is loaded
+    this.checkGoogleMapsLoaded();
+  }
+  
+  checkGoogleMapsLoaded() {
+    // Check if Google Maps is already loaded
+    if (typeof google !== 'undefined' && google.maps) {
+      this.initializeMap();
     } else {
-      this.initializeMap()
+      // Add a listener for when Google Maps API is loaded
+      document.addEventListener('google-maps-callback', this.initializeMap.bind(this));
+      
+      // Fallback: retry after a short delay in case we missed the callback
+      setTimeout(() => {
+        if (typeof google !== 'undefined' && google.maps) {
+          this.initializeMap();
+        } else {
+          console.log("Still waiting for Google Maps to load...");
+          // Try again once more after a longer delay
+          setTimeout(() => {
+            if (typeof google !== 'undefined' && google.maps) {
+              this.initializeMap();
+            } else {
+              console.error("Google Maps failed to load within the timeout period");
+            }
+          }, 3000);
+        }
+      }, 1000);
     }
   }
   
@@ -58,7 +82,11 @@ export default class extends Controller {
       
       console.log(`Adding ${markersData.length} markers`);
       
-      markersData.forEach(markerData => {
+      // Store markers and info windows
+      this.markers = [];
+      this.infoWindows = [];
+      
+      markersData.forEach((markerData, index) => {
         // Ensure latitude and longitude are valid numbers
         const latitude = parseFloat(markerData.latitude);
         const longitude = parseFloat(markerData.longitude);
@@ -70,6 +98,13 @@ export default class extends Controller {
         }
         
         const position = { lat: latitude, lng: longitude };
+        
+        // Create info window first
+        const infoWindow = new google.maps.InfoWindow({
+          content: markerData.info
+        });
+        
+        this.infoWindows.push(infoWindow);
         
         // Use Advanced Marker if available, fall back to regular Marker if not
         let marker;
@@ -83,15 +118,16 @@ export default class extends Controller {
           });
           
           // For advanced markers, we need to add click listeners differently
-          if (markerData.info) {
-            const infoWindow = new google.maps.InfoWindow({
-              content: markerData.info
-            });
+          marker.addListener('click', () => {
+            // Close all info windows first
+            this.infoWindows.forEach(info => info.close());
             
-            marker.addListener('click', () => {
-              infoWindow.open(this.map, marker);
-            });
-          }
+            // Open this info window
+            infoWindow.open(this.map, marker);
+            
+            // Trigger marker click event
+            this.markerClicked(markerData.id);
+          });
         } else {
           // Fall back to legacy Marker
           marker = new google.maps.Marker({
@@ -100,17 +136,21 @@ export default class extends Controller {
             title: markerData.name
           });
           
-          // Add info window if we have info
-          if (markerData.info) {
-            const infoWindow = new google.maps.InfoWindow({
-              content: markerData.info
-            });
+          // Add click listener
+          marker.addListener('click', () => {
+            // Close all info windows first
+            this.infoWindows.forEach(info => info.close());
             
-            marker.addListener('click', () => {
-              infoWindow.open(this.map, marker);
-            });
-          }
+            // Open this info window
+            infoWindow.open(this.map, marker);
+            
+            // Trigger marker click event
+            this.markerClicked(markerData.id);
+          });
         }
+        
+        // Store the marker
+        this.markers.push(marker);
         
         // Extend bounds to include this marker
         bounds.extend(position);
@@ -139,6 +179,32 @@ export default class extends Controller {
       }
     } catch (error) {
       console.error("Error adding markers:", error);
+    }
+  }
+  
+  markerClicked(locationId) {
+    // Find all location elements with this ID
+    const locationElements = document.querySelectorAll(`[data-location-id="${locationId}"]`);
+    
+    // Trigger click event on the first matching element if found
+    if (locationElements.length > 0) {
+      const event = new Event('marker-clicked');
+      locationElements[0].dispatchEvent(event);
+      
+      // Scroll the location into view - use the 3/5 width column as container
+      const container = document.querySelector('.lg\\:w-3\\/5');
+      if (container && locationElements[0]) {
+        container.scrollTo({
+          top: locationElements[0].offsetTop - 20,
+          behavior: 'smooth'
+        });
+        
+        // Add a temporary highlight
+        locationElements[0].classList.add('bg-[#355E3B]/10');
+        setTimeout(() => {
+          locationElements[0].classList.remove('bg-[#355E3B]/10');
+        }, 2000);
+      }
     }
   }
 }
