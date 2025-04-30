@@ -59,41 +59,83 @@ export default class extends Controller {
       console.log(`Adding ${markersData.length} markers`);
       
       markersData.forEach(markerData => {
-        const position = { 
-          lat: markerData.latitude || 0, 
-          lng: markerData.longitude || 0 
-        };
+        // Ensure latitude and longitude are valid numbers
+        const latitude = parseFloat(markerData.latitude);
+        const longitude = parseFloat(markerData.longitude);
         
-        const marker = new google.maps.Marker({
-          position: position,
-          map: this.map,
-          title: markerData.name
-        });
+        // Skip invalid coordinates
+        if (isNaN(latitude) || isNaN(longitude)) {
+          console.warn(`Invalid coordinates for ${markerData.name}: [${markerData.latitude}, ${markerData.longitude}]`);
+          return;
+        }
         
-        // Add info window if we have info
-        if (markerData.info) {
-          const infoWindow = new google.maps.InfoWindow({
-            content: markerData.info
+        const position = { lat: latitude, lng: longitude };
+        
+        // Use Advanced Marker if available, fall back to regular Marker if not
+        let marker;
+        
+        if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+          // Use the new AdvancedMarkerElement
+          marker = new google.maps.marker.AdvancedMarkerElement({
+            map: this.map,
+            position: position,
+            title: markerData.name
           });
           
-          marker.addListener('click', () => {
-            infoWindow.open(this.map, marker);
+          // For advanced markers, we need to add click listeners differently
+          if (markerData.info) {
+            const infoWindow = new google.maps.InfoWindow({
+              content: markerData.info
+            });
+            
+            marker.addListener('click', () => {
+              infoWindow.open(this.map, marker);
+            });
+          }
+        } else {
+          // Fall back to legacy Marker
+          marker = new google.maps.Marker({
+            position: position,
+            map: this.map,
+            title: markerData.name
           });
+          
+          // Add info window if we have info
+          if (markerData.info) {
+            const infoWindow = new google.maps.InfoWindow({
+              content: markerData.info
+            });
+            
+            marker.addListener('click', () => {
+              infoWindow.open(this.map, marker);
+            });
+          }
         }
         
         // Extend bounds to include this marker
         bounds.extend(position);
       });
       
-      // Fit the map to show all markers
-      if (markersData.length > 1) {
-        this.map.fitBounds(bounds);
-      } else if (markersData.length === 1) {
-        this.map.setCenter({ 
-          lat: markersData[0].latitude, 
-          lng: markersData[0].longitude 
-        });
-        this.map.setZoom(10);
+      // Fit the map to show all markers if we have valid ones
+      if (!bounds.isEmpty()) {
+        if (markersData.length > 1) {
+          this.map.fitBounds(bounds);
+        } else if (markersData.length === 1) {
+          // Get the valid marker data
+          const validMarkers = markersData.filter(marker => {
+            const lat = parseFloat(marker.latitude);
+            const lng = parseFloat(marker.longitude);
+            return !isNaN(lat) && !isNaN(lng);
+          });
+          
+          if (validMarkers.length === 1) {
+            this.map.setCenter({ 
+              lat: parseFloat(validMarkers[0].latitude), 
+              lng: parseFloat(validMarkers[0].longitude) 
+            });
+            this.map.setZoom(10);
+          }
+        }
       }
     } catch (error) {
       console.error("Error adding markers:", error);

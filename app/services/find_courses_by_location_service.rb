@@ -53,70 +53,80 @@ class FindCoursesByLocationService
   private
 
   def fetch_courses_from_google
-    params = {
-      location: "#{@location.latitude},#{@location.longitude}",
-      radius: 50000, # Increased to 50km radius
-      keyword: "golf course",  # Primary keyword
-      type: "golf_course",     # Primary type
-      key: @api_key
-    }
+    keywords = ["golf course", "golf club", "golf resort"]
+    radius = 70000 # Increased to 70km radius
+    all_results = []
 
-    uri = URI(BASE_URL)
-    uri.query = URI.encode_www_form(params)
+    puts "Making requests to Google Places API..."
+    keywords.each do |keyword|
+      params = {
+        location: "#{@location.latitude},#{@location.longitude}",
+        radius: radius,
+        keyword: keyword,
+        type: "golf_course", # Primary type
+        key: @api_key
+      }
 
-    puts "Making request to Google Places API..."
-    puts "Search parameters:"
-    puts "- Location: #{params[:location]}"
-    puts "- Radius: #{params[:radius]}m"
-    puts "- Keyword: #{params[:keyword]}"
-    puts "- Type: #{params[:type]}"
+      puts "\nSearching with parameters:"
+      puts "- Location: #{params[:location]}"
+      puts "- Radius: #{params[:radius]}m"
+      puts "- Keyword: #{params[:keyword]}"
+      puts "- Type: #{params[:type]}"
 
-    begin
-      response = Net::HTTP.get_response(uri)
-      
-      if response.is_a?(Net::HTTPSuccess)
-        data = JSON.parse(response.body)
-        puts "API Response Status: #{data['status']}"
-        puts "Number of results: #{data['results']&.size || 0}"
+      begin
+        uri = URI(BASE_URL)
+        uri.query = URI.encode_www_form(params)
+        response = Net::HTTP.get_response(uri)
         
-        if data['status'] == 'OK'
-          # Filter results to ensure they are golf courses
-          courses = data['results'].first(MAX_RESULTS).select do |place|
-            types = place['types'] || []
-            name = place['name'].downcase
-            
-            # More inclusive filtering criteria
-            (types.include?('golf_course') || 
-             types.include?('country_club') || 
-             name.include?('golf') ||
-             name.include?('club') ||
-             name.include?('course')) && 
-            !types.include?('store') && 
-            !types.include?('shopping_mall') &&
-            !types.include?('supermarket')
-          end
+        if response.is_a?(Net::HTTPSuccess)
+          data = JSON.parse(response.body)
+          puts "API Response Status: #{data['status']}"
+          puts "Number of results: #{data['results']&.size || 0}"
           
-          puts "✅ Successfully found #{courses.size} courses"
-          courses
+          if data['status'] == 'OK'
+            all_results += data['results']
+            puts "✅ Successfully found #{data['results'].size} courses with keyword '#{keyword}'"
+          else
+            puts "⚠️ Google Places API Error: #{data['status']}"
+            puts "Error details: #{data['error_message']}" if data['error_message']
+          end
         else
-          puts "⚠️ Google Places API Error: #{data['status']}"
-          puts "Error details: #{data['error_message']}" if data['error_message']
-          puts "Full response: #{data.inspect}"
-          []
+          puts "❌ HTTP Error: #{response.code}"
+          puts "Response body: #{response.body}"
         end
-      else
-        puts "❌ HTTP Error: #{response.code}"
-        puts "Response body: #{response.body}"
-        []
+      rescue JSON::ParserError => e
+        puts "❌ Error parsing API response: #{e.message}"
+      rescue StandardError => e
+        puts "❌ Unexpected error in fetch_courses_from_google with keyword '#{keyword}': #{e.message}"
+        puts "Backtrace: #{e.backtrace.first(5).join("\n")}"
       end
-    rescue JSON::ParserError => e
-      puts "❌ Error parsing API response: #{e.message}"
-      []
-    rescue StandardError => e
-      puts "❌ Unexpected error in fetch_courses_from_google: #{e.message}"
-      puts "Backtrace: #{e.backtrace.first(5).join("\n")}"
-      []
     end
+
+    # Deduplicate by place_id
+    unique_courses = {}
+    all_results.each do |place|
+      unique_courses[place['place_id']] ||= place
+    end
+    deduped_results = unique_courses.values
+
+    # Filter results to ensure they are golf courses
+    filtered_courses = deduped_results.select do |place|
+      types = place['types'] || []
+      name = place['name'].downcase
+      
+      # More inclusive filtering criteria
+      (types.include?('golf_course') || 
+       types.include?('country_club') || 
+       name.include?('golf') ||
+       name.include?('club') ||
+       name.include?('course')) && 
+      !types.include?('store') && 
+      !types.include?('shopping_mall') &&
+      !types.include?('supermarket')
+    end
+    
+    puts "\n✅ After deduplication and filtering: #{filtered_courses.size} unique golf courses found"
+    filtered_courses.first(MAX_RESULTS)
   end
 
   def enrich_courses(courses)

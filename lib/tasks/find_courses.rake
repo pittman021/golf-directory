@@ -32,7 +32,7 @@ namespace :golf do
     
     # Update location statistics
     location.update_avg_green_fee
-    location.calculate_and_update_trip_cost
+    location.calculate_estimated_trip_cost
     
     puts "\nFound #{location.courses.count} courses in Las Vegas:"
     location.courses.each do |course|
@@ -71,7 +71,7 @@ namespace :golf do
     
     # Update location statistics
     location.update_avg_green_fee
-    location.calculate_and_update_trip_cost
+    location.calculate_estimated_trip_cost
     
     puts "\nFound #{location.courses.count} courses in #{location.name}:"
     location.courses.each do |course|

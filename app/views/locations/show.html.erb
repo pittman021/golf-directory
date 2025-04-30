@@ -359,6 +359,7 @@
            data-map-latitude-value="<%= @location.latitude.present? ? @location.latitude.to_f : 0 %>"
            data-map-longitude-value="<%= @location.longitude.present? ? @location.longitude.to_f : 0 %>"
            data-map-markers-value="<%= [
+             # Include location as the first marker
              {
                latitude: @location.latitude.to_f,
                longitude: @location.longitude.to_f,
@@ -366,9 +367,10 @@
                type: 'location',
                info: "#{@location.name} - #{pluralize(@location.courses.count, 'course')}"
              },
-             *@location.courses.map { |course| {
-               latitude: course.latitude,
-               longitude: course.longitude,
+             # Include all courses with valid coordinates
+             *@location.courses.select { |course| course.latitude.present? && course.longitude.present? }.map { |course| {
+               latitude: course.latitude.to_f,
+               longitude: course.longitude.to_f,
                name: course.name,
                type: 'course',
                info: "#{course.name} - #{course.course_type.humanize} - #{number_to_currency(course.green_fee)}"

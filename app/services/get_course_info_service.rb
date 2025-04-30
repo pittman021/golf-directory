@@ -62,7 +62,7 @@ class GetCourseInfoService
       - Designers
       - Tournament history
       - Playing tips
-      - Layout features (from this list: #{TAG_CATEGORIES["Layout Features"].join(', ')})
+      - Course tags (from this list: #{TAG_CATEGORIES.values.flatten.join(', ')})
       - Number of holes (must be 9 or 18)
       - Par (must be a whole number)
       - Yardage (must be a whole number)
@@ -79,7 +79,7 @@ class GetCourseInfoService
         "designers": ["string"],
         "tournament_history": ["string"],
         "playing_tips": ["string"],
-        "layout_tags": ["string"],
+        "course_tags": ["string"],
         "number_of_holes": integer,
         "par": integer,
         "yardage": integer,
@@ -89,7 +89,7 @@ class GetCourseInfoService
         "notes": "string"
       }
       
-      For layout_tags, only use tags from the provided list.
+      For course_tags, only use tags from the provided list.
       For course_type, only use one of: public_course, private_course, resort_course
       For number_of_holes, only use 9 or 18
       For par, use a whole number (typically between 60-75)
@@ -119,15 +119,33 @@ class GetCourseInfoService
           puts "OpenAI API Error: #{error_message}"
           last_error = error_message
         else
-          course_info = JSON.parse(response.dig("choices", 0, "message", "content"))
+          content = response.dig("choices", 0, "message", "content")
+          puts "\nReceived response from OpenAI. Parsing JSON..."
           
-          # Validate and clean the data
-          course_info = clean_course_info(course_info)
+          # Try to find and extract a valid JSON object from the response content
+          json_match = content.match(/\{.*\}/m)
           
-          # Update the course with the gathered information
-          update_course(course_info)
-          
-          return course_info
+          if json_match
+            begin
+              course_info = JSON.parse(json_match[0])
+              
+              # Validate and clean the data
+              course_info = clean_course_info(course_info)
+              
+              # Update the course with the gathered information
+              update_course(course_info)
+              
+              return course_info
+            rescue JSON::ParserError => e
+              puts "Error parsing matched JSON: #{e.message}"
+              puts "Matched JSON: #{json_match[0]}"
+              last_error = e.message
+            end
+          else
+            puts "Could not find a valid JSON object in the response"
+            puts "Response content: #{content}"
+            last_error = "No JSON object found in response"
+          end
         end
       rescue JSON::ParserError => e
         puts "Error parsing ChatGPT response: #{e.message}"
@@ -153,6 +171,22 @@ class GetCourseInfoService
   end
 
   def clean_course_info(course_info)
+    # Ensure all expected fields exist
+    course_info['number_of_holes'] ||= 18
+    course_info['par'] ||= 72
+    course_info['yardage'] ||= 6500
+    course_info['green_fee'] ||= 100
+    course_info['course_type'] ||= 'public_course'
+    course_info['course_tags'] ||= []
+    course_info['notable_holes'] ||= []
+    course_info['designers'] ||= []
+    course_info['tournament_history'] ||= []
+    course_info['playing_tips'] ||= []
+    course_info['description'] ||= ''
+    course_info['history'] ||= ''
+    course_info['website_url'] ||= ''
+    course_info['notes'] ||= ''
+    
     # Ensure number_of_holes is 9 or 18
     course_info['number_of_holes'] = course_info['number_of_holes'].to_i
     course_info['number_of_holes'] = 18 unless [9, 18].include?(course_info['number_of_holes'])
@@ -173,31 +207,61 @@ class GetCourseInfoService
     valid_types = Course.course_types.keys
     course_info['course_type'] = 'public_course' unless valid_types.include?(course_info['course_type'])
 
-    # Ensure course_tags are valid
+    # Ensure course_tags is an array and contains valid tags
+    course_info['course_tags'] = [] unless course_info['course_tags'].is_a?(Array)
     valid_tags = TAG_CATEGORIES.values.flatten
-    course_info['course_tags'] = course_info['course_tags'].select { |tag| valid_tags.include?(tag) }
+    course_info['course_tags'] = course_info['course_tags'].select { |tag| valid_tags.include?(tag) } if course_info['course_tags'].is_a?(Array)
     course_info['course_tags'] = ['traditional'] if course_info['course_tags'].empty?
+
+    # Ensure arrays are actually arrays
+    %w[notable_holes designers tournament_history playing_tips].each do |field|
+      course_info[field] = [course_info[field]] unless course_info[field].is_a?(Array)
+    end
 
     course_info
   end
 
   def update_course(course_info)
-    @course.update!(
-      description: course_info['description'],
+    # Create a notes field with the additional information
+    notes_content = []
+    notes_content << "Notable Holes: #{course_info['notable_holes'].join(', ')}" if course_info['notable_holes'].present?
+    notes_content << "History: #{course_info['history']}" if course_info['history'].present?
+    notes_content << "Designers: #{course_info['designers'].join(', ')}" if course_info['designers'].present?
+    notes_content << "Tournament History: #{course_info['tournament_history'].join(', ')}" if course_info['tournament_history'].present?
+    notes_content << "Playing Tips: #{course_info['playing_tips'].join(', ')}" if course_info['playing_tips'].present?
+    notes_content << course_info['notes'] if course_info['notes'].present?
+    
+    # Join the notes with double newlines
+    combined_notes = notes_content.join("\n\n")
+    
+    update_params = {
+      description: course_info['description'].to_s,
       number_of_holes: course_info['number_of_holes'],
       par: course_info['par'],
       yardage: course_info['yardage'],
       green_fee: course_info['green_fee'],
       course_type: course_info['course_type'],
       course_tags: course_info['course_tags'],
-      website_url: course_info['website_url'],
-      notes: [
-        "Notable Holes: #{course_info['notable_holes'].join(', ')}",
-        "History: #{course_info['history']}",
-        "Designers: #{course_info['designers'].join(', ')}",
-        "Tournament History: #{course_info['tournament_history'].join(', ')}",
-        "Playing Tips: #{course_info['playing_tips'].join(', ')}"
-      ].join("\n\n")
-    )
+      website_url: course_info['website_url'].to_s
+    }
+    
+    # Only update notes if we have content
+    update_params[:notes] = combined_notes if combined_notes.present?
+    
+    puts "Updating course with params:"
+    puts "- Number of holes: #{update_params[:number_of_holes]}"
+    puts "- Par: #{update_params[:par]}"
+    puts "- Yardage: #{update_params[:yardage]}"
+    puts "- Green fee: #{update_params[:green_fee]}"
+    puts "- Course type: #{update_params[:course_type]}"
+    puts "- Tags: #{update_params[:course_tags].join(', ')}"
+    
+    begin
+      @course.update!(update_params)
+      puts "Course updated successfully!"
+    rescue => e
+      puts "Error updating course: #{e.message}"
+      raise e
+    end
   end
 end 
