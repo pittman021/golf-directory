@@ -138,7 +138,7 @@ class FindCoursesByLocationService
         puts "Place ID: #{course_data['place_id']}"
         puts "Types: #{course_data['types'].join(', ')}"
         puts "Rating: #{course_data['rating']}"
-        puts "Price Level: #{course_data['price_level']}"
+        puts "Green Fee: #{course_data['green_fee']}"
         puts "Vicinity: #{course_data['vicinity']}"
 
         # Find or create the course

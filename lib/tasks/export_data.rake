@@ -11,10 +11,9 @@ namespace :export do
         "id", "name", "description", "latitude", "longitude", 
         "region", "state", "country", "best_months", 
         "nearest_airports", "weather_info", "avg_green_fee",
-        "avg_lodging_cost_per_night", "estimated_trip_cost",
-        "tags", "summary", "image_url", "reviews_count",
-        "lodging_price_min", "lodging_price_max", "lodging_price_currency", 
-        "lodging_price_last_updated"
+        "lodging_price_min", "lodging_price_max", "lodging_price_currency",
+        "lodging_price_last_updated", "estimated_trip_cost",
+        "tags", "summary", "image_url", "reviews_count"
       ]
 
       # Data rows
@@ -32,16 +31,15 @@ namespace :export do
           location.nearest_airports,
           location.weather_info,
           location.avg_green_fee,
-          location.avg_lodging_cost_per_night,
+          location.lodging_price_min,
+          location.lodging_price_max,
+          location.lodging_price_currency,
+          location.lodging_price_last_updated,
           location.estimated_trip_cost,
           location.tags&.join("|"),
           location.summary,
           location.image_url,
-          location.reviews_count,
-          location.lodging_price_min,
-          location.lodging_price_max,
-          location.lodging_price_currency,
-          location.lodging_price_last_updated
+          location.reviews_count
         ]
       end
     end
@@ -54,7 +52,7 @@ namespace :export do
       csv << [
         "id", "name", "description", "latitude", "longitude",
         "course_type", "green_fee_range", "number_of_holes",
-        "par", "yardage", "website_url", "layout_tags",
+        "par", "yardage", "website_url", "course_tags",
         "notes", "green_fee", "location_id", "image_url"
       ]
 
@@ -73,7 +71,7 @@ namespace :export do
           course.par,
           course.yardage,
           course.website_url,
-          course.layout_tags&.join("|"),
+          course.course_tags&.join("|"),
           course.notes,
           course.green_fee,
           location_id,
@@ -121,10 +119,38 @@ namespace :export do
     end
     puts "✓ Lodgings exported to lodgings.csv"
 
+    # Export Reviews
+    puts "\nExporting reviews..."
+    CSV.open("reviews.csv", "wb") do |csv|
+      # Header row
+      csv << [
+        "id", "user_id", "course_id", "rating", 
+        "played_on", "course_condition", "comment",
+        "created_at", "updated_at"
+      ]
+
+      # Data rows
+      Review.includes(:user, :course).each do |review|
+        csv << [
+          review.id,
+          review.user_id,
+          review.course_id,
+          review.rating,
+          review.played_on,
+          review.course_condition,
+          review.comment,
+          review.created_at,
+          review.updated_at
+        ]
+      end
+    end
+    puts "✓ Reviews exported to reviews.csv"
+
     puts "\nExport complete! Files created:"
     puts "- locations.csv"
     puts "- courses.csv"
     puts "- lodgings.csv"
+    puts "- reviews.csv"
   end
 
   desc "Export only lodgings to CSV file"
@@ -165,6 +191,35 @@ namespace :export do
       end
     end
     puts "✓ Lodgings exported to lodgings.csv"
+  end
+
+  desc "Export only reviews to CSV file"
+  task reviews: :environment do
+    puts "Exporting reviews..."
+    CSV.open("reviews.csv", "wb") do |csv|
+      # Header row
+      csv << [
+        "id", "user_id", "course_id", "rating", 
+        "played_on", "course_condition", "comment",
+        "created_at", "updated_at"
+      ]
+
+      # Data rows
+      Review.includes(:user, :course).each do |review|
+        csv << [
+          review.id,
+          review.user_id,
+          review.course_id,
+          review.rating,
+          review.played_on,
+          review.course_condition,
+          review.comment,
+          review.created_at,
+          review.updated_at
+        ]
+      end
+    end
+    puts "✓ Reviews exported to reviews.csv"
   end
 
   desc "Import locations and courses from CSV files"
@@ -209,8 +264,20 @@ namespace :export do
         attrs[:avg_green_fee] = row["avg_green_fee"]
       end
       
-      if row["avg_lodging_cost_per_night"].present? && Location.column_names.include?("avg_lodging_cost_per_night")
-        attrs[:avg_lodging_cost_per_night] = row["avg_lodging_cost_per_night"]
+      if row["lodging_price_min"].present? && Location.column_names.include?("lodging_price_min")
+        attrs[:lodging_price_min] = row["lodging_price_min"]
+      end
+      
+      if row["lodging_price_max"].present? && Location.column_names.include?("lodging_price_max")
+        attrs[:lodging_price_max] = row["lodging_price_max"]
+      end
+      
+      if row["lodging_price_currency"].present? && Location.column_names.include?("lodging_price_currency")
+        attrs[:lodging_price_currency] = row["lodging_price_currency"]
+      end
+      
+      if row["lodging_price_last_updated"].present? && Location.column_names.include?("lodging_price_last_updated")
+        attrs[:lodging_price_last_updated] = row["lodging_price_last_updated"]
       end
       
       if row["estimated_trip_cost"].present? && Location.column_names.include?("estimated_trip_cost")
@@ -231,22 +298,6 @@ namespace :export do
       
       if row["reviews_count"].present? && Location.column_names.include?("reviews_count")
         attrs[:reviews_count] = row["reviews_count"]
-      end
-      
-      if row["lodging_price_min"].present? && Location.column_names.include?("lodging_price_min")
-        attrs[:lodging_price_min] = row["lodging_price_min"]
-      end
-      
-      if row["lodging_price_max"].present? && Location.column_names.include?("lodging_price_max")
-        attrs[:lodging_price_max] = row["lodging_price_max"]
-      end
-      
-      if row["lodging_price_currency"].present? && Location.column_names.include?("lodging_price_currency")
-        attrs[:lodging_price_currency] = row["lodging_price_currency"]
-      end
-      
-      if row["lodging_price_last_updated"].present? && Location.column_names.include?("lodging_price_last_updated")
-        attrs[:lodging_price_last_updated] = row["lodging_price_last_updated"]
       end
       
       if location.update(attrs)
@@ -300,8 +351,8 @@ namespace :export do
         attrs[:website_url] = row["website_url"]
       end
       
-      if row["layout_tags"].present? && Course.column_names.include?("layout_tags")
-        attrs[:layout_tags] = row["layout_tags"].split("|")
+      if row["course_tags"].present? && Course.column_names.include?("course_tags")
+        attrs[:course_tags] = row["course_tags"].split("|")
       end
       
       if row["notes"].present? && Course.column_names.include?("notes")
@@ -414,6 +465,39 @@ namespace :export do
       end
     end
     puts "\n✓ Lodgings imported"
+
+    # Diagnostic information for Review model
+    puts "\nDiagnostic information for Review model:"
+    puts "Available columns: #{Review.column_names.inspect}"
+    
+    # Import Reviews
+    puts "\nImporting reviews..."
+    if File.exist?("reviews.csv")
+      CSV.foreach("reviews.csv", headers: true) do |row|
+        review = Review.find_or_initialize_by(id: row["id"])
+        
+        # Create a hash of attributes that exist on the model
+        attrs = {}
+        
+        # Core attributes that should exist in all environments
+        attrs[:user_id] = row["user_id"] if row["user_id"].present?
+        attrs[:course_id] = row["course_id"] if row["course_id"].present?
+        attrs[:rating] = row["rating"] if row["rating"].present?
+        attrs[:played_on] = row["played_on"] if row["played_on"].present?
+        attrs[:course_condition] = row["course_condition"] if row["course_condition"].present?
+        attrs[:comment] = row["comment"] if row["comment"].present?
+        
+        if review.update(attrs)
+          print "."
+        else
+          print "F"
+          puts "\nError saving review #{row['id']}: #{review.errors.full_messages.join(', ')}"
+        end
+      end
+      puts "\n✓ Reviews imported"
+    else
+      puts "\nSkipping reviews import - reviews.csv not found"
+    end
 
     puts "\nImport complete!"
   end

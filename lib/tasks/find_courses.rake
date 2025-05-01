@@ -36,7 +36,7 @@ namespace :golf do
     
     puts "\nFound #{location.courses.count} courses in Las Vegas:"
     location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
+      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Green Fee: $#{course.green_fee || 'N/A'})"
     end
     
     puts "\nLocation Statistics:"
@@ -75,7 +75,7 @@ namespace :golf do
     
     puts "\nFound #{location.courses.count} courses in #{location.name}:"
     location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Price Level: #{course.price_level || 'N/A'})"
+      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Green Fee: $#{course.green_fee || 'N/A'})"
     end
     
     puts "\nLocation Statistics:"
