@@ -87,6 +87,8 @@ export default class extends Controller {
         padding: 0 !important;
         overflow: visible !important;
         max-height: none !important;
+        box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);
+        border-radius: 8px !important;
       }
       .gm-style .gm-style-iw-d {
         overflow: visible !important;
@@ -94,6 +96,12 @@ export default class extends Controller {
       }
       .gm-style-iw-d::-webkit-scrollbar { 
         display: none;
+      }
+      .gm-ui-hover-effect {
+        display: none !important;
+      }
+      .gm-style-iw-tc, .gm-style-iw-tc:after {
+        display: none !important;
       }
     `;
     document.head.appendChild(style);
@@ -106,6 +114,14 @@ export default class extends Controller {
         el.style.overflow = 'visible';
         el.style.maxHeight = 'none';
       });
+    });
+    
+    // Add listener for info windows opening
+    google.maps.event.addListener(this.map, 'click', () => {
+      // Make sure the map doesn't recenter on info window open
+      if (this.map) {
+        this.map.setOptions({ disableAutoPan: true });
+      }
     });
   }
   
@@ -141,7 +157,7 @@ export default class extends Controller {
           content: infoContent,
           maxWidth: 320,
           pixelOffset: new google.maps.Size(0, -5),
-          disableAutoPan: false,
+          disableAutoPan: true,
           ariaLabel: markerData.name
         });
         
@@ -160,6 +176,10 @@ export default class extends Controller {
           
           // For advanced markers, we need to add click listeners differently
           marker.addListener('click', () => {
+            // Save current map center and zoom
+            const currentCenter = this.map.getCenter();
+            const currentZoom = this.map.getZoom();
+            
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
@@ -171,6 +191,10 @@ export default class extends Controller {
                 el.style.overflow = 'visible';
                 el.style.maxHeight = 'none';
               });
+              
+              // Restore original map position and zoom
+              this.map.setCenter(currentCenter);
+              this.map.setZoom(currentZoom);
             }, 10);
             
             // Trigger marker click event
@@ -186,6 +210,10 @@ export default class extends Controller {
           
           // Add click listener
           marker.addListener('click', () => {
+            // Save current map center and zoom
+            const currentCenter = this.map.getCenter();
+            const currentZoom = this.map.getZoom();
+            
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
@@ -197,6 +225,10 @@ export default class extends Controller {
                 el.style.overflow = 'visible';
                 el.style.maxHeight = 'none';
               });
+              
+              // Restore original map position and zoom
+              this.map.setCenter(currentCenter);
+              this.map.setZoom(currentZoom);
             }, 10);
             
             // Trigger marker click event
@@ -275,13 +307,20 @@ export default class extends Controller {
   createInfoWindowContent(markerData) {
     // Create a styled info window with image and details - with better compatibility for Google Maps
     return `
-      <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif;">
-        <div style="height: 140px; overflow: hidden;">
+      <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+           onclick="window.location.href='/locations/${markerData.id}'">
+        <div style="height: 140px; overflow: hidden; position: relative;">
           <img src="${markerData.image_url}" alt="${markerData.name}" 
                style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; top: 8px; right: 8px;">
+            <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
+                  onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
+          </div>
+          <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
+            <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
+          </div>
         </div>
         <div style="padding: 12px; background-color: white;">
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #355E3B;">${markerData.name}</h3>
           <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
             <tr>
               <td style="padding-bottom: 4px;"><strong>Courses:</strong></td>
@@ -296,12 +335,6 @@ export default class extends Controller {
               <td style="padding-bottom: 4px;">${markerData.estimated_trip_cost}</td>
             </tr>
           </table>
-          <div style="margin-top: 12px; text-align: right;">
-            <a href="/locations/${markerData.id}" 
-               style="display: inline-block; background-color: #355E3B; color: white; text-decoration: none; border: none; border-radius: 4px; padding: 6px 12px; font-size: 13px; cursor: pointer;">
-              View Details
-            </a>
-          </div>
         </div>
       </div>
     `;
