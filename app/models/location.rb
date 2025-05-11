@@ -1,5 +1,8 @@
 # app/models/location.rb
 class Location < ApplicationRecord
+    extend FriendlyId
+    friendly_id :name, use: :slugged
+    
     has_many :location_courses, dependent: :destroy
     has_many :courses, through: :location_courses
     has_many :reviews, through: :courses

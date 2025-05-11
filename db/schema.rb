@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_02_211803) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_11_171834) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -94,10 +94,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_02_211803) do
     t.string "notes"
     t.integer "green_fee"
     t.string "image_url"
+    t.string "slug"
     t.index ["course_tags"], name: "index_courses_on_course_tags", using: :gin
     t.index ["course_type"], name: "index_courses_on_course_type"
     t.index ["green_fee"], name: "index_courses_on_green_fee"
     t.index ["name"], name: "index_courses_on_name"
+    t.index ["slug"], name: "index_courses_on_slug", unique: true
   end
 
   create_table "location_courses", force: :cascade do |t|
@@ -133,9 +135,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_02_211803) do
     t.string "lodging_price_currency", default: "USD"
     t.datetime "lodging_price_last_updated"
     t.string "image_url"
+    t.string "slug"
     t.index ["latitude", "longitude"], name: "index_locations_on_latitude_and_longitude"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["region"], name: "index_locations_on_region"
+    t.index ["slug"], name: "index_locations_on_slug", unique: true
     t.index ["state"], name: "index_locations_on_state"
     t.index ["tags"], name: "index_locations_on_tags", using: :gin
   end

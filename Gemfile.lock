@@ -161,6 +161,8 @@ GEM
     formtastic (5.0.0)
       actionpack (>= 6.0.0)
     formtastic_i18n (0.7.0)
+    friendly_id (5.4.2)
+      activerecord (>= 4.0.0)
     geocoder (1.8.5)
       base64 (>= 0.1.0)
       csv (>= 3.0.0)
@@ -457,6 +459,7 @@ DEPENDENCIES
   devise
   dotenv-rails
   faker
+  friendly_id (~> 5.4.0)
   geocoder
   image_processing
   importmap-rails
