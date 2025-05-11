@@ -64,6 +64,10 @@ class LocationsController < ApplicationController
     else
       @nearby_locations = Location.where.not(id: @location.id).limit(3)
     end
+
+    # Set SEO meta tags
+    @page_title = "Golf in #{@location.name} – Courses, Lodging & Trip Costs"
+    @page_description = @location.destination_overview.present? ? @location.destination_overview.truncate(155) : "Discover golf courses, lodging options, and trip costs in #{@location.name}. Plan your perfect golf getaway with detailed information about courses, accommodations, and local attractions."
   end
 
   def compare

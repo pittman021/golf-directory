@@ -312,6 +312,18 @@ class Location < ApplicationRecord
       update_column(:tags, (manual_tags + derived_tags).uniq)
     end
 
+    # Define which attributes can be searched with Ransack
+    def self.ransackable_attributes(auth_object = nil)
+      ["best_months", "country", "created_at", "description", "destination_overview", 
+       "estimated_trip_cost", "golf_experience", "id", "latitude", "local_attractions", 
+       "longitude", "name", "nearest_airports", "practical_tips", "region", "state", 
+       "summary", "tags", "travel_information", "updated_at", "weather_info", "cloudinary_url"]
+    end
+    
+    def self.ransackable_associations(auth_object = nil)
+      ["courses", "location_courses", "lodgings"]
+    end
+
     private
     
     def parse_summary

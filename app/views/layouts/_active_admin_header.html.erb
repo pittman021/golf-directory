@@ -1,0 +1,19 @@
+<header id="header" class="header">
+  <h1 class="site_title">
+    <%= link_to(ActiveAdmin.application.site_title, active_admin_root_path) %>
+  </h1>
+  
+  <% if current_active_admin_user %>
+    <ul class="header-item tabs" id="utility_nav">
+      <li class="menu_item">
+        <%= link_to "View Site", root_path, target: "_blank" %>
+      </li>
+      <li class="menu_item current_user">
+        <%= link_to current_active_admin_user.email, edit_admin_admin_user_path(current_active_admin_user) %>
+      </li>
+      <li class="menu_item logout">
+        <%= link_to "Logout", destroy_admin_user_session_path, method: :delete %>
+      </li>
+    </ul>
+  <% end %>
+</header> 

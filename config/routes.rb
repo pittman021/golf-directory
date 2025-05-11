@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  devise_for :admin_users, ActiveAdmin::Devise.config
+  ActiveAdmin.routes(self)
   root 'pages#home'  # Set the root route to our homepage
 
   # Add a route for states_for_region in the pages controller
@@ -16,14 +18,6 @@ Rails.application.routes.draw do
 
   resources :courses, only: [:show] do
     resources :reviews, only: [:create]
-  end
-
-  namespace :admin do
-    resources :users
-    resources :locations
-    resources :courses
-    resources :reviews
-    root to: "users#index"
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

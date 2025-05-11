@@ -47,8 +47,10 @@ gem 'pagy'
 # Form handling
 gem 'simple_form'
 
-# Admin interface
-gem 'administrate'
+# ActiveAdmin for admin interface
+gem 'activeadmin'
+gem 'sassc-rails' # Required for ActiveAdmin styling
+gem 'country_select' # For country dropdown in forms
 
 # Environment variables
 gem 'dotenv-rails'

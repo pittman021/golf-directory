@@ -58,4 +58,15 @@ class Lodging < ApplicationRecord
       Rails.logger.error "Failed to download photo for #{name}: #{e.message}"
     end
   end
+
+  # Define which attributes can be searched with Ransack
+  def self.ransackable_attributes(auth_object = nil)
+    ["address", "amenities", "created_at", "description", "formatted_address", 
+     "id", "latitude", "location_id", "lodging_type", "longitude", "name", 
+     "phone", "price_range", "rating", "updated_at", "website"]
+  end
+  
+  def self.ransackable_associations(auth_object = nil)
+    ["location"]
+  end
 end 

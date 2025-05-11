@@ -602,4 +602,19 @@ courses_data.each do |location_name, courses|
   end
 end
 
+# Create admin user for ActiveAdmin
+if Rails.env.development? || Rails.env.production?
+  if AdminUser.count == 0 # Only create if no admin exists
+    AdminUser.create!(
+      email: 'admin@golfdirectory.com',
+      password: 'password123',
+      password_confirmation: 'password123'
+    )
+    puts "Admin user created! Email: admin@golfdirectory.com, Password: password123"
+    puts "Please change this password immediately after first login!"
+  else
+    puts "AdminUser already exists - skipping creation"
+  end
+end
+
 puts "Seeding completed!"

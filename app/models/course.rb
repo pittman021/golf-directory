@@ -138,6 +138,17 @@ class Course < ApplicationRecord
       end
     end
 
+    # Define which attributes can be searched with Ransack
+    def self.ransackable_attributes(auth_object = nil)
+      ["course_tags", "course_type", "created_at", "description", "green_fee", "green_fee_range", 
+       "id", "latitude", "longitude", "name", "notes", "number_of_holes", "par", 
+       "updated_at", "website_url", "yardage", "cloudinary_url"]
+    end
+    
+    def self.ransackable_associations(auth_object = nil)
+      ["location", "reviews"]
+    end
+
     private
 
     def update_locations_avg_green_fee

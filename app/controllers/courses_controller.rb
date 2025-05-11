@@ -13,6 +13,10 @@ class CoursesController < ApplicationController
   def show
     @reviews = @course.reviews.order(created_at: :desc).includes(:user)
     @review = Review.new(course: @course)
+
+    # Set SEO meta tags
+    @page_title = "#{@course.name} – Green Fees, Yardage, Course Info"
+    @page_description = @course.description.present? ? @course.description.truncate(155) : "Play #{@course.name}, a #{@course.course_type.humanize} golf course in #{@course.locations.first.name}. #{@course.number_of_holes} holes, par #{@course.par}, green fee #{number_to_currency(@course.green_fee)}."
   end
 
   # GET /courses/new

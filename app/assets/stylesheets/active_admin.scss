@@ -1,0 +1,79 @@
+// SASS variable overrides must be declared before loading up Active Admin's styles.
+//
+// To view the variables that Active Admin provides, take a look at
+// `app/assets/stylesheets/active_admin/mixins/_variables.scss` in the
+// Active Admin source.
+//
+// For example, to change the sidebar width:
+// $sidebar-width: 242px;
+
+// Active Admin's got SASS!
+@import "active_admin/mixins";
+@import "active_admin/base";
+
+// Custom theme variables
+$primary-color: #355E3B;  // Custom green for Golf Directory
+$text-color: #414d5a;
+
+// Override default styles
+.header {
+  background-color: $primary-color;
+}
+
+// Custom styles for Cloudinary image uploads
+.cloudinary-preview {
+  margin-top: 10px;
+  max-width: 200px;
+  
+  img {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+}
+
+.cloudinary-upload-button {
+  background-color: $primary-color;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+// Overriding default styles
+.inline-hints {
+  font-size: 12px;
+  color: #666;
+}
+
+// Customizing the nav header
+#header ul.tabs > li.current > a {
+  background-color: darken($primary-color, 10%);
+}
+
+// Overriding primary button styles
+.action_item a, .links a.button, .actions input[type="submit"] {
+  background: $primary-color;
+  
+  &:hover {
+    background: darken($primary-color, 10%);
+  }
+}
+
+// Placeholder for your custom web fonts
+// @font-face {
+//   font-family: 'FontName';
+//   src: url('FontName.eot');
+//   src: url('FontName.eot?#iefix') format('embedded-opentype'),
+//        url('FontName.woff2') format('woff2'),
+//        url('FontName.woff') format('woff'),
+//        url('FontName.ttf') format('truetype');
+//   font-weight: normal;
+//   font-style: normal;
+// }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= [@page_title, ActiveAdmin.application.site_title].compact.join(" | ") %></title>
+  
+  <!-- Cloudinary Configuration -->
+  <meta name="cloudinary-cloud-name" content="<%= ENV['CLOUDINARY_CLOUD_NAME'] %>">
+  <meta name="cloudinary-upload-preset" content="<%= ENV['CLOUDINARY_UPLOAD_PRESET'] %>">
+  
+  <%= favicon_link_tag ActiveAdmin.application.favicon if ActiveAdmin.application.favicon %>
+  <%= stylesheet_link_tag 'active_admin', media: 'screen' %>
+  <%= stylesheet_link_tag 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css' %>
+  <%= csrf_meta_tag %>
+  <%= javascript_include_tag 'active_admin' %>
+  <%= javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js' %>
+  
+  <!-- Cloudinary Upload Widget -->
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+</head>
+<body class="active_admin <%= controller.action_name %>">
+  <div id="wrapper">
+    <%= render partial: 'layouts/active_admin_header' %>
+    <%= render partial: 'layouts/active_admin_flash_messages' %>
+    <div id="active_admin_content" class="<%= 'with_sidebar' if active_admin_content_sidebar? %>">
+      <%= yield %>
+    </div>
+    <div id="footer">
+      <%= yield :footer %>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Select2 on select boxes for better UX with long lists
+      jQuery('.select2').select2();
+      
+      // Initialize any tag input fields
+      const tagInputs = document.querySelectorAll('input[id$="_tags"]');
+      tagInputs.forEach(function(input) {
+        jQuery(input).select2({
+          tags: true,
+          tokenSeparators: [','],
+          width: '100%'
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
