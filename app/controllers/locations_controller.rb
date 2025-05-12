@@ -139,7 +139,13 @@ class LocationsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_location
-      @location = Location.friendly.find(params[:slug])
+      if params[:slug].match?(/^\d+$/)
+        # If the slug is a number, find by ID and redirect to the slug
+        location = Location.find(params[:slug])
+        redirect_to location_path(location), status: :moved_permanently
+      else
+        @location = Location.friendly.find(params[:slug])
+      end
     end
 
     # Only allow a trusted parameter "white list" through.

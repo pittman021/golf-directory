@@ -1,7 +1,7 @@
 # app/models/course.rb
 class Course < ApplicationRecord
     extend FriendlyId
-    friendly_id :name, use: :slugged
+    friendly_id :name, use: [:slugged, :finders, :history]
     
     has_many :location_courses, dependent: :destroy
     has_many :locations, through: :location_courses

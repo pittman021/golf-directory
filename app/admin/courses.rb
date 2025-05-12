@@ -63,7 +63,7 @@ ActiveAdmin.register Course do
 
   # Filters
   filter :name
-  filter :location, collection: proc { Location.all.map { |l| [l.name, l.id] } }
+  filter :locations, collection: proc { Location.all.map { |l| [l.name, l.id] } }
   filter :course_type, as: :select, collection: Course.course_types.map { |k, v| [k.humanize, k] }
   filter :green_fee
   filter :course_tags
@@ -73,7 +73,7 @@ ActiveAdmin.register Course do
   form do |f|
     f.inputs "Course Details" do
       f.input :name
-      f.input :location, collection: Location.all.map { |l| [l.name, l.id] }
+      f.input :locations, collection: Location.all.map { |l| [l.name, l.id] }, input_html: { multiple: true }
       f.input :course_type, as: :select, collection: Course.course_types.map { |k, v| [k.humanize, k] }
       f.input :description
       f.input :green_fee
@@ -96,7 +96,9 @@ ActiveAdmin.register Course do
     attributes_table do
       row :id
       row :name
-      row :location
+      row :locations do |course|
+        course.locations.map(&:name).join(", ")
+      end
       row :course_type
       row :description
       row :green_fee do |course|

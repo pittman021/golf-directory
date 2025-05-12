@@ -81,7 +81,13 @@ class CoursesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_course
-      @course = Course.friendly.find(params[:slug])
+      if params[:slug].match?(/^\d+$/)
+        # If the slug is a number, find by ID and redirect to the slug
+        course = Course.find(params[:slug])
+        redirect_to course_path(course), status: :moved_permanently
+      else
+        @course = Course.friendly.find(params[:slug])
+      end
     end
 
     # Only allow a trusted parameter "white list" through.
