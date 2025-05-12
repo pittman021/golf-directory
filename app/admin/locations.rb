@@ -15,6 +15,27 @@ ActiveAdmin.register Location do
   #   permitted
   # end
   
+  # Use slugs for finding records
+  controller do
+    defaults finder: :find_by_slug
+    
+    def update
+      # Convert comma-separated tags to array
+      if params[:location] && params[:location][:tags].present?
+        params[:location][:tags] = params[:location][:tags].split(',').map(&:strip)
+      end
+      super
+    end
+    
+    def create
+      # Convert comma-separated tags to array
+      if params[:location] && params[:location][:tags].present?
+        params[:location][:tags] = params[:location][:tags].split(',').map(&:strip)
+      end
+      super
+    end
+  end
+
   # Configuration for the index page (list view)
   index do
     selectable_column
@@ -209,25 +230,6 @@ ActiveAdmin.register Location do
           link_to "View", admin_lodging_path(lodging)
         end
       end
-    end
-  end
-
-  # Add controller callback to process tags
-  controller do
-    def update
-      # Convert comma-separated tags to array
-      if params[:location] && params[:location][:tags].present?
-        params[:location][:tags] = params[:location][:tags].split(',').map(&:strip)
-      end
-      super
-    end
-    
-    def create
-      # Convert comma-separated tags to array
-      if params[:location] && params[:location][:tags].present?
-        params[:location][:tags] = params[:location][:tags].split(',').map(&:strip)
-      end
-      super
     end
   end
 

@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   devise_for :users
   
-  resources :locations, only: [:index, :show] do
+  resources :locations, only: [:index, :show], param: :slug do
     resources :courses, only: [:index]
     collection do
       get 'compare'
@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :courses, only: [:show] do
+  resources :courses, only: [:show], param: :slug do
     resources :reviews, only: [:create]
   end
 

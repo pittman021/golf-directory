@@ -15,12 +15,35 @@ ActiveAdmin.register Course do
   #   permitted
   # end
   
+  # Use slugs for finding records
+  controller do
+    defaults finder: :find_by_slug
+    
+    def update
+      # Convert comma-separated tags to array
+      if params[:course] && params[:course][:course_tags].present?
+        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
+      end
+      super
+    end
+    
+    def create
+      # Convert comma-separated tags to array
+      if params[:course] && params[:course][:course_tags].present?
+        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
+      end
+      super
+    end
+  end
+
   # Index page configuration
   index do
     selectable_column
     id_column
     column :name
-    column :location
+    column "Location" do |course|
+      course.locations.first&.name || "No location"
+    end
     column :course_type
     column :green_fee do |course|
       number_to_currency(course.green_fee)
@@ -66,25 +89,6 @@ ActiveAdmin.register Course do
       f.input :cloudinary_url, hint: "Enter the Cloudinary URL for the course image"
     end
     f.actions
-  end
-
-  # Add controller callback to process course_tags
-  controller do
-    def update
-      # Convert comma-separated tags to array
-      if params[:course] && params[:course][:course_tags].present?
-        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
-      end
-      super
-    end
-    
-    def create
-      # Convert comma-separated tags to array
-      if params[:course] && params[:course][:course_tags].present?
-        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
-      end
-      super
-    end
   end
 
   # Show page
