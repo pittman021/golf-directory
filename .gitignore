@@ -38,3 +38,11 @@
 !/app/assets/builds/.keep
 
 /config/credentials/development.key
+
+# Ignore seed files
+/db/seeds.rb
+/db/seeds/*.rb
+
+# Ignore data files
+*.csv
+/db/data/*.csv
