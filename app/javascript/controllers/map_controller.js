@@ -305,38 +305,82 @@ export default class extends Controller {
   }
   
   createInfoWindowContent(markerData) {
-    // Create a styled info window with image and details - with better compatibility for Google Maps
-    return `
-      <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
-           onclick="window.location.href='/locations/${markerData.id}'">
-        <div style="height: 140px; overflow: hidden; position: relative;">
-          <img src="${markerData.image_url}" alt="${markerData.name}" 
-               style="width: 100%; height: 100%; object-fit: cover;">
-          <div style="position: absolute; top: 8px; right: 8px;">
-            <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
-                  onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
+    if (markerData.type === 'course') {
+      // Create a styled info window for courses
+      return `
+        <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+             onclick="window.location.href='/courses/${markerData.id}'">
+          <div style="height: 140px; overflow: hidden; position: relative;">
+            <img src="${markerData.image_url}" alt="${markerData.name}" 
+                 style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; top: 8px; right: 8px;">
+              <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
+                    onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
+            </div>
+            <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
+              <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
+            </div>
           </div>
-          <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
-            <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
+          <div style="padding: 12px; background-color: white;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Type:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.course_type}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Green Fee:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.green_fee}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Holes:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.number_of_holes}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Par:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.par}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Yardage:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.yardage} yards</td>
+              </tr>
+            </table>
           </div>
         </div>
-        <div style="padding: 12px; background-color: white;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
-            <tr>
-              <td style="padding-bottom: 4px;"><strong>Courses:</strong></td>
-              <td style="padding-bottom: 4px;">${markerData.courses_count}</td>
-            </tr>
-            <tr>
-              <td style="padding-bottom: 4px;"><strong>Avg Green Fee:</strong></td>
-              <td style="padding-bottom: 4px;">${markerData.avg_green_fee}</td>
-            </tr>
-            <tr>
-              <td style="padding-bottom: 4px;"><strong>Est. Trip Cost:</strong></td>
-              <td style="padding-bottom: 4px;">${markerData.estimated_trip_cost}</td>
-            </tr>
-          </table>
+      `;
+    } else {
+      // Create a styled info window for locations
+      return `
+        <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+             onclick="window.location.href='/locations/${markerData.id}'">
+          <div style="height: 140px; overflow: hidden; position: relative;">
+            <img src="${markerData.image_url}" alt="${markerData.name}" 
+                 style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; top: 8px; right: 8px;">
+              <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
+                    onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
+            </div>
+            <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
+              <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
+            </div>
+          </div>
+          <div style="padding: 12px; background-color: white;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Courses:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.courses_count}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Avg Green Fee:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.avg_green_fee}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 4px;"><strong>Est. Trip Cost:</strong></td>
+                <td style="padding-bottom: 4px;">${markerData.estimated_trip_cost}</td>
+              </tr>
+            </table>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
   }
 }
