@@ -12,6 +12,10 @@ class LodgePriceEstimatorService
   private
   
   def build_prompt
+    # Handle a nil location by providing fallback values
+    location_name = @lodge.location&.name || "Unknown"
+    location_state = @lodge.location&.state || "Unknown"
+
     <<~PROMPT
       Based on the following information about a lodging establishment, estimate the typical price range per night in USD.
       Consider the following factors:
@@ -24,7 +28,7 @@ class LodgePriceEstimatorService
 
       Establishment Details:
       Name: #{@lodge.name}
-      Location: #{@lodge.location.name}, #{@lodge.location.state}
+      Location: #{location_name}, #{location_state}
       Rating: #{@lodge.rating}
       Address: #{@lodge.formatted_address}
       Types: #{@lodge.types.join(', ')}

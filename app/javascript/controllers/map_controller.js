@@ -85,13 +85,13 @@ export default class extends Controller {
     style.innerHTML = `
       .gm-style .gm-style-iw-c {
         padding: 0 !important;
-        overflow: visible !important;
+        /* overflow: visible !important; */ /* Let Google Maps handle this initially */
         max-height: none !important;
         box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);
         border-radius: 8px !important;
       }
       .gm-style .gm-style-iw-d {
-        overflow: visible !important;
+        /* overflow: visible !important; */ /* Let Google Maps handle this initially */
         max-height: none !important;
       }
       .gm-style-iw-d::-webkit-scrollbar { 
@@ -111,18 +111,18 @@ export default class extends Controller {
       // Force all info window containers to be visible
       const infoWindows = document.querySelectorAll('.gm-style-iw, .gm-style-iw-d');
       infoWindows.forEach(el => {
-        el.style.overflow = 'visible';
+        /* el.style.overflow = 'visible'; // Controlled by panning logic now */
         el.style.maxHeight = 'none';
       });
     });
     
-    // Add listener for info windows opening
-    google.maps.event.addListener(this.map, 'click', () => {
-      // Make sure the map doesn't recenter on info window open
-      if (this.map) {
-        this.map.setOptions({ disableAutoPan: true });
-      }
-    });
+    // Remove listener that disables auto pan
+    // google.maps.event.addListener(this.map, 'click', () => {
+    //   // Make sure the map doesn't recenter on info window open
+    //   if (this.map) {
+    //     this.map.setOptions({ disableAutoPan: true });
+    //   }
+    // });
   }
   
   addMarkers() {
@@ -140,6 +140,8 @@ export default class extends Controller {
         // Ensure latitude and longitude are valid numbers
         const latitude = parseFloat(markerData.latitude);
         const longitude = parseFloat(markerData.longitude);
+
+        console.log(latitude, longitude);
         
         // Skip invalid coordinates
         if (isNaN(latitude) || isNaN(longitude)) {
@@ -157,7 +159,7 @@ export default class extends Controller {
           content: infoContent,
           maxWidth: 320,
           pixelOffset: new google.maps.Size(0, -5),
-          disableAutoPan: true,
+          disableAutoPan: true, // Ensure this is active
           ariaLabel: markerData.name
         });
         
@@ -177,25 +179,32 @@ export default class extends Controller {
           // For advanced markers, we need to add click listeners differently
           marker.addListener('click', () => {
             // Save current map center and zoom
-            const currentCenter = this.map.getCenter();
-            const currentZoom = this.map.getZoom();
+            // const currentCenter = this.map.getCenter(); // Not needed, we pan to new state
+            // const currentZoom = this.map.getZoom(); // Not needed
             
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
-            // Open this info window - apply a slight delay to ensure DOM is ready
-            setTimeout(() => {
-              infoWindow.open(this.map, marker);
-              // Fix any display issues with the info window
-              document.querySelectorAll('.gm-style-iw, .gm-style-iw-d').forEach(el => {
-                el.style.overflow = 'visible';
-                el.style.maxHeight = 'none';
-              });
+            // Open this info window
+            infoWindow.open(this.map, marker);
+
+            // Listen for the DOM ready event
+            google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+              // First, pan the map to the marker
+              if (marker && typeof marker.getPosition === 'function') {
+                const pos = marker.getPosition();
+                if (pos && !isNaN(pos.lat()) && !isNaN(pos.lng())) {
+                  this.map.panTo(pos);
+                } else {
+                  console.warn("Invalid marker position for AdvancedMarkerElement", pos, markerData);
+                }
+              }
               
-              // Restore original map position and zoom
-              this.map.setCenter(currentCenter);
-              this.map.setZoom(currentZoom);
-            }, 10);
+              // Then, after a short delay for panTo to settle, adjust for InfoWindow visibility
+              setTimeout(() => {
+                this.panMapToShowInfoWindow(infoWindow);
+              }, 100); // Slightly increased delay for panTo animation
+            });
             
             // Trigger marker click event
             this.markerClicked(markerData.id);
@@ -211,25 +220,32 @@ export default class extends Controller {
           // Add click listener
           marker.addListener('click', () => {
             // Save current map center and zoom
-            const currentCenter = this.map.getCenter();
-            const currentZoom = this.map.getZoom();
+            // const currentCenter = this.map.getCenter(); // Not needed
+            // const currentZoom = this.map.getZoom(); // Not needed
             
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
-            // Open this info window - apply a slight delay to ensure DOM is ready
-            setTimeout(() => {
-              infoWindow.open(this.map, marker);
-              // Fix any display issues with the info window
-              document.querySelectorAll('.gm-style-iw, .gm-style-iw-d').forEach(el => {
-                el.style.overflow = 'visible';
-                el.style.maxHeight = 'none';
-              });
+            // Open this info window
+            infoWindow.open(this.map, marker);
+
+            // Listen for the DOM ready event
+            google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+              // First, pan the map to the marker
+              if (marker && typeof marker.getPosition === 'function') {
+                const pos = marker.getPosition();
+                if (pos && !isNaN(pos.lat()) && !isNaN(pos.lng())) {
+                  this.map.panTo(pos);
+                } else {
+                  console.warn("Invalid marker position for legacy Marker", pos, markerData);
+                }
+              }
               
-              // Restore original map position and zoom
-              this.map.setCenter(currentCenter);
-              this.map.setZoom(currentZoom);
-            }, 10);
+              // Then, after a short delay for panTo to settle, adjust for InfoWindow visibility
+              setTimeout(() => {
+                this.panMapToShowInfoWindow(infoWindow);
+              }, 100); // Slightly increased delay for panTo animation
+            });
             
             // Trigger marker click event
             this.markerClicked(markerData.id);
@@ -308,7 +324,7 @@ export default class extends Controller {
     if (markerData.type === 'course') {
       // Create a styled info window for courses
       return `
-        <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+        <div style="width: 280px; padding: 0; margin: 0; /* overflow: visible; */ font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/courses/${markerData.id}'">
           <div style="height: 140px; overflow: hidden; position: relative;">
             <img src="${markerData.image_url}" alt="${markerData.name}" 
@@ -350,7 +366,7 @@ export default class extends Controller {
     } else {
       // Create a styled info window for locations
       return `
-        <div style="width: 280px; padding: 0; margin: 0; overflow: visible; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+        <div style="width: 280px; padding: 0; margin: 0; /* overflow: visible; */ font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/locations/${markerData.id}'">
           <div style="height: 140px; overflow: hidden; position: relative;">
             <img src="${markerData.image_url}" alt="${markerData.name}" 
@@ -381,6 +397,87 @@ export default class extends Controller {
           </div>
         </div>
       `;
+    }
+  }
+
+  panMapToShowInfoWindow(infoWindow) {
+    if (!this.map || !infoWindow) return;
+
+    const mapDiv = this.map.getDiv();
+    const infoWindowDiv = mapDiv.querySelector('.gm-style-iw'); // This selector might need adjustment
+
+    if (!infoWindowDiv) {
+      console.warn("Info window div not found for panning.");
+      return;
+    }
+
+    const mapBounds = this.map.getBounds();
+    if (!mapBounds) {
+      console.warn("Map bounds not available for panning.");
+      return; // Not enough info to pan yet
+    }
+    
+    // Get the pixel position of the info window relative to the map container
+    // The InfoWindow object itself doesn't directly expose its pixel bounds easily.
+    // We rely on its content being in the DOM.
+    const iwOuter = infoWindowDiv; // The main container of the info window
+    const iwContainer = infoWindowDiv.firstChild; // The content container
+
+    if (!iwOuter || !iwContainer) {
+      console.warn("Info window inner elements not found for panning.");
+      return;
+    }
+
+    const mapWidth = mapDiv.offsetWidth;
+    const mapHeight = mapDiv.offsetHeight;
+
+    // Get the position and size of the info window
+    const iwRect = iwOuter.getBoundingClientRect(); // Relative to viewport
+    const mapRect = mapDiv.getBoundingClientRect();   // Relative to viewport
+
+    // Calculate iw top-left relative to map container
+    const iwTop = iwRect.top - mapRect.top;
+    const iwLeft = iwRect.left - mapRect.left;
+    const iwWidth = iwRect.width;
+    const iwHeight = iwRect.height;
+    
+    let panX = 0;
+    let panY = 0;
+
+    // Check horizontal visibility
+    if (iwLeft < 0) {
+      panX = iwLeft - 10; // Pan right (negative iwLeft), plus a margin
+    } else if (iwLeft + iwWidth > mapWidth) {
+      panX = (iwLeft + iwWidth - mapWidth) + 10; // Pan left, plus a margin
+    }
+
+    // Check vertical visibility
+    // Note: InfoWindows usually open above the marker. We are more concerned about top cutoff here.
+    if (iwTop < 0) {
+      panY = iwTop - 10; // Pan down (negative iwTop), plus a margin
+    } else if (iwTop + iwHeight > mapHeight) {
+      // This case is less common for default InfoWindow behavior if it opens upwards.
+      // But if it's a large info window or map is small.
+      panY = (iwTop + iwHeight - mapHeight) + 10; // Pan up, plus a margin
+    }
+    
+    if (panX !== 0 || panY !== 0) {
+      console.log(typeof(panX), ' - ',typeof(panY));
+      this.map.panBy(panX, panY);
+    }
+
+    // Ensure the overflow is visible after panning, as Google Maps might reset it.
+    // It's also possible that the previous CSS for .gm-style-iw-d and .gm-style-iw-c 
+    // with overflow: visible !important was too aggressive and caused issues,
+    // so we apply it more targetedly here.
+    if (iwContainer) {
+        iwContainer.style.overflow = 'visible';
+        iwContainer.parentElement.style.overflow = 'visible'; // .gm-style-iw-c or similar
+    }
+     // One final check to ensure the main info window wrapper is also visible
+    const gmStyleIw = iwOuter.closest('.gm-style-iw');
+    if (gmStyleIw) {
+      gmStyleIw.style.overflow = 'visible';
     }
   }
 }

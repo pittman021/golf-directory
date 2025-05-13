@@ -277,7 +277,11 @@
         <% @location.courses.order(green_fee: :desc).limit(3).each do |course| %>
           <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <div class="relative h-48">
-              <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
+              <% if course.image_url.present? %>
+                <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
+              <% else %>
+                <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-full object-cover", alt: course.name %>
+              <% end %>
               <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                 <h4 class="text-white font-semibold"><%= course.name %></h4>
                 <div class="flex justify-between items-center mt-1">

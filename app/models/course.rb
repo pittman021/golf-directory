@@ -40,6 +40,7 @@ class Course < ApplicationRecord
 
     # Cloudinary helpers for direct URL transformations
     def image_with_transformation(options = {})
+      # Return default image if image_url is blank or nil
       return DEFAULT_IMAGE_URL if image_url.blank?
       
       # Default transformations
@@ -49,23 +50,29 @@ class Course < ApplicationRecord
       transform_options = default_options.merge(options)
       
       # Generate Cloudinary URL with transformations
-      if image_url.include?('cloudinary')
-        # Parse existing URL and add transformations
-        uri = URI.parse(image_url)
-        path_parts = uri.path.split('/')
-        
-        # Find upload part and insert transformations
-        upload_index = path_parts.index('upload')
-        if upload_index
-          transform_string = transform_options.map { |k, v| "#{k}_#{v}" }.join(',')
-          path_parts.insert(upload_index + 1, transform_string)
-          uri.path = path_parts.join('/')
-          uri.to_s
+      begin
+        if image_url.include?('cloudinary')
+          # Parse existing URL and add transformations
+          uri = URI.parse(image_url)
+          path_parts = uri.path.split('/')
+          
+          # Find upload part and insert transformations
+          upload_index = path_parts.index('upload')
+          if upload_index
+            transform_string = transform_options.map { |k, v| "#{k}_#{v}" }.join(',')
+            path_parts.insert(upload_index + 1, transform_string)
+            uri.path = path_parts.join('/')
+            uri.to_s
+          else
+            image_url # Return original if we can't parse
+          end
         else
-          image_url # Return original if we can't parse
+          image_url # Return original for non-Cloudinary URLs
         end
-      else
-        image_url # Return original for non-Cloudinary URLs
+      rescue URI::InvalidURIError, NoMethodError, ArgumentError => e
+        # If URI parsing fails for any reason, log it and return the default image
+        Rails.logger.error "Failed to parse image URL '#{image_url}' for course #{id}: #{e.message}"
+        DEFAULT_IMAGE_URL
       end
     end
     

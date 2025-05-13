@@ -1,55 +1,23 @@
 <% content_for :google_maps, true %>
 
 <div>
-  <!-- Hero Section -->
-  <div class="relative min-h-[150px] sm:min-h-[180px] mb-2">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-gradient-to-b from-[#355E3B]/10 to-white"></div>
-    
-    <div class="relative px-2 sm:px-4 lg:px-6 pt-1 sm:pt-2 md:pt-3">
-      <div class="text-center">
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#355E3B]">
-          Discover Your Next Golf Destination
-        </h1>
-        <p class="mt-1 text-gray-600 max-w-2xl mx-auto">
-          Browse and compare the best golf destinations across the country. Find your perfect golf getaway.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filters and Table Section -->
-  <div class="px-2 sm:px-4 lg:px-6 mt-1" data-controller="layout comparison">
+  <!-- Filters Section - Redesigned as a horizontal bar above the map -->
+  <div class="px-2 sm:px-4 lg:px-6 mt-2" data-controller="layout comparison filters">
     <!-- Filters -->
     <%= form_tag root_path, method: :get, 
         data: { 
-          controller: "filters",
           filters_target: "form"
         } do %>
-      <div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7 sm:gap-3">
-        <%= select_tag :region,
-            options_for_select(Location.distinct.pluck(:region).compact.sort, params[:region]),
-            { prompt: "Regions",
-              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-              data: { action: "change->filters#filter", filters_target: "regionSelect" },
-              id: "region" } %>
-        
-        <%= select_tag :state,
-            options_for_select(Location.distinct.pluck(:state).compact.sort, params[:state]),
-            { prompt: "States",
-              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-              data: { action: "change->filters#filter", filters_target: "stateSelect" },
-              id: "state" } %>
-        
-        <%= select_tag :price_category,
+      <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+        <%= select_tag :trip_cost,
             options_for_select([
               ['Budget (Up to $1,500)', 'budget'],
               ['Mid-Range ($1,501 - $2,500)', 'mid_range'],
               ['Premium ($2,501 - $4,000)', 'premium'],
               ['Luxury ($4,000+)', 'luxury']
             ], params[:price_category]),
-            { prompt: "Prices",
-              class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+            { prompt: "Trip Cost",
+              class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter" } } %>
               
         <!-- Experience Tags Dropdown -->
@@ -67,16 +35,42 @@
                  params[:tags]&.include?('championship_course') ? 'championship_course' :
                  params[:tags]&.include?('major_championship_host') ? 'major_championship_host' : nil),
               { prompt: "Experience",
-                class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
                 data: { action: "change->filters#addTag" } } %>
         </div>
-              
-    
+        
+        <!-- Amenities Dropdown -->
+        <div class="relative">
+          <%= select_tag "amenities",
+              options_for_select([
+                ['Resort', 'resort'],
+                ['Family Friendly', 'family'],
+                ['Hard to Book', 'hard_to_book'],
+                ['Bucket List', 'bucket_list']
+              ], params[:amenities]),
+              { prompt: "Amenities",
+                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+                data: { action: "change->filters#filter" } } %>
+        </div>
+        
+        <!-- Destination Type Dropdown -->
+        <div class="relative">
+          <%= select_tag "destination_type",
+              options_for_select([
+                ['Coastal', 'coastal'],
+                ['Mountain', 'mountain'],
+                ['Desert', 'desert'],
+                ['Resort', 'resort']
+              ], params[:destination_type]),
+              { prompt: "Destination Type",
+                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+                data: { action: "change->filters#filter" } } %>
+        </div>
               
         <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
       </div>
       
-      <div id="selected_tags" class="mb-4 flex flex-wrap gap-2">
+      <div id="selected_tags" class="mb-4 flex flex-wrap gap-2 justify-center">
         <% if params[:tags].present? %>
           <% params[:tags].each do |tag| %>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]">
@@ -93,8 +87,7 @@
     <% end %>
 
     <!-- Layout Toggle -->
-    <div class="flex justify-between items-center mb-6">
-      
+    <div class="flex justify-end items-center mb-4 max-w-4xl mx-auto">
       <div class="layout-toggle hidden sm:block">
         <div class="inline-flex rounded-md shadow-sm" role="group">
           <button type="button" 
@@ -117,10 +110,10 @@
       </div>
     </div>
 
-    <!-- Combined Map and Content Views -->
-    <div class="flex flex-col lg:flex-row gap-4 lg:h-[700px]">
-      <!-- Map View (Left Side) - Fixed -->
-      <div class="w-full lg:w-1/2 h-[500px] lg:h-full bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
+    <!-- Map and Cards Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <!-- Map View - Full width and more prominent -->
+      <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
            id="locations-map"
            data-controller="map location-hover"
            data-map-markers-value="<%= @locations.map { |location| {
@@ -136,102 +129,171 @@
            }}.to_json %>">
       </div>
       
-      <!-- Content View (Right Side) - Scrollable -->
-      <div class="w-full lg:w-1/2 lg:overflow-y-auto lg:h-full">
-        <!-- Grid View -->
-        <div data-layout-target="gridView" class="grid-view-wrapper">
-          <!-- Actual Grid Content -->
-          <div id="grid_view" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-8">
+      <!-- Location Cards Grid View -->
+      <div data-layout-target="gridView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
+        <div id="grid_view" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
+          <% @locations.each do |location| %>
+            <div class="location-card h-96" 
+                 data-location-id="<%= location.id %>"
+                 data-controller="location-card"
+                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+              <!-- Redesigned Location Card -->
+              <div class="bg-white rounded-lg overflow-hidden shadow h-full flex flex-col">
+                <!-- Card Image Section with Overlay Text -->
+                <div class="relative h-48 flex-shrink-0">
+                  <% if location.image_url.present? %>
+                    <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: "#{location.name}" %>
+                  <% else %>
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span class="text-gray-400">No image</span>
+                    </div>
+                  <% end %>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div class="absolute bottom-0 left-0 p-4">
+                    <h3 class="text-lg font-bold text-white truncate">
+                      <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" }, class: "text-white hover:text-gray-200" %>
+                    </h3>
+                    <p class="text-sm text-gray-200">
+                      <%= location.state || location.country %>
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Card Body Section -->
+                <div class="p-4 flex flex-col flex-grow">
+                  <!-- Tags Section -->
+                  <div class="flex flex-wrap gap-1 mb-3">
+                    <% top_tags = [] %>
+                    <% top_tags << "top_100_courses" if location.tags&.include?("top_100_courses") %>
+                    <% top_tags << "resort" if location.lodgings&.any? && location.tags&.include?("resort") %>
+                    <% top_tags << "family" if location.tags&.include?("family") %>
+                    <% top_tags << "hard_to_book" if location.tags&.include?("hard_to_book") %>
+                    <% top_tags << "bucket_list" if location.tags&.include?("bucket_list") %>
+                    
+                    <% top_tags.take(3).each do |tag| %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
+                                <%= tag == 'top_100_courses' ? 'bg-blue-100 text-blue-800' : 
+                                   tag == 'resort' ? 'bg-green-100 text-green-800' :
+                                   tag == 'family' ? 'bg-yellow-100 text-yellow-800' :
+                                   tag == 'hard_to_book' ? 'bg-red-100 text-red-800' :
+                                   tag == 'bucket_list' ? 'bg-purple-100 text-purple-800' : 
+                                   'bg-gray-100 text-gray-800' %>">
+                        <% if tag == 'top_100_courses' %>
+                          🎖️ Top 100
+                        <% elsif tag == 'resort' %>
+                          Resort
+                        <% elsif tag == 'family' %>
+                          Family
+                        <% elsif tag == 'hard_to_book' %>
+                          Hard to Book
+                        <% elsif tag == 'bucket_list' %>
+                          Bucket List
+                        <% else %>
+                          <%= tag.titleize %>
+                        <% end %>
+                      </span>
+                    <% end %>
+                  </div>
+                  
+                  <!-- Price and Details -->
+                  <div class="mt-auto">
+                    <div class="flex justify-between items-center mt-3">
+                      <div class="text-xl font-bold text-gray-900">
+                        <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
+                      </div>
+                    </div>
+                    
+                    <!-- Lodging and Green Fees Info -->
+                    <div class="mt-2 text-sm text-gray-600">
+                      <div>Lodging: <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %></div>
+                      <div>Green Fees: <%= number_to_currency(location.avg_green_fee, precision: 0) %></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- List View (Hidden by default) -->
+      <div data-layout-target="listView" id="locations_table" class="hidden">
+        <div class="bg-white rounded-lg shadow">
+          <!-- Mobile View (Inside List View) -->
+          <div class="block lg:hidden">
             <% @locations.each do |location| %>
               <div class="location-card" 
                    data-location-id="<%= location.id %>"
                    data-controller="location-card"
                    data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-                <%= render partial: "locations/location_card", locals: { location: location } %>
+                <%= render partial: "pages/location_card", locals: { location: location } %>
               </div>
             <% end %>
           </div>
-        </div>
 
-        <!-- List View -->
-        <div data-layout-target="listView" id="locations_table" class="hidden">
-          <div class="bg-white rounded-lg shadow">
-            <!-- Mobile View (Inside List View) -->
-            <div class="block lg:hidden">
-              <% @locations.each do |location| %>
-                <div class="location-card" 
-                     data-location-id="<%= location.id %>"
-                     data-controller="location-card"
-                     data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-                  <%= render partial: "pages/location_card", locals: { location: location } %>
-                </div>
-              <% end %>
-            </div>
-
-            <!-- Desktop Table View -->
-            <div class="hidden lg:block">
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                        Image
-                      </th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Location
-                      </th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Region/State
-                      </th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Avg Green Fee
-                      </th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Est Trip Cost
-                      </th>
-                      <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Compare
-                      </th>
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                      Image
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Region/State
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Avg Green Fee
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Est Trip Cost
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Compare
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @locations.each do |location| %>
+                    <tr class="hover:bg-gray-50 location-row" 
+                        data-location-id="<%= location.id %>"
+                        data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                      <td class="px-6 py-4">
+                        <div class="relative h-24 w-36 rounded-lg overflow-hidden">
+                          <%= image_tag location.image_url, 
+                              class: "h-full w-full object-cover",
+                              alt: "#{location.name} featured image" %>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-[#355E3B]">
+                          <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <%= location.region %>, <%= location.state %>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <%= number_to_currency(location.avg_green_fee, precision: 0) %>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
+                      </td>
+                      <td class="px-6 py-4 text-center">
+                        <input type="checkbox" 
+                               class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                               data-location-id="<%= location.id %>"
+                               data-action="change->comparison#toggleLocation"
+                               data-comparison-target="checkbox">
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    <% @locations.each do |location| %>
-                      <tr class="hover:bg-gray-50 location-row" 
-                          data-location-id="<%= location.id %>"
-                          data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-                        <td class="px-6 py-4">
-                          <div class="relative h-24 w-36 rounded-lg overflow-hidden">
-                            <%= image_tag location.image_url, 
-                                class: "h-full w-full object-cover",
-                                alt: "#{location.name} featured image" %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm font-medium text-[#355E3B]">
-                            <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                          <%= location.region %>, <%= location.state %>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                          <%= number_to_currency(location.avg_green_fee, precision: 0) %>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                          <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                          <input type="checkbox" 
-                                 class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                                 data-location-id="<%= location.id %>"
-                                 data-action="change->comparison#toggleLocation"
-                                 data-comparison-target="checkbox">
-                        </td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
+                  <% end %>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -249,46 +311,27 @@
     @apply opacity-50 group-hover:opacity-100 transition-opacity duration-200;
   }
   
-  @media (min-width: 480px) {
-    .xs\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Responsive adjustments */
+  @media (max-width: 1279px) {
+    #grid_view {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   
-  .highlighted-marker {
-    z-index: 1000 !important;
-    transform: scale(1.2);
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  /* Map info window customizations */
-  .gm-style .gm-style-iw-c {
-    padding: 0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
-    overflow: visible !important;
-    max-height: none !important;
-  }
-  
-  .gm-style .gm-style-iw-d {
-    overflow: visible !important;
-    padding: 0 !important;
-    max-height: none !important;
-  }
-  
-  .gm-style .gm-style-iw-t::after {
-    background: linear-gradient(45deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 51%, rgba(255, 255, 255, 0) 100%) !important;
-  }
-  
-  .gm-ui-hover-effect {
-    top: 0 !important;
-    right: 0 !important;
-    background-color: rgba(255, 255, 255, 0.7) !important;
-    border-radius: 50% !important;
-  }
-  
-  /* Location card highlight effect when marker is clicked */
-  .location-card.highlighted {
-    transition: all 0.3s ease;
+  @media (max-width: 767px) {
+    #grid_view {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lg\:grid-cols-2 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    #locations-map {
+      height: 400px;
+      min-height: 400px;
+    }
+    .grid-view-wrapper {
+      height: auto;
+      min-height: 0;
+    }
   }
 </style>

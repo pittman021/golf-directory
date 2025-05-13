@@ -57,14 +57,14 @@ $text-color: #414d5a;
   background-color: darken($primary-color, 10%);
 }
 
-// Overriding primary button styles
-.action_item a, .links a.button, .actions input[type="submit"] {
-  background: $primary-color;
+// // Overriding primary button styles
+// .action_item a, .links a.button, .actions input[type="submit"] {
+//   background: $primary-color;
   
-  &:hover {
-    background: darken($primary-color, 10%);
-  }
-}
+//   &:hover {
+//     background: darken($primary-color, 10%);
+//   }
+// }
 
 // Placeholder for your custom web fonts
 // @font-face {

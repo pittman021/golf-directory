@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  a {
-    @apply no-underline;
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    @apply text-inherit no-underline;
+  }
+
+  a:focus {
+    @apply no-underline; /* outline: none; */ /* Consider accessibility */
   }
 }
 

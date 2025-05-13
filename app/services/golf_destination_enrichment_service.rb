@@ -83,18 +83,21 @@ class GolfDestinationEnrichmentService
   end
 
   def enrich_lodging_data
+    return nil unless @location&.latitude.present? && @location&.longitude.present?
+    
     puts "Finding lodging options..."
     enrichment_service = LodgingEnrichmentService.new(@location)
-    lodgings = enrichment_service.enrich
+    lodgings = enrichment_service&.enrich || []
     
     if lodgings.any?
       puts "Found #{lodgings.size} lodging options"
       
       # Get price estimates for each lodging
       price_estimates = lodgings.map do |lodge|
+        next nil unless lodge.present?
         begin
           estimator = LodgePriceEstimatorService.new(lodge)
-          estimate = estimator.estimate_price
+          estimate = estimator&.estimate_price
           
           # Validate the estimate
           if estimate.is_a?(Hash) && estimate[:min].is_a?(Numeric) && estimate[:max].is_a?(Numeric)
