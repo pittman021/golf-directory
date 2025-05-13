@@ -31,8 +31,17 @@ namespace :db do
     puts "Database: #{database}"
     puts "Backup file: #{backup_file}"
 
-    # Build pg_dump command - using system authentication
-    cmd = "pg_dump -Fc -v -Z 9 #{database} > #{backup_file}"
+    # Get the DATABASE_URL from the environment for pg_dump
+    database_url = ENV['DATABASE_URL']
+    unless database_url
+      puts "Error: DATABASE_URL environment variable not found."
+      puts "Ensure this task is run in an environment where DATABASE_URL is set (like Render)."
+      exit 1
+    end
+
+    # Build pg_dump command using the DATABASE_URL
+    # Use --dbname to pass the connection URI
+    cmd = "pg_dump -Fc -v -Z 9 --dbname=\"#{database_url}\" > #{backup_file}"
 
     # Execute backup
     if system(cmd)
@@ -42,10 +51,10 @@ namespace :db do
       # Clean up old backups if requested
       if args[:clean]
         puts "Cleaning up old backups..."
-        # Keep last 5 backups
+        # Keep last 10 backups
         backups = Dir.glob(backup_dir.join("*.dump")).sort_by { |f| File.mtime(f) }
-        if backups.size > 5
-          old_backups = backups[0...-5]
+        if backups.size > 10
+          old_backups = backups[0...-10]
           old_backups.each do |backup|
             File.delete(backup)
             puts "Deleted old backup: #{backup}"

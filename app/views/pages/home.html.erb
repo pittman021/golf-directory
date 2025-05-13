@@ -63,9 +63,10 @@
                 ['Major Championship Host', 'major_championship_host']
               ], params[:tags]&.include?('top_100_courses') ? 'top_100_courses' : 
                  params[:tags]&.include?('pga_event_host') ? 'pga_event_host' : 
-                 params[:tags]&.include?('bucket_list') ? 'bucket_list' : nil),
+                 params[:tags]&.include?('bucket_list') ? 'bucket_list' :
+                 params[:tags]&.include?('championship_course') ? 'championship_course' :
+                 params[:tags]&.include?('major_championship_host') ? 'major_championship_host' : nil),
               { prompt: "Experience",
-                include_blank: true,
                 class: "w-full rounded-lg border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
                 data: { action: "change->filters#addTag" } } %>
         </div>
