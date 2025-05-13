@@ -570,9 +570,13 @@
           <div class="flex flex-col md:flex-row">
             <!-- Image Column -->
             <div class="w-full md:w-48 flex-shrink-0">
-              <%= image_tag course.image_url,
-                  class: "w-full h-48 object-cover rounded-lg",
-                  alt: "#{course.name} image" %>
+              <% if course.image_url.present? %>
+                <%= image_tag course.image_url,
+                    class: "w-full h-48 object-cover rounded-lg",
+                    alt: "#{course.name} image" %>
+              <% else %>
+                <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-48 object-cover rounded-lg", alt: "#{course.name} image (default)" %>
+              <% end %>
             </div>
 
             <!-- Content Column -->
