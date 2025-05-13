@@ -98,3 +98,4 @@ end
 gem 'ruby-openai'
 gem 'activestorage-cloudinary-service'
 gem 'friendly_id', '~> 5.4.0'
+gem 'sitemap_generator'

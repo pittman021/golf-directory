@@ -388,6 +388,8 @@ GEM
     simple_form (5.3.1)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
+    sitemap_generator (6.3.0)
+      builder (~> 3.0)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -475,6 +477,7 @@ DEPENDENCIES
   selenium-webdriver
   simple_analytics_rails
   simple_form
+  sitemap_generator
   sprockets-rails
   stimulus-rails
   tailwindcss-rails (~> 3.3.1)
