@@ -46,3 +46,8 @@
 # Ignore data files
 *.csv
 /db/data/*.csv
+
+# Ignore database backups
+/db/backups/
+/db/backups/*
+db.dump
