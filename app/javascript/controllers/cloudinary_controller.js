@@ -5,55 +5,75 @@ export default class extends Controller {
   static targets = ["input", "preview", "hiddenInput", "progressBar"]
   
   connect() {
-    if (this.hasInputTarget) {
-      this.inputTarget.addEventListener('change', this.uploadFile.bind(this))
+    // Initialize Cloudinary widget if not already initialized
+    if (typeof cloudinary === 'undefined') {
+      console.error('Cloudinary widget not loaded')
+      return
     }
   }
   
-  // Upload the file directly to Cloudinary
-  async uploadFile(event) {
-    const file = event.target.files[0]
-    if (!file) return
+  // Open the Cloudinary upload widget
+  openUploadWidget(event) {
+    event.preventDefault()
     
-    // Show progress if we have a progress bar
-    if (this.hasProgressBarTarget) {
-      this.progressBarTarget.classList.remove('hidden')
+    // Get cloudinary configuration from meta tags
+    const cloudName = document.querySelector('meta[name="cloudinary-cloud-name"]')?.content
+    const uploadPreset = document.querySelector('meta[name="cloudinary-upload-preset"]')?.content
+    
+    if (!cloudName || !uploadPreset) {
+      alert('Cloudinary configuration is missing. Please check your environment variables.')
+      return
     }
     
-    // Create form data
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', 'golf_directory') // Configure this to match your Cloudinary upload preset
-    
-    try {
-      // Upload to Cloudinary
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: 'POST',
-          body: formData
+    // Open Cloudinary upload widget
+    cloudinary.openUploadWidget({
+      cloudName: cloudName,
+      uploadPreset: uploadPreset,
+      sources: ['local', 'url', 'camera'],
+      showAdvancedOptions: false,
+      cropping: true,
+      multiple: false,
+      defaultSource: 'local',
+      styles: {
+        palette: {
+          window: "#FFFFFF",
+          sourceBg: "#F4F4F5",
+          windowBorder: "#90a0b3",
+          tabIcon: "#355E3B",
+          inactiveTabIcon: "#69778A",
+          menuIcons: "#355E3B",
+          link: "#355E3B",
+          action: "#355E3B",
+          inProgress: "#355E3B",
+          complete: "#355E3B",
+          error: "#c43737",
+          textDark: "#000000",
+          textLight: "#FFFFFF"
         }
-      )
-      
-      const data = await response.json()
-      
-      // If we have a hidden input, set the URL there
-      if (this.hasHiddenInputTarget) {
-        this.hiddenInputTarget.value = data.secure_url
       }
-      
-      // If we have a preview, update it
-      if (this.hasPreviewTarget) {
-        this.previewTarget.src = data.secure_url
-        this.previewTarget.classList.remove('hidden')
+    }, (error, result) => {
+      if (!error && result && result.event === "success") {
+        // Set the Cloudinary URL to the input field
+        const input = this.element.querySelector('.cloudinary-url-input')
+        if (input) {
+          input.value = result.info.secure_url
+          // Trigger change event to update preview
+          input.dispatchEvent(new Event('change'))
+        }
       }
-      
-    } catch (error) {
-      // Handle upload error
-    } finally {
-      // Hide progress if we have a progress bar
-      if (this.hasProgressBarTarget) {
-        this.progressBarTarget.classList.add('hidden')
+    })
+  }
+  
+  // Update the preview when the URL changes
+  updatePreview(event) {
+    const url = event.target.value
+    const previewDiv = this.element.querySelector('.cloudinary-preview')
+    
+    if (previewDiv) {
+      if (url && url.trim() !== '') {
+        previewDiv.innerHTML = `<img src="${url}" style="max-width: 200px; max-height: 150px; margin-top: 10px; border: 1px solid #ddd;">`
+      } else {
+        previewDiv.innerHTML = ''
       }
     }
   }

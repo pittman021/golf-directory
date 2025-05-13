@@ -62,51 +62,27 @@ ActiveAdmin.register Location do
 
   # Customize the form - Simplified for production use
   form do |f|
-    f.inputs "Basic Information" do
+    f.inputs do
       f.input :name
-      f.input :state
+      f.input :description
+      f.input :region, as: :string
+      f.input :state, as: :string
       f.input :country, as: :string
-      f.input :region
-      f.input :tags, input_html: { value: f.object.tags&.join(', ') }, 
-              hint: "Enter tags separated by commas"
-    end
-    
-    f.inputs "Key Details" do
-      f.input :best_months
-      f.input :nearest_airports
-      f.input :estimated_trip_cost
-      f.input :avg_green_fee
-      f.input :avg_lodging_cost_per_night
-    end
-    
-    f.inputs "Content" do
-      f.input :summary, as: :text, input_html: { rows: 20 },
-              hint: "This field contains all location content. Use formatting: 
-              Destination Overview: Your text here
-              
-              Golf Experience: Your text here
-              
-              Travel Information: Your text here
-              
-              Local Attractions: Your text here
-              
-              Practical Tips: Your text here"
-      
-      f.input :description, input_html: { rows: 5 }
-      f.input :weather_info, as: :text, input_html: { rows: 5 }
-    end
-    
-    f.inputs "Images & Coordinates" do
-      f.input :image_url, label: "Image URL", 
-              hint: "Enter the Cloudinary URL for the location image"
       f.input :latitude
       f.input :longitude
-    end
-    
-    f.inputs "Lodging Information" do
+      f.input :best_months
+      f.input :nearest_airports
+      f.input :weather_info
+      f.input :avg_green_fee
+      f.input :avg_lodging_cost_per_night
+      f.input :estimated_trip_cost
+      f.input :tags, input_html: { value: f.object.tags&.join(', ') }
+      f.input :summary
       f.input :lodging_price_min
       f.input :lodging_price_max
       f.input :lodging_price_currency
+      f.input :lodging_price_last_updated
+      f.input :image_url
     end
     
     f.actions
@@ -121,7 +97,7 @@ ActiveAdmin.register Location do
       row :country
       row :region
       row :tags
-      row "Featured Image" do |location|
+      row "Image" do |location|
         if location.image_url.present?
           image_tag location.image_url, style: 'max-width: 300px'
         else
@@ -234,8 +210,8 @@ ActiveAdmin.register Location do
   end
 
   # Permit parameters
-  permit_params :name, :state, :country, :region, :summary, :description, 
-                :weather_info, :best_months, :nearest_airports, :latitude, :longitude, 
+  permit_params :name, :state, :country, :region, :summary, :description,
+                :weather_info, :best_months, :nearest_airports, :latitude, :longitude,
                 :estimated_trip_cost, :avg_green_fee, :avg_lodging_cost_per_night,
                 :lodging_price_min, :lodging_price_max, :lodging_price_currency,
                 :image_url, :tags

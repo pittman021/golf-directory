@@ -6,7 +6,7 @@ class Location < ApplicationRecord
     has_many :location_courses, dependent: :destroy
     has_many :courses, through: :location_courses
     has_many :reviews, through: :courses
-    has_one_attached :featured_image
+    # has_one_attached :featured_image # Removed
     has_many :lodgings, dependent: :destroy
     
     validates :name, presence: true
@@ -43,10 +43,7 @@ class Location < ApplicationRecord
     # Set a default image URL for when none is provided
     DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"
 
-    # Update image_url directly with a Cloudinary URL
-    def update_image_url(url)
-      update(image_url: url)
-    end
+  
 
     # Upload an image file directly to Cloudinary and store the URL
     def upload_image(file)
@@ -156,41 +153,6 @@ class Location < ApplicationRecord
       self.estimated_trip_cost = lodging_cost + golf_cost
     end
 
-    # Get URL for featured image
-    def featured_image_url
-      return image_url if image_url.present?
-      return nil unless featured_image.attached?
-      
-      begin
-        # Use ActiveStorage's URL generation
-        Rails.application.routes.url_helpers.url_for(featured_image)
-      rescue StandardError => e
-        Rails.logger.error "Error generating URL for featured image: #{e.message}"
-        nil
-      end
-    end
-
-    # Generate a variant of the featured image
-    def featured_image_variant(size = 'medium')
-      return nil unless featured_image.attached?
-      
-      transformation = case size
-                       when 'thumbnail'
-                         { resize_to_fill: [150, 150] }
-                       when 'small'
-                         { resize_to_fill: [300, 200] }
-                       when 'medium'
-                         { resize_to_fill: [600, 400] }
-                       when 'large'
-                         { resize_to_fill: [1200, 800] }
-                       else
-                         { resize_to_fill: [600, 400] }
-                       end
-      
-      # Create the variant
-      featured_image.variant(transformation).processed
-    end
-
     def destination_overview
       parse_summary&.dig('destination_overview')
     end
@@ -269,28 +231,6 @@ class Location < ApplicationRecord
     
     def large_image
       image_with_transformation(width: 1200, height: 800, crop: 'fill')
-    end
-    
-    # Get Cloudinary URL for operations
-    def cloudinary_url
-      # If there's no location, return the default image
-      return DEFAULT_IMAGE_URL if self.nil?
-      
-      # If image_url is already a Cloudinary URL, use it directly
-      if image_url.present? && image_url.include?('cloudinary')
-        image_url
-      elsif featured_image.attached?
-        # Try to create a Cloudinary URL from the attached image
-        begin
-          ActiveStorage::Blob.service.send(:path_for, featured_image.key)
-        rescue StandardError => e
-          Rails.logger.error "Error generating Cloudinary URL: #{e.message}"
-          DEFAULT_IMAGE_URL
-        end
-      else
-        # Return default image if no other image is available
-        DEFAULT_IMAGE_URL
-      end
     end
     
     # Tags that are manually set on the location

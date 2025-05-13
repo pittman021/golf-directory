@@ -63,7 +63,7 @@ ActiveAdmin.register Course do
 
   # Filters
   filter :name
-  filter :locations, collection: proc { Location.all.map { |l| [l.name, l.id] } }
+  filter :locations_id_in, as: :select, collection: proc { Location.all.map { |l| [l.name, l.id] } }, label: 'Location'
   filter :course_type, as: :select, collection: Course.course_types.map { |k, v| [k.humanize, k] }
   filter :green_fee
   filter :course_tags
@@ -86,8 +86,9 @@ ActiveAdmin.register Course do
       f.input :website_url
       f.input :latitude
       f.input :longitude
-      f.input :cloudinary_url, hint: "Enter the Cloudinary URL for the course image"
+      f.input :image_url
     end
+
     f.actions
   end
 
@@ -119,9 +120,9 @@ ActiveAdmin.register Course do
       end
       row :latitude
       row :longitude
-      row "Course Image" do |course|
-        if course.cloudinary_url.present?
-          image_tag course.cloudinary_url, style: 'max-width: 300px'
+      row "Image" do |course|
+        if course.image_url.present?
+          image_tag course.image_url, style: 'max-width: 300px'
         else
           "No image"
         end
@@ -147,5 +148,5 @@ ActiveAdmin.register Course do
   # Permit all parameters
   permit_params :name, :location_id, :course_type, :description, :green_fee, 
                 :green_fee_range, :number_of_holes, :par, :yardage, :notes, 
-                :website_url, :latitude, :longitude, :cloudinary_url, :course_tags
+                :website_url, :latitude, :longitude, :image_url, :course_tags
 end
