@@ -69,6 +69,8 @@ class GetCourseInfoService
       - Green fee (must be a positive number)
       - Course type (must be one of: public_course, private_course, resort_course)
       - Website URL (if available)
+      - Latitude (decimal format, e.g. 37.7749)
+      - Longitude (decimal format, e.g. -122.4194)
       - Additional notes
       
       Format the response as a JSON object with these keys:
@@ -86,6 +88,8 @@ class GetCourseInfoService
         "green_fee": integer,
         "course_type": "string",
         "website_url": "string",
+        "latitude": float,
+        "longitude": float,
         "notes": "string"
       }
       
@@ -95,6 +99,7 @@ class GetCourseInfoService
       For par, use a whole number (typically between 60-75)
       For yardage, use a whole number (typically between 5000-8000)
       For green_fee, use a positive number
+      For latitude and longitude, use decimal format coordinates that accurately locate the course
       For notes, include any additional relevant information that doesn't fit in other categories.
       
       Keep responses concise and factual. Focus on key information.
@@ -185,6 +190,8 @@ class GetCourseInfoService
     course_info['description'] ||= ''
     course_info['history'] ||= ''
     course_info['website_url'] ||= ''
+    course_info['latitude'] ||= @course.latitude
+    course_info['longitude'] ||= @course.longitude
     course_info['notes'] ||= ''
     
     # Ensure number_of_holes is 9 or 18
@@ -245,6 +252,10 @@ class GetCourseInfoService
       website_url: course_info['website_url'].to_s
     }
     
+    # Add latitude and longitude if they're present in the response
+    update_params[:latitude] = course_info['latitude'] if course_info['latitude'].present?
+    update_params[:longitude] = course_info['longitude'] if course_info['longitude'].present?
+    
     # Only update notes if we have content
     update_params[:notes] = combined_notes if combined_notes.present?
     
@@ -255,6 +266,8 @@ class GetCourseInfoService
     puts "- Green fee: #{update_params[:green_fee]}"
     puts "- Course type: #{update_params[:course_type]}"
     puts "- Tags: #{update_params[:course_tags].join(', ')}"
+    puts "- Latitude: #{update_params[:latitude]}" if update_params[:latitude].present?
+    puts "- Longitude: #{update_params[:longitude]}" if update_params[:longitude].present?
     
     begin
       @course.update!(update_params)

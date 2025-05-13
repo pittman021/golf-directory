@@ -17,7 +17,23 @@ namespace :db do
   task :backup, [:clean] => :environment do |t, args|
     # Ensure backups directory exists
     backup_dir = Rails.root.join('db', 'backups')
-    FileUtils.mkdir_p(backup_dir)
+    
+    # More verbose directory creation with error handling
+    begin
+      puts "Creating backup directory: #{backup_dir}"
+      FileUtils.mkdir_p(backup_dir)
+      
+      # Test if we can write to this directory
+      test_file = backup_dir.join('.write_test')
+      File.open(test_file, 'w') { |f| f.write('test') }
+      File.delete(test_file)
+      puts "✓ Backup directory is writable"
+    rescue => e
+      puts "❌ Error creating or writing to backup directory: #{e.message}"
+      puts "Current user: #{`whoami`.strip}"
+      puts "Directory permissions: #{`ls -la #{backup_dir.to_s.shellescape}`.strip}" rescue "Cannot check permissions"
+      exit 1
+    end
 
     # Generate backup filename with timestamp
     timestamp = Time.now.strftime("%Y%m%d_%H%M%S")

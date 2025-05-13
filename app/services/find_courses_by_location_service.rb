@@ -152,17 +152,37 @@ class FindCoursesByLocationService
         course_type = determine_course_type(course_data['types'])
 
         # Set required fields with default values if not available
-        course.assign_attributes(
-          course_type: course_type,
-          number_of_holes: 18,    # Default to 18 holes (validated to be 9 or 18)
-          par: 72,                # Default to par 72 (validated as integer)
-          yardage: 6500,          # Default to 6500 yards (validated as integer)
-          green_fee: 100,         # Default to $100 (validated as >= 0)
-          course_tags: course_data['types'] || [], # Required field
-          description: course_data['vicinity'],    # Optional field
-          website_url: course_data['website'],     # Optional field
-          notes: "Automatically imported from Google Places API" # Optional field
-        )
+        # Only set these defaults for new records or if fields are blank
+        attributes_to_update = {}
+        
+        # Always update Google Place data
+        attributes_to_update[:google_place_id] = course_data['place_id'] if course_data['place_id'].present?
+        
+        # For new records or blank fields, set defaults
+        if course.new_record?
+          attributes_to_update[:course_type] = course_type
+          attributes_to_update[:number_of_holes] = 18    # Default to 18 holes
+          attributes_to_update[:par] = 72                # Default to par 72
+          attributes_to_update[:yardage] = 6500          # Default to 6500 yards
+          attributes_to_update[:green_fee] = 100         # Default to $100
+          attributes_to_update[:course_tags] = course_data['types'] || [] # Required field
+          attributes_to_update[:description] = course_data['vicinity'] if course_data['vicinity'].present?
+          attributes_to_update[:website_url] = course_data['website'] if course_data['website'].present?
+          attributes_to_update[:notes] = "Automatically imported from Google Places API"
+        else
+          # For existing records, only update if blank
+          attributes_to_update[:course_type] = course_type if course.course_type.blank?
+          attributes_to_update[:number_of_holes] = 18 if course.number_of_holes.blank?
+          attributes_to_update[:par] = 72 if course.par.blank?
+          attributes_to_update[:yardage] = 6500 if course.yardage.blank?
+          attributes_to_update[:green_fee] = 100 if course.green_fee.blank?
+          attributes_to_update[:course_tags] = course_data['types'] || [] if course.course_tags.blank?
+          attributes_to_update[:description] = course_data['vicinity'] if course.description.blank? && course_data['vicinity'].present?
+          attributes_to_update[:website_url] = course_data['website'] if course.website_url.blank? && course_data['website'].present?
+        end
+        
+        # Only update the fields that need updating
+        course.assign_attributes(attributes_to_update)
 
         if course.save
           # Associate with location if not already
