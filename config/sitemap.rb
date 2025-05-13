@@ -1,5 +1,5 @@
 # Set the host name for URL creation
-SitemapGenerator::Sitemap.default_host = "https://golf-directory.com"
+SitemapGenerator::Sitemap.default_host = "https://golftriplist.com"
 
 SitemapGenerator::Sitemap.create do
   # Add root path
