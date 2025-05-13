@@ -128,4 +128,53 @@ namespace :courses do
     puts "\nCompleted updating coordinates."
     puts "#{updated} out of #{count} courses were successfully updated with coordinates."
   end
+
+  desc "Enrich courses with sparse information (short descriptions or few tags)"
+  task :enrich_sparse => :environment do
+    puts "Finding courses with sparse information..."
+    
+    # Find courses with short descriptions or few tags
+    sparse_courses = Course.where("length(description) < 100 OR array_length(course_tags, 1) < 3")
+    count = sparse_courses.count
+    
+    if count == 0
+      puts "No courses found with sparse information!"
+      exit 0
+    end
+    
+    puts "Found #{count} courses with sparse information."
+    
+    processed = 0
+    updated = 0
+    
+    sparse_courses.find_each do |course|
+      processed += 1
+      puts "\nProcessing (#{processed}/#{count}): #{course.name}"
+      puts "Current description (#{course.description&.length || 0} chars): #{course.description&.truncate(50)}"
+      puts "Current tags (#{course.course_tags&.size || 0}): #{course.course_tags&.join(', ')}"
+      
+      # Use GetCourseInfoService to enrich the course
+      begin
+        service = GetCourseInfoService.new(course)
+        course_info = service.gather_info
+        
+        if course_info
+          updated += 1
+          puts "✅ Successfully enriched course: #{course.name}"
+          puts "New description (#{course.description&.length || 0} chars): #{course.description&.truncate(50)}"
+          puts "New tags (#{course.course_tags&.size || 0}): #{course.course_tags&.join(', ')}"
+        else
+          puts "❌ Failed to enrich course: #{course.name}"
+        end
+      rescue => e
+        puts "❌ Error processing course #{course.name}: #{e.message}"
+      end
+      
+      # Add a small delay to avoid hitting API rate limits
+      sleep 2
+    end
+    
+    puts "\nCompleted enriching courses with sparse information."
+    puts "#{updated} out of #{count} courses were successfully enriched."
+  end
 end 
