@@ -15,14 +15,10 @@
     <div class="relative rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white h-96 flex flex-col">
       <!-- Image Section (Exactly 1/3 height) -->
       <div class="relative h-32 flex-none">
-        <% if location.present? && location.featured_image.attached? %>
-          <%= image_tag location.featured_image_url,
-              class: "w-full h-full object-cover",
-              alt: "#{location.name} featured image" %>
-        <% elsif location.present? && location.image_url.present? %>
+        <% if location.present? && location.image_url.present? %>
           <%= image_tag location.image_url,
               class: "w-full h-full object-cover",
-              alt: "#{location.name} image" %>
+              alt: "#{location.name} featured image" %>
         <% else %>
           <%= image_tag 'placeholder_golf_course.jpg',
               class: "w-full h-full object-cover",

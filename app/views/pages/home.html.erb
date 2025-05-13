@@ -127,7 +127,7 @@
              longitude: location.longitude.to_f,
              name: location.name,
              id: location.id,
-             image_url: location.cloudinary_url,
+             image_url: location.image_url,
              courses_count: location.courses.count,
              avg_green_fee: number_to_currency(location.avg_green_fee, precision: 0),
              estimated_trip_cost: number_to_currency(location.estimated_trip_cost, precision: 0),
@@ -200,9 +200,9 @@
                           data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
                         <td class="px-6 py-4">
                           <div class="relative h-24 w-36 rounded-lg overflow-hidden">
-                            <%= image_tag location.cloudinary_url, 
+                            <%= image_tag location.image_url, 
                                 class: "h-full w-full object-cover",
-                                alt: "#{location.name} golf destination" %>
+                                alt: "#{location.name} featured image" %>
                           </div>
                         </td>
                         <td class="px-6 py-4">
