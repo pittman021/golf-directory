@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_12_232511) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_13_233028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -95,6 +95,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_12_232511) do
     t.integer "green_fee"
     t.string "image_url"
     t.string "slug"
+    t.string "google_place_id"
     t.index ["course_tags"], name: "index_courses_on_course_tags", using: :gin
     t.index ["course_type"], name: "index_courses_on_course_type"
     t.index ["green_fee"], name: "index_courses_on_green_fee"

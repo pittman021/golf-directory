@@ -54,6 +54,58 @@ class CourseEnrichmentService
     end
   end
 
+  def self.fetch_and_update_course_image(course)
+    # Use environment-specific API keys
+    api_key = if Rails.env.production?
+      Rails.application.credentials.google_maps[:api_key]
+    else
+      Rails.application.credentials.google_maps[:development_api_key]
+    end
+
+    return unless course.google_place_id.present?
+
+    # Fetch course details from Google Places API
+    params = {
+      place_id: course.google_place_id,
+      fields: 'photos',
+      key: api_key
+    }
+
+    uri = URI('https://maps.googleapis.com/maps/api/place/details/json')
+    uri.query = URI.encode_www_form(params)
+
+    response = Net::HTTP.get_response(uri)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      if data['status'] == 'OK' && data['result']['photos'].present?
+        photo_reference = data['result']['photos'][0]['photo_reference']
+        image_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=#{photo_reference}&key=#{api_key}"
+        
+        # Update the course's image_url
+        course.update(image_url: image_url)
+        
+        # Also attach the image to featured_image if not already attached
+        unless course.featured_image.attached?
+          begin
+            image_response = URI.open(image_url)
+            course.featured_image.attach(
+              io: image_response,
+              filename: "#{course.name.parameterize}_google.jpg",
+              content_type: 'image/jpeg'
+            )
+          rescue => e
+            puts "Error attaching featured image: #{e.message}"
+          end
+        end
+        
+        return true
+      end
+    end
+    
+    false
+  end
+
   def enrich
     puts "\nStarting course enrichment for #{@location.name}"
     puts "Location: #{@location.name} (ID: #{@location.id})"

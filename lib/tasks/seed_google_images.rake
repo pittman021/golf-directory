@@ -559,5 +559,38 @@ namespace :seed do
 
     puts "\n🎉 Test course image seeding complete!"
   end
+
+  desc "Fetch images only for courses with null image_url"
+  task course_images_null_only: :environment do
+    puts "Starting to fetch images for courses with null image_url..."
+    
+    # Get all courses with null image_url
+    courses_without_images = Course.where(image_url: nil)
+    total_courses = courses_without_images.count
+    
+    puts "Found #{total_courses} courses without images"
+    
+    # Process each course
+    courses_without_images.find_each.with_index(1) do |course, index|
+      puts "\nProcessing course #{index}/#{total_courses}: #{course.name}"
+      
+      begin
+        # Fetch and update the course image using the class method
+        if CourseEnrichmentService.fetch_and_update_course_image(course)
+          puts "✅ Successfully updated image for course: #{course.name}"
+        else
+          puts "❌ Failed to update image for course: #{course.name}"
+        end
+        
+        # Add a small delay to avoid hitting API rate limits
+        sleep(0.5)
+      rescue => e
+        puts "Error processing course #{course.name}: #{e.message}"
+        next
+      end
+    end
+    
+    puts "\nCompleted processing courses without images"
+  end
 end
   
