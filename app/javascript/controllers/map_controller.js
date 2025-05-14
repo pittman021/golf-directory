@@ -403,81 +403,93 @@ export default class extends Controller {
   panMapToShowInfoWindow(infoWindow) {
     if (!this.map || !infoWindow) return;
 
-    const mapDiv = this.map.getDiv();
-    const infoWindowDiv = mapDiv.querySelector('.gm-style-iw'); // This selector might need adjustment
+    // Wait a bit for DOM to be fully ready
+    setTimeout(() => {
+      try {
+        const mapDiv = this.map.getDiv();
+        if (!mapDiv) {
+          console.warn("Map div not found for panning.");
+          return;
+        }
 
-    if (!infoWindowDiv) {
-      console.warn("Info window div not found for panning.");
-      return;
-    }
+        const infoWindowDiv = mapDiv.querySelector('.gm-style-iw');
+        if (!infoWindowDiv) {
+          console.warn("Info window div not found for panning.");
+          return;
+        }
 
-    const mapBounds = this.map.getBounds();
-    if (!mapBounds) {
-      console.warn("Map bounds not available for panning.");
-      return; // Not enough info to pan yet
-    }
-    
-    // Get the pixel position of the info window relative to the map container
-    // The InfoWindow object itself doesn't directly expose its pixel bounds easily.
-    // We rely on its content being in the DOM.
-    const iwOuter = infoWindowDiv; // The main container of the info window
-    const iwContainer = infoWindowDiv.firstChild; // The content container
+        const mapBounds = this.map.getBounds();
+        if (!mapBounds) {
+          console.warn("Map bounds not available for panning.");
+          return; // Not enough info to pan yet
+        }
+        
+        // Get the pixel position of the info window relative to the map container
+        const iwOuter = infoWindowDiv; // The main container of the info window
+        const iwContainer = infoWindowDiv.firstChild; // The content container
 
-    if (!iwOuter || !iwContainer) {
-      console.warn("Info window inner elements not found for panning.");
-      return;
-    }
+        if (!iwOuter || !iwContainer) {
+          console.warn("Info window inner elements not found for panning.");
+          return;
+        }
 
-    const mapWidth = mapDiv.offsetWidth;
-    const mapHeight = mapDiv.offsetHeight;
+        // Verify elements are actually DOM Elements before proceeding
+        if (!(iwOuter instanceof Element) || !(iwContainer instanceof Element)) {
+          console.warn("Info window elements are not valid DOM Elements.");
+          return;
+        }
 
-    // Get the position and size of the info window
-    const iwRect = iwOuter.getBoundingClientRect(); // Relative to viewport
-    const mapRect = mapDiv.getBoundingClientRect();   // Relative to viewport
+        const mapWidth = mapDiv.offsetWidth;
+        const mapHeight = mapDiv.offsetHeight;
 
-    // Calculate iw top-left relative to map container
-    const iwTop = iwRect.top - mapRect.top;
-    const iwLeft = iwRect.left - mapRect.left;
-    const iwWidth = iwRect.width;
-    const iwHeight = iwRect.height;
-    
-    let panX = 0;
-    let panY = 0;
+        // Get the position and size of the info window
+        const iwRect = iwOuter.getBoundingClientRect(); // Relative to viewport
+        const mapRect = mapDiv.getBoundingClientRect();   // Relative to viewport
 
-    // Check horizontal visibility
-    if (iwLeft < 0) {
-      panX = iwLeft - 10; // Pan right (negative iwLeft), plus a margin
-    } else if (iwLeft + iwWidth > mapWidth) {
-      panX = (iwLeft + iwWidth - mapWidth) + 10; // Pan left, plus a margin
-    }
+        // Calculate iw top-left relative to map container
+        const iwTop = iwRect.top - mapRect.top;
+        const iwLeft = iwRect.left - mapRect.left;
+        const iwWidth = iwRect.width;
+        const iwHeight = iwRect.height;
+        
+        let panX = 0;
+        let panY = 0;
 
-    // Check vertical visibility
-    // Note: InfoWindows usually open above the marker. We are more concerned about top cutoff here.
-    if (iwTop < 0) {
-      panY = iwTop - 10; // Pan down (negative iwTop), plus a margin
-    } else if (iwTop + iwHeight > mapHeight) {
-      // This case is less common for default InfoWindow behavior if it opens upwards.
-      // But if it's a large info window or map is small.
-      panY = (iwTop + iwHeight - mapHeight) + 10; // Pan up, plus a margin
-    }
-    
-    if (panX !== 0 || panY !== 0) {
-      console.log(typeof(panX), ' - ',typeof(panY));
-      this.map.panBy(panX, panY);
-    }
+        // Check horizontal visibility
+        if (iwLeft < 0) {
+          panX = iwLeft - 10; // Pan right (negative iwLeft), plus a margin
+        } else if (iwLeft + iwWidth > mapWidth) {
+          panX = (iwLeft + iwWidth - mapWidth) + 10; // Pan left, plus a margin
+        }
 
-    // Ensure the overflow is visible after panning, as Google Maps might reset it.
-    // It's also possible that the previous CSS for .gm-style-iw-d and .gm-style-iw-c 
-    // with overflow: visible !important was too aggressive and caused issues,
-    // so we apply it more targetedly here.
-    if (iwContainer) {
-        iwContainer.style.overflow = 'visible';
-        iwContainer.parentElement.style.overflow = 'visible'; // .gm-style-iw-c or similar
-    }
-     // One final check to ensure the main info window wrapper is also visible
-    const gmStyleIw = iwOuter.closest('.gm-style-iw');
-    if (gmStyleIw) {
-      gmStyleIw.style.overflow = 'visible';
-    }
+        // Check vertical visibility
+        if (iwTop < 0) {
+          panY = iwTop - 10; // Pan down (negative iwTop), plus a margin
+        } else if (iwTop + iwHeight > mapHeight) {
+          panY = (iwTop + iwHeight - mapHeight) + 10; // Pan up, plus a margin
+        }
+        
+        if (panX !== 0 || panY !== 0) {
+          console.log(`Panning map by ${panX}, ${panY}`);
+          this.map.panBy(panX, panY);
+        }
+
+        // Ensure the overflow is visible after panning
+        if (iwContainer instanceof Element) {
+          iwContainer.style.overflow = 'visible';
+          if (iwContainer.parentElement instanceof Element) {
+            iwContainer.parentElement.style.overflow = 'visible';
+          }
+        }
+        
+        // One final check to ensure the main info window wrapper is also visible
+        const gmStyleIw = iwOuter.closest('.gm-style-iw');
+        if (gmStyleIw instanceof Element) {
+          gmStyleIw.style.overflow = 'visible';
+        }
+      } catch (error) {
+        console.error("Error when panning map to show info window:", error);
+      }
+    }, 100); // Short delay to ensure DOM is fully ready
   }
 }
