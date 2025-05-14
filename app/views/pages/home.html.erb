@@ -2,69 +2,63 @@
 
 <div>
   <!-- Filters Section - Redesigned as a horizontal bar above the map -->
+  
   <div class="px-2 sm:px-4 lg:px-6 mt-2" data-controller="layout comparison filters">
     <!-- Filters -->
     <%= form_tag root_path, method: :get, 
         data: { 
           filters_target: "form"
         } do %>
-      <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+      <div class="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
         <%= select_tag :trip_cost,
             options_for_select([
-              ['Budget (Up to $1,500)', 'budget'],
-              ['Mid-Range ($1,501 - $2,500)', 'mid_range'],
-              ['Premium ($2,501 - $4,000)', 'premium'],
-              ['Luxury ($4,000+)', 'luxury']
+              ['💰Budget (Up to $1,500)', 'budget'],
+              ['💰💰Mid-Range ($1,501 - $2,500)', 'mid_range'],
+              ['💰💰💰Premium ($2,501 - $4,000)', 'premium'],
+              ['💰💰💰💰Luxury ($4,000+)', 'luxury']
             ], params[:price_category]),
             { prompt: "Trip Cost",
               class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
               data: { action: "change->filters#filter" } } %>
               
-        <!-- Experience Tags Dropdown -->
+        <!-- Golf Experience Dropdown -->
         <div class="relative">
-          <%= select_tag "experience_tag",
+        <%= select_tag "golf",
+        options_for_select([
+          ['🎖️ Top 100 Courses', 'golf:top_100'],
+          ['🏆 Tournament Courses', 'golf:tournament'],
+          ['💰 Bucket List', 'golf:bucket_list'],
+          ['🏞️ Multiple Courses', 'golf:multiple_courses']
+        ], 
+        params[:tags]&.include?('golf:top100') ? 'golf:top_100' :
+        params[:tags]&.include?('golf:tournament') ? 'golf:tournament' :
+        params[:tags]&.include?('golf:bucket_list') ? 'golf:bucket_list' :
+        params[:tags]&.include?('golf:multiple_courses') ? 'golf:multiple_courses' : nil),
+        {
+          prompt: "Golf Experience",
+          class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
+          data: { action: "change->filters#addTag" }
+        } %>
+    
+        </div>
+        
+        <!-- Trip Style Dropdown -->
+        <div class="relative">
+          <%= select_tag "trip_style",
               options_for_select([
-                ['🎖️ Top 100 Courses', 'top_100_courses'],
-                ['PGA Event Host', 'pga_event_host'],
-                ['Bucket List', 'bucket_list'],
-                ['Championship Course', 'championship_course'],
-                ['Major Championship Host', 'major_championship_host']
-              ], params[:tags]&.include?('top_100_courses') ? 'top_100_courses' : 
-                 params[:tags]&.include?('pga_event_host') ? 'pga_event_host' : 
-                 params[:tags]&.include?('bucket_list') ? 'bucket_list' :
-                 params[:tags]&.include?('championship_course') ? 'championship_course' :
-                 params[:tags]&.include?('major_championship_host') ? 'major_championship_host' : nil),
-              { prompt: "Experience",
+                ['🏨 Resort', 'style:resort'],
+                ['👨‍👩‍👧‍👦 Family Friendly', 'style:family'],
+                ['🏖️ Coastal ', 'style:coastal'],
+                ['🏔️ Mountain', 'style:mountain'],
+                ['🌵 Desert', 'style:desert']
+              ], params[:tags]&.include?('style:resort') ? 'style:resort' : 
+                 params[:tags]&.include?('style:family') ? 'style:family' : 
+                 params[:tags]&.include?('style:coastal') ? 'style:coastal' :
+                 params[:tags]&.include?('style:mountain') ? 'style:mountain' :
+                 params[:tags]&.include?('style:desert') ? 'style:desert' : nil),
+              { prompt: "Trip Style",
                 class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
                 data: { action: "change->filters#addTag" } } %>
-        </div>
-        
-        <!-- Amenities Dropdown -->
-        <div class="relative">
-          <%= select_tag "amenities",
-              options_for_select([
-                ['Resort', 'resort'],
-                ['Family Friendly', 'family'],
-                ['Hard to Book', 'hard_to_book'],
-                ['Bucket List', 'bucket_list']
-              ], params[:amenities]),
-              { prompt: "Amenities",
-                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-                data: { action: "change->filters#filter" } } %>
-        </div>
-        
-        <!-- Destination Type Dropdown -->
-        <div class="relative">
-          <%= select_tag "destination_type",
-              options_for_select([
-                ['Coastal', 'coastal'],
-                ['Mountain', 'mountain'],
-                ['Desert', 'desert'],
-                ['Resort', 'resort']
-              ], params[:destination_type]),
-              { prompt: "Destination Type",
-                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-                data: { action: "change->filters#filter" } } %>
         </div>
               
         <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
@@ -74,7 +68,9 @@
         <% if params[:tags].present? %>
           <% params[:tags].each do |tag| %>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]">
-              <%= tag.titleize %>
+              <%= tag.start_with?('golf:') ? tag.sub('golf:', 'Golf: ').titleize : 
+                 tag.start_with?('style:') ? tag.sub('style:', 'Style: ').titleize : 
+                 tag.titleize %>
               <button type="button" class="ml-1 text-[#355E3B] hover:text-[#355E3B]/80" data-tag="<%= tag %>" data-action="click->filters#removeTag">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

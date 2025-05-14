@@ -7,41 +7,23 @@ export default class extends Controller {
   connect() {
     this.submitForm = this.debounce(this.submitForm.bind(this), 300)
     
-    // If a region is already selected on page load, make sure states dropdown is populated
-    const selectedRegion = this.regionSelectTarget.value
-    if (selectedRegion) {
-      // Don't submit form since we're just initializing
-      this.updateStatesForRegion(selectedRegion).catch(() => {
-        // Error handling for states dropdown initialization
-      })
-    }
-
     // Initialize the hidden tags field with current tag values
     this.currentTags = new Set(this.getSelectedTags())
   }
 
   // Get currently selected tags from URL or DOM
   getSelectedTags() {
-    // Try to get tags from URL params
     const url = new URL(window.location.href)
-    const tagParams = url.searchParams.getAll('tags[]')
-    
-    if (tagParams.length > 0) {
-      return tagParams
-    }
-    
-    // If no tags in URL, try to get from existing tag elements
-    const selectedTagElements = document.querySelectorAll('#selected_tags span')
-    return Array.from(selectedTagElements).map(el => {
-      const removeButton = el.querySelector('button')
-      return removeButton ? removeButton.dataset.tag : null
-    }).filter(tag => tag)
+    return url.searchParams.getAll('tags[]')
   }
+  
 
   // Add a tag when a dropdown is changed
   addTag(event) {
     const dropdown = event.target
     const tagValue = dropdown.value
+
+    console.log(tagValue)
     
     if (!tagValue) return // Skip if nothing selected
     
@@ -82,28 +64,23 @@ export default class extends Controller {
   }
 
   // Update the hidden field with all current tags
-  updateHiddenTagsField() {
-    const hiddenField = document.getElementById('hidden_tags_field')
-    if (hiddenField) {
-      // Clear existing tags
-      const form = this.formTarget
-      const existingTagInputs = form.querySelectorAll('input[name="tags[]"]')
-      existingTagInputs.forEach(input => {
-        if (input.id !== 'hidden_tags_field') {
-          input.remove()
-        }
-      })
-      
-      // Add all tags as hidden inputs
-      this.currentTags.forEach(tag => {
-        const input = document.createElement('input')
-        input.type = 'hidden'
-        input.name = 'tags[]'
-        input.value = tag
-        form.appendChild(input)
-      })
-    }
-  }
+updateHiddenTagsField() {
+  const form = this.formTarget
+
+  // Remove any previously added tag fields (not the base hidden field if present)
+  const existingTagInputs = form.querySelectorAll('input[name="tags[]"]')
+  existingTagInputs.forEach(input => input.remove())
+
+  // Add one hidden field for each tag
+  this.currentTags.forEach(tag => {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = 'tags[]'
+    input.value = tag
+    form.appendChild(input)
+  })
+}
+
 
   // Update the visual display of selected tags
   updateSelectedTagsDisplay() {
@@ -118,8 +95,16 @@ export default class extends Controller {
       const tagSpan = document.createElement('span')
       tagSpan.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]'
       
-      // Format the tag for display (replace underscores with spaces and capitalize)
-      const displayTag = tag.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      // Format the tag for display with namespace handling
+      let displayTag
+      if (tag.startsWith('golf:')) {
+        displayTag = 'Golf: ' + tag.replace('golf:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      } else if (tag.startsWith('style:')) {
+        displayTag = 'Style: ' + tag.replace('style:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      } else {
+        // Default formatting for non-namespaced tags
+        displayTag = tag.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      }
       
       tagSpan.innerHTML = `
         ${displayTag}
@@ -135,55 +120,11 @@ export default class extends Controller {
   }
 
   filter(event) {
-    // If the region select changed, update the state options first, then submit
-    if (event.target.id === 'region') {
-      const selectedRegion = event.target.value
-      
-      // Fetch states for the selected region (or all states if "All Regions" is selected)
-      this.updateStatesForRegion(selectedRegion)
-        .then(() => this.submitForm())
-        .catch(() => {
-          this.submitForm() // Still submit the form even if states update fails
-        })
-    } else {
-      // For other filters, just submit the form
+   
       this.submitForm()
-    }
   }
   
-  async updateStatesForRegion(selectedRegion) {
-    try {
-      // Determine which endpoint to use based on the current path
-      const endpoint = window.location.pathname === '/' || window.location.pathname === '/pages/home'
-        ? '/pages/states_for_region'
-        : '/locations/states_for_region';
-      
-      const response = await fetch(`${endpoint}?region=${encodeURIComponent(selectedRegion)}`, {
-        headers: {
-          "Accept": "application/json"
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`)
-      }
-      
-      const states = await response.json()
-      
-      // Clear current options
-      this.stateSelectTarget.innerHTML = '<option value="">Select State</option>'
-      
-      // Add new options
-      states.forEach(state => {
-        const option = new Option(state, state)
-        this.stateSelectTarget.add(option)
-      })
-      
-      return states
-    } catch (error) {
-      throw error
-    }
-  }
+  
 
   submitForm() {
     const url = new URL(window.location.href)
@@ -218,10 +159,12 @@ export default class extends Controller {
       // Handle hidden tag fields
       else if (name === 'tags[]' && element.value) {
         url.searchParams.append(name, element.value)
+
       }
       // Handle regular inputs
       else if (element.value) {
         url.searchParams.set(name, element.value)
+        console.log('searchparams', url);
       }
     }
 

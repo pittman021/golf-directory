@@ -6,7 +6,6 @@ class Location < ApplicationRecord
     has_many :location_courses, dependent: :destroy
     has_many :courses, through: :location_courses
     has_many :reviews, through: :courses
-    # has_one_attached :featured_image # Removed
     has_many :lodgings, dependent: :destroy
     
     validates :name, presence: true
@@ -42,8 +41,6 @@ class Location < ApplicationRecord
 
     # Set a default image URL for when none is provided
     DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"
-
-  
 
     # Upload an image file directly to Cloudinary and store the URL
     def upload_image(file)
@@ -93,26 +90,6 @@ class Location < ApplicationRecord
     
     def average_price_range
       return nil if courses.empty?
-      
-      # Convert price ranges to numbers
-      price_values = courses.map do |course|
-        case course.green_fee_range
-        when '$' then 1
-        when '$$' then 2
-        when '$$$' then 3
-        when '$$$$' then 4
-        else 0
-        end
-      end
-      
-      # Calculate average and convert back to symbols
-      avg = price_values.sum.to_f / price_values.size
-      case avg
-      when 0..1.5 then '$'
-      when 1.5..2.5 then '$$'
-      when 2.5..3.5 then '$$$'
-      else '$$$$'
-      end
     end
     
     def courses_count
@@ -123,21 +100,21 @@ class Location < ApplicationRecord
       return 0 if courses.empty?
       courses.average(:green_fee).to_i
     end
-    
-    def price_category
-      return { symbol: '-', label: 'N/A' } if estimated_trip_cost.nil?
-      
-      case estimated_trip_cost
-      when 0..1500
-        { symbol: '$', label: 'Budget' }
-      when 1501..2500
-        { symbol: '$$', label: 'Mid-Range' }
-      when 2501..4000
-        { symbol: '$$$', label: 'Premium' }
+
+    scope :by_trip_cost, ->(category) {
+      case category
+      when 'budget'
+        where("estimated_trip_cost <= ?", 1500)
+      when 'mid_range'
+        where("estimated_trip_cost > ? AND estimated_trip_cost <= ?", 1500, 2500)
+      when 'premium'
+        where("estimated_trip_cost > ? AND estimated_trip_cost <= ?", 2500, 4000)
+      when 'luxury'
+        where("estimated_trip_cost > ?", 4000)
       else
-        { symbol: '$$$$', label: 'Luxury' }
+        all
       end
-    end
+    }
     
     def update_avg_green_fee
       # This ensures the average is updated whenever courses are added/modified
@@ -183,39 +160,33 @@ class Location < ApplicationRecord
     end
 
     def image_with_transformation(options = {})
-      return DEFAULT_IMAGE_URL if image_url.blank?
-      
-      # If already a Cloudinary URL, add transformation
-      if image_url.include?('cloudinary')
-        # Start with the base URL before any transformations
-        base_url = image_url.split('/upload/').first + '/upload/'
-        
-        # Extract the file path part after upload/
-        file_path = image_url.split('/upload/').last
-        
-        # Remove any existing transformations
-        if file_path.include?('/')
-          file_path = file_path.split('/').last
-        end
-        
-        # Build transformation string
-        transformations = []
-        transformations << "w_#{options[:width]}" if options[:width]
-        transformations << "h_#{options[:height]}" if options[:height]
-        transformations << "c_#{options[:crop]}" if options[:crop]
-        transformations << "g_#{options[:gravity]}" if options[:gravity]
-        transformations << "q_#{options[:quality]}" if options[:quality]
-        
-        if transformations.any?
-          "#{base_url}#{transformations.join(',')}/#{file_path}"
-        else
-          image_url
-        end
+    return DEFAULT_IMAGE_URL if image_url.blank?
+  
+    if image_url.include?('cloudinary')
+      base_url = image_url.split('/upload/').first + '/upload/'
+      file_path = image_url.split('/upload/').last
+  
+      if file_path.include?('/')
+        file_path = file_path.split('/').last
+      end
+  
+      transformations = []
+      transformations << "w_#{options[:width]}" if options[:width]
+      transformations << "h_#{options[:height]}" if options[:height]
+      transformations << "c_#{options[:crop]}" if options[:crop]
+      transformations << "g_#{options[:gravity]}" if options[:gravity]
+      transformations << "q_#{options[:quality]}" if options[:quality]
+  
+      if transformations.any?
+        "#{base_url}#{transformations.join(',')}/#{file_path}"
       else
-        # Not a Cloudinary URL, return as is
         image_url
       end
+    else
+      image_url
     end
+  end
+  
 
     def thumbnail_image
       image_with_transformation(width: 150, height: 150, crop: 'fill')
@@ -233,27 +204,54 @@ class Location < ApplicationRecord
       image_with_transformation(width: 1200, height: 800, crop: 'fill')
     end
     
+    # TAG Structure 
     # Tags that are manually set on the location
-    def manual_tags
-      tags - derived_tags
-    end
+def manual_tags
+  tags - derived_tags
+end
 
-    # Tags derived from course data
-    def derived_tags
-      [].tap do |rolled_up|
-        course_tags = courses.flat_map(&:course_tags).uniq.compact
+# Tags derived from course data (now namespaced)
+def derived_tags
+  [].tap do |rolled_up|
+    course_tags = courses.flat_map(&:course_tags).uniq.compact
 
-        rolled_up << "top_100_courses" if course_tags.include?("top_100")
-        rolled_up << "pga_event_host" if course_tags.include?("pga_tour_host")
-        rolled_up << "bucket_list" if course_tags.include?("bucket_list")
-        rolled_up << "multiple_courses" if courses.size > 1
-      end
-    end
+    rolled_up << "golf:top100" if course_tags.include?("top_100")
+    rolled_up << "golf:tournament" if course_tags.include?("pga_tour_host")
+    rolled_up << "golf:bucket_list" if course_tags.include?("bucket_list")
+    rolled_up << "golf:multiple_courses" if courses.size > 1
+  end
+end
 
-    # Merge manual and derived tags, and update the tags field
-    def update_tags_from_courses!
-      update_column(:tags, (manual_tags + derived_tags).uniq)
-    end
+# Merge manual and derived tags, and update the tags field
+def update_tags_from_courses!
+  combined = (manual_tags + derived_tags).uniq
+  update_column(:tags, combined)
+end
+
+# Namespace-based tag filtering
+def tags_for(namespace)
+  tags.select { |tag| tag.start_with?("#{namespace}:") }
+end
+
+def golf_tags
+  tags_for("golf")
+end
+
+def style_tags
+  tags_for("style")
+end
+
+def has_tag?(tag)
+  tags.include?(tag)
+end
+
+def has_any_tags?(*tag_list)
+  (tags & tag_list.flatten).any?
+end
+
+# Scopes for filtering
+scope :with_tag, ->(tag) { where("? = ANY(tags)", tag) }
+scope :with_any_tags, ->(tag_list) { where("tags && ARRAY[?]::varchar[]", tag_list) }
 
     # Define which attributes can be searched with Ransack
     def self.ransackable_attributes(auth_object = nil)

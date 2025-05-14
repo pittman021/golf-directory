@@ -12,10 +12,6 @@ class PagesController < ApplicationController
       courses_count: Course.count,
       reviews_count: Review.count
     }
-
-    # Apply filters
-    @locations = @locations.where(region: params[:region]) if params[:region].present?
-    @locations = @locations.where(state: params[:state]) if params[:state].present?
     
     # Handle multiple tags for filtering
     if params[:tags].present?
@@ -28,9 +24,27 @@ class PagesController < ApplicationController
       end
     end
     
+    # Handle golf_experience and trip_style filters if provided directly
+    # These are for backward compatibility or direct links
+    if params[:golf_experience].present?
+      tag = params[:golf_experience].start_with?('golf:') ? params[:golf_experience] : "golf:#{params[:golf_experience]}"
+      @locations = @locations.by_tag(tag)
+    end
+    
+    # Also handle the "golf" parameter from the dropdown
+    if params[:golf].present?
+      tag = params[:golf].start_with?('golf:') ? params[:golf] : "golf:#{params[:golf]}"
+      @locations = @locations.by_tag(tag)
+    end
+    
+    if params[:trip_style].present?
+      tag = params[:trip_style].start_with?('style:') ? params[:trip_style] : "style:#{params[:trip_style]}"
+      @locations = @locations.by_tag(tag)
+    end
+    
     # Filter by price category
-    if params[:price_category].present?
-      case params[:price_category]
+    if params[:trip_cost].present?
+      case params[:trip_cost]
       when 'budget'
         @locations = @locations.where('estimated_trip_cost <= ?', 1500)
       when 'mid_range'
@@ -49,15 +63,6 @@ class PagesController < ApplicationController
       format.html
       format.turbo_stream
     end
-  end
-
-  def states_for_region
-    if params[:region].present? && params[:region] != ""
-      states = Location.where(region: params[:region]).distinct.pluck(:state).compact.sort
-    else
-      states = Location.distinct.pluck(:state).compact.sort
-    end
-    render json: states
   end
 
   private
