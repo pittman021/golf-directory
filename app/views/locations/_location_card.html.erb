@@ -31,9 +31,9 @@
       <div class="text-xl font-bold text-gray-900">
         <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
       </div>
-      <div class="text-xs text-gray-600 whitespace-nowrap">
-        Lodging: <%= number_to_currency(location.avg_lodging_cost_per_night || 0, precision: 0) %><br>
-        Green Fees: <%= number_to_currency(location.avg_green_fee || 0, precision: 0) %>
+      <div class="text-sm text-gray-600 mt-1">
+        <div>Lodging: <%= number_to_currency(location.avg_lodging_cost_per_night || 0, precision: 0) %></div>
+        <div>Green Fees: <%= number_to_currency(location.avg_green_fee || 0, precision: 0) %></div>
       </div>
     </div>
   </div>

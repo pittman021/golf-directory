@@ -76,6 +76,28 @@
     color: rgba(107, 114, 128, 1);
     margin-bottom: 0.25rem;
   }
+
+  @media (max-width: 1279px) {
+    .grid-view-wrapper .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .grid-view-wrapper .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lg\:grid-cols-2 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    #location-map {
+      height: 400px;
+      min-height: 400px;
+    }
+    .grid-view-wrapper {
+      height: auto;
+      min-height: 0;
+    }
+  }
 </style>
 
 <!-- Horizontal Information Section -->
@@ -99,10 +121,25 @@
         <div class="info-label">Courses</div>
         <div class="font-large text-xl"><%= pluralize(@courses.count, 'course') %></div>
         <div class="flex flex-wrap gap-1 mt-2">
-          <% experience_tags = @location.tags.select { |tag| TAG_CATEGORIES["Experience"]&.include?(tag) }.take(3) %>
-          <% experience_tags.each do |tag| %>
+          <% golf_tags = @location.tags.select { |tag| tag.start_with?('golf:') } %>
+          <% golf_tags.each do |tag| %>
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              <%= tag.titleize %>
+              <% if tag == 'golf:top_100' %>
+                🎖️
+              <% elsif tag == 'golf:championship' %>
+                🏆
+              <% elsif tag == 'golf:resort' %>
+                ⛳
+              <% elsif tag == 'golf:links' %>
+                🌊
+              <% elsif tag == 'golf:parkland' %>
+                🌳
+              <% elsif tag == 'golf:desert' %>
+                🏜️
+              <% elsif tag == 'golf:mountain' %>
+                ⛰️
+              <% end %>
+              <%= tag.gsub('golf:', '').titleize %>
             </span>
           <% end %>
         </div>
@@ -121,6 +158,10 @@
         <% if @location.estimated_trip_cost.present? %>
           <div class="font-bold text-2xl text-[#355E3B]">$<%= number_with_delimiter(@location.estimated_trip_cost.to_i) %></div>
           <div class="text-xs text-gray-500">3 nights + 3 rounds</div>
+          <div class="text-sm text-gray-600 mt-2">
+            <div>Lodging: $<%= number_with_delimiter(@location.avg_lodging_cost_per_night.to_i) %></div>
+            <div>Green Fees: $<%= number_with_delimiter(@location.avg_green_fee.to_i) %></div>
+          </div>
         <% else %>
           <div class="font-medium">Call for pricing</div>
         <% end %>
@@ -167,39 +208,33 @@
       </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row">
-      <!-- Left Column: Google Map - Less margins -->
-      <div class="lg:w-[60%] lg:pr-4 pb-4 lg:pb-0">
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden h-full">
-          <div id="location-map"
-              class="h-[700px] bg-white rounded-lg overflow-hidden" 
-              data-controller="map"
-              data-map-latitude-value="<%= @location.latitude.present? ? @location.latitude.to_f : 0 %>"
-              data-map-longitude-value="<%= @location.longitude.present? ? @location.longitude.to_f : 0 %>"
-              data-map-markers-value="<%= [
-                # Include only course markers with valid coordinates
-                *@courses.select { |course| course.latitude.present? && course.longitude.present? }.map { |course| {
-                  latitude: course.latitude.to_f,
-                  longitude: course.longitude.to_f,
-                  name: course.name,
-                  type: 'course',
-                  image_url: course.image_url,
-                  green_fee: number_to_currency(course.green_fee, precision: 0),
-                  course_type: course.course_type.humanize,
-                  number_of_holes: course.number_of_holes,
-                  par: course.par,
-                  yardage: course.yardage,
-                  description: course.description
-                }}
-              ].to_json %>">
-          </div>
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <!-- Map View - Full width and more prominent -->
+      <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
+           id="location-map"
+           data-controller="map"
+           data-map-latitude-value="<%= @location.latitude.present? ? @location.latitude.to_f : 0 %>"
+           data-map-longitude-value="<%= @location.longitude.present? ? @location.longitude.to_f : 0 %>"
+           data-map-markers-value="<%= [
+             *@courses.select { |course| course.latitude.present? && course.longitude.present? }.map { |course| {
+               latitude: course.latitude.to_f,
+               longitude: course.longitude.to_f,
+               name: course.name,
+               type: 'course',
+               image_url: course.image_url,
+               green_fee: number_to_currency(course.green_fee, precision: 0),
+               course_type: course.course_type.humanize,
+               number_of_holes: course.number_of_holes,
+               par: course.par,
+               yardage: course.yardage,
+               description: course.description
+             }}
+           ].to_json %>">
       </div>
-
-      <!-- Right Column: Course Cards/List View - 3 columns on full width -->
-      <div class="lg:w-[40%]" data-controller="view-toggle">
+      <!-- Course Cards Grid View -->
+      <div class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto" data-controller="view-toggle">
         <!-- Card View (Default) -->
-        <div data-view-toggle-target="cardView" class="h-[700px] overflow-y-auto pr-1">
+        <div data-view-toggle-target="cardView" class="h-full">
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             <% @courses.each do |course| %>
               <div class="course-card bg-white rounded-lg shadow-sm overflow-hidden">
@@ -218,12 +253,40 @@
                   </div>
                 </div>
                 <div class="p-3">
-                  <div class="flex flex-wrap gap-1 mb-2">
-                    <% course.course_tags.take(2).each do |tag| %>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                        <%= tag.titleize %>
-                      </span>
-                    <% end %>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <!-- Par -->
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-xs">Par <%= course.par %></span>
+                    </div>
+                    
+                    <!-- Number of Holes -->
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <span class="text-xs"><%= course.number_of_holes %></span>
+                    </div>
+                    
+                    <!-- Course Type -->
+                    <div class="flex items-center text-gray-600">
+                      <% if course.course_type == 'public' %>
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      <% elsif course.course_type == 'private' %>
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      <% else %>
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      <% end %>
+                      <span class="text-xs"><%= course.course_type.humanize %></span>
+                    </div>
                   </div>
                   <div class="flex justify-between items-center">
                     <% if course.average_rating.present? %>
@@ -245,7 +308,7 @@
         </div>
 
         <!-- List View (Initially Hidden) -->
-        <div data-view-toggle-target="listView" class="hidden h-[700px] overflow-y-auto pr-1">
+        <div data-view-toggle-target="listView" class="hidden h-full">
           <div class="space-y-3">
             <% @courses.each do |course| %>
               <div class="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -259,16 +322,40 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <h3 class="text-base font-semibold text-gray-900 truncate"><%= course.name %></h3>
-                    <div class="flex items-center text-xs text-gray-500">
-                      <span class="mr-2"><%= course.course_type.humanize %></span>
-                      <span><%= course.number_of_holes %> Holes</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1 mt-1">
-                      <% course.course_tags.take(2).each do |tag| %>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                          <%= tag.titleize %>
-                        </span>
-                      <% end %>
+                    <div class="flex items-center gap-3 mt-1">
+                      <!-- Par -->
+                      <div class="flex items-center text-gray-600">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-xs">Par <%= course.par %></span>
+                      </div>
+                      
+                      <!-- Number of Holes -->
+                      <div class="flex items-center text-gray-600">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span class="text-xs"><%= course.number_of_holes %> Holes</span>
+                      </div>
+                      
+                      <!-- Course Type -->
+                      <div class="flex items-center text-gray-600">
+                        <% if course.course_type == 'public' %>
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        <% elsif course.course_type == 'private' %>
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        <% else %>
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                        <% end %>
+                        <span class="text-xs"><%= course.course_type.humanize %></span>
+                      </div>
                     </div>
                   </div>
                   <div class="flex flex-col items-end ml-3">
@@ -282,247 +369,272 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="container mx-auto px-2 sm:px-4">
-    
-    <!-- Information Section -->
-    <div id="information" class="mb-16">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <% if @location.weather_info.present? %>
-          <!-- Weather Information -->
-          <div class="mb-6 pb-6 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Weather</h3>
-            <div class="flex items-center bg-blue-50 rounded-lg p-4">
-              <div class="flex-shrink-0 mr-4">
-                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                </svg>
-              </div>
-              <div class="prose text-gray-700">
-                <%= simple_format(@location.weather_info) %>
-                <div class="font-medium mt-2">Best time to visit: <%= @location.best_months %></div>
+    <div class="container mx-auto px-2 sm:px-4">
+      
+      <!-- Information Section -->
+      <div id="information" class="mb-16">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <% if @location.weather_info.present? %>
+            <!-- Weather Information -->
+            <div class="mb-6 pb-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Weather</h3>
+              <div class="flex items-center bg-blue-50 rounded-lg p-4">
+                <div class="flex-shrink-0 mr-4">
+                  <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                  </svg>
+                </div>
+                <div class="prose text-gray-700">
+                  <%= simple_format(@location.weather_info) %>
+                  <div class="font-medium mt-2">Best time to visit: <%= @location.best_months %></div>
+                </div>
               </div>
             </div>
+          <% end %>
+          
+          <div class="space-y-6">
+            <!-- Destination Overview -->
+            <% if @location.destination_overview.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <div data-expandable-target="teaser" class="line-clamp-4">
+                    <%= simple_format(@location.destination_overview) %>
+                  </div>
+                  <div data-expandable-target="full" class="hidden">
+                    <%= simple_format(@location.destination_overview) %>
+                  </div>
+                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Golf Experience -->
+            <% if @location.golf_experience.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <div data-expandable-target="teaser" class="line-clamp-4">
+                    <%= simple_format(@location.golf_experience) %>
+                  </div>
+                  <div data-expandable-target="full" class="hidden">
+                    <%= simple_format(@location.golf_experience) %>
+                  </div>
+                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Travel Information -->
+            <% if @location.travel_information.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <div data-expandable-target="teaser" class="line-clamp-4">
+                    <%= simple_format(@location.travel_information) %>
+                  </div>
+                  <div data-expandable-target="full" class="hidden">
+                    <%= simple_format(@location.travel_information) %>
+                  </div>
+                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Local Attractions -->
+            <% if @location.local_attractions.present? %>
+              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                <div class="prose max-w-none text-gray-700">
+                  <div data-expandable-target="teaser" class="line-clamp-4">
+                    <%= simple_format(@location.local_attractions) %>
+                  </div>
+                  <div data-expandable-target="full" class="hidden">
+                    <%= simple_format(@location.local_attractions) %>
+                  </div>
+                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+                </div>
+              </div>
+            <% end %>
           </div>
-        <% end %>
-        
-        <div class="space-y-6">
-          <!-- Destination Overview -->
-          <% if @location.destination_overview.present? %>
-            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-              <div class="prose max-w-none text-gray-700">
-                <div data-expandable-target="teaser" class="line-clamp-4">
-                  <%= simple_format(@location.destination_overview) %>
-                </div>
-                <div data-expandable-target="full" class="hidden">
-                  <%= simple_format(@location.destination_overview) %>
-                </div>
-                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Golf Experience -->
-          <% if @location.golf_experience.present? %>
-            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
-              <div class="prose max-w-none text-gray-700">
-                <div data-expandable-target="teaser" class="line-clamp-4">
-                  <%= simple_format(@location.golf_experience) %>
-                </div>
-                <div data-expandable-target="full" class="hidden">
-                  <%= simple_format(@location.golf_experience) %>
-                </div>
-                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Travel Information -->
-          <% if @location.travel_information.present? %>
-            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
-              <div class="prose max-w-none text-gray-700">
-                <div data-expandable-target="teaser" class="line-clamp-4">
-                  <%= simple_format(@location.travel_information) %>
-                </div>
-                <div data-expandable-target="full" class="hidden">
-                  <%= simple_format(@location.travel_information) %>
-                </div>
-                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Local Attractions -->
-          <% if @location.local_attractions.present? %>
-            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-              <div class="prose max-w-none text-gray-700">
-                <div data-expandable-target="teaser" class="line-clamp-4">
-                  <%= simple_format(@location.local_attractions) %>
-                </div>
-                <div data-expandable-target="full" class="hidden">
-                  <%= simple_format(@location.local_attractions) %>
-                </div>
-                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-              </div>
-            </div>
-          <% end %>
         </div>
       </div>
-    </div>
 
-    <!-- Courses Section -->
-    <div id="courses" class="mb-16">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">All Courses at <%= @location.name %></h2>
-      <div class="space-y-6">
-        <% @courses.each do |course| %>
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="flex flex-col md:flex-row">
-              <!-- Image Column -->
-              <div class="w-full md:w-60 flex-shrink-0">
-                <% if course.image_url.present? %>
-                  <%= image_tag course.image_url,
-                      class: "w-full h-60 md:h-full object-cover",
-                      alt: "#{course.name} image" %>
-                <% else %>
-                  <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-60 md:h-full object-cover", alt: "#{course.name} image (default)" %>
-                <% end %>
-              </div>
+      <!-- Courses Section -->
+      <div id="courses" class="mb-16">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">All Courses at <%= @location.name %></h2>
+        <div class="space-y-6">
+          <% @courses.each do |course| %>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div class="flex flex-col md:flex-row">
+                <!-- Image Column -->
+                <div class="w-full md:w-60 flex-shrink-0">
+                  <% if course.image_url.present? %>
+                    <%= image_tag course.image_url,
+                        class: "w-full h-60 md:h-full object-cover",
+                        alt: "#{course.name} image" %>
+                  <% else %>
+                    <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-60 md:h-full object-cover", alt: "#{course.name} image (default)" %>
+                  <% end %>
+                </div>
 
-              <!-- Content Column -->
-              <div class="flex-1 p-6">
-                <div class="flex flex-col lg:flex-row justify-between items-start">
-                  <div class="flex-grow">
-                    <div class="flex flex-wrap items-baseline gap-4 mb-2">
-                      <h3 class="text-xl font-semibold text-gray-900"><%= course.name %></h3>
-                      <div class="flex items-center gap-2">
-                        <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
-                      </div>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-2 mb-3">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        <%= course.course_type.humanize.gsub('_', ' ') %>
-                      </span>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        <%= course.number_of_holes %> Holes
-                      </span>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Par <%= course.par %>
-                      </span>
-                      <% if course.yardage.present? %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          <%= course.yardage %> yards
-                        </span>
-                      <% end %>
-                    </div>
-
-                    <p class="text-gray-600 mb-4"><%= course.description %></p>
-
-                    <div class="flex flex-wrap gap-2 mb-4">
-                      <% course.course_tags.each do |tag| %>
-                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <%= tag.titleize %>
-                        </span>
-                      <% end %>
-                    </div>
-                  </div>
-
-                  <div class="flex flex-col items-end gap-4 mt-4 lg:mt-0">
-                    <% if course.average_rating.present? %>
-                      <div class="flex items-center bg-amber-50 rounded-lg p-2">
-                        <div class="mr-2 text-amber-500 text-sm font-medium">
-                          Rating:
+                <!-- Content Column -->
+                <div class="flex-1 p-6">
+                  <div class="flex flex-col lg:flex-row justify-between items-start">
+                    <div class="flex-grow">
+                      <div class="flex flex-wrap items-baseline gap-4 mb-2">
+                        <h3 class="text-xl font-semibold text-gray-900"><%= course.name %></h3>
+                        <div class="flex items-center gap-2">
+                          <span class="text-2xl font-bold text-[#355E3B]">$<%= course.green_fee %></span>
                         </div>
-                        <div class="flex items-center">
-                          <% course.average_rating.to_i.times do %>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </div>
+                      
+                      <div class="flex flex-wrap gap-2 mb-3">
+                        <!-- Par -->
+                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Par <%= course.par %>
+                        </div>
+                        
+                        <!-- Number of Holes -->
+                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <%= course.number_of_holes %> Holes
+                        </div>
+                        
+                        <!-- Course Type -->
+                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <% if course.course_type == 'public' %>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          <% elsif course.course_type == 'private' %>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          <% else %>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                           <% end %>
-                          <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %> reviews)</span>
+                          <%= course.course_type.humanize %>
                         </div>
+                        
+                        <% if course.yardage.present? %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <%= course.yardage %> yards
+                          </span>
+                        <% end %>
                       </div>
-                    <% end %>
-                    
-                    <%= link_to "View Course Details", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+
+                      <p class="text-gray-600 mb-4"><%= course.description %></p>
+
+                      <div class="flex flex-wrap gap-2 mb-4">
+                        <% course.course_tags.each do |tag| %>
+                          <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <%= tag.titleize %>
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-col items-end gap-4 mt-4 lg:mt-0">
+                      <% if course.average_rating.present? %>
+                        <div class="flex items-center bg-amber-50 rounded-lg p-2">
+                          <div class="mr-2 text-amber-500 text-sm font-medium">
+                            Rating:
+                          </div>
+                          <div class="flex items-center">
+                            <% course.average_rating.to_i.times do %>
+                              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                              </svg>
+                            <% end %>
+                            <span class="ml-2 text-sm text-gray-600">(<%= course.reviews.count %> reviews)</span>
+                          </div>
+                        </div>
+                      <% end %>
+                      
+                      <%= link_to "View Course Details", course_path(course), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Lodging Section -->
-    <div id="lodging" class="mb-16">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">Lodging Options</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% @location.lodgings.each do |lodging| %>
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-            <% if lodging.photo.attached? %>
-              <div class="aspect-w-16 aspect-h-9">
-                <%= image_tag lodging.photo, class: "w-full h-48 object-cover", alt: lodging.name %>
-              </div>
-            <% else %>
-              <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center h-48">
-                <span class="text-gray-400">No photo available</span>
-              </div>
-            <% end %>
-            <div class="p-4">
-              <h3 class="text-lg font-semibold mb-2"><%= lodging.name %></h3>
-              <p class="text-gray-600 mb-2 text-sm"><%= lodging.formatted_address %></p>
-              <% if lodging.rating %>
-                <div class="flex items-center mb-2">
-                  <div class="flex">
-                    <% lodging.rating.to_i.times do %>
-                      <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
-                    <% end %>
-                  </div>
-                  <span class="ml-1 text-sm text-gray-600"><%= lodging.rating %></span>
-                </div>
-              <% end %>
-              <% if lodging.website %>
-                <%= link_to "View Website", lodging.website, class: "text-sm text-blue-600 hover:text-blue-800 font-medium", target: "_blank" %>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Nearby Locations -->
-    <% if @nearby_locations&.any? %>
-      <div class="mt-12">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Nearby Golf Destinations</h2>
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <% @nearby_locations.each do |location| %>
-            <%= link_to location_path(location), class: "block" do %>
-              <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <%= image_tag location.image_url, class: "w-full h-48 object-cover" %>
-                <div class="p-4">
-                  <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    <%= [location.region, location.state, location.country].compact.join(', ') %>
-                  </p>
-                  <p class="mt-2 text-sm text-gray-600">
-                    <%= pluralize(location.courses.count, 'course') %>
-                  </p>
-                </div>
-              </div>
-            <% end %>
           <% end %>
         </div>
       </div>
-    <% end %>
+
+      <!-- Lodging Section -->
+      <div id="lodging" class="mb-16">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Lodging Options</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% @location.lodgings.each do |lodging| %>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+              <% if lodging.photo.attached? %>
+                <div class="aspect-w-16 aspect-h-9">
+                  <%= image_tag lodging.photo, class: "w-full h-48 object-cover", alt: lodging.name %>
+                </div>
+              <% else %>
+                <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center h-48">
+                  <span class="text-gray-400">No photo available</span>
+                </div>
+              <% end %>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2"><%= lodging.name %></h3>
+                <p class="text-gray-600 mb-2 text-sm"><%= lodging.formatted_address %></p>
+                <% if lodging.rating %>
+                  <div class="flex items-center mb-2">
+                    <div class="flex">
+                      <% lodging.rating.to_i.times do %>
+                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      <% end %>
+                    </div>
+                    <span class="ml-1 text-sm text-gray-600"><%= lodging.rating %></span>
+                  </div>
+                <% end %>
+                <% if lodging.website %>
+                  <%= link_to "View Website", lodging.website, class: "text-sm text-blue-600 hover:text-blue-800 font-medium", target: "_blank" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Nearby Locations -->
+      <% if @nearby_locations&.any? %>
+        <div class="mt-12">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">Nearby Golf Destinations</h2>
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <% @nearby_locations.each do |location| %>
+              <%= link_to location_path(location), class: "block" do %>
+                <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <%= image_tag location.image_url, class: "w-full h-48 object-cover" %>
+                  <div class="p-4">
+                    <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                      <%= [location.region, location.state, location.country].compact.join(', ') %>
+                    </p>
+                    <p class="mt-2 text-sm text-gray-600">
+                      <%= pluralize(location.courses.count, 'course') %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
 

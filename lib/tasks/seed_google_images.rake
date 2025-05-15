@@ -2,6 +2,7 @@
 require 'net/http'
 require 'json'
 require 'open-uri'
+require 'cloudinary'
 
 namespace :seed do
   desc "Fetch and attach images for ALL Locations and Courses using Google Place Photos API. For Courses, prioritizes populating image_url if nil, then attaches to featured_image."
@@ -591,6 +592,177 @@ namespace :seed do
     end
     
     puts "\nCompleted processing courses without images"
+  end
+
+  desc "Find and process missing photos for courses and lodgings using Google Places API"
+  task find_missing_photos: :environment do
+    api_key = Rails.application.credentials.google_maps[:api_key]
+    
+    def get_place_id(entity, api_key)
+      search_query = if entity.is_a?(Course)
+        location_name = entity.locations.first&.name
+        [entity.name, location_name, "golf course"].compact.join(" ")
+      else # Lodging
+        "#{entity.name} lodging"
+      end
+
+      location_bias_query = ""
+      if entity.latitude.present? && entity.longitude.present?
+        location_bias_query = "point:#{entity.latitude},#{entity.longitude}"
+      end
+
+      search_url = URI("https://maps.googleapis.com/maps/api/place/findplacefromtext/json")
+      search_params = {
+        input: search_query,
+        inputtype: 'textquery',
+        fields: 'place_id',
+        key: api_key
+      }
+      search_params[:locationbias] = location_bias_query if location_bias_query.present?
+      search_url.query = URI.encode_www_form(search_params)
+
+      begin
+        search_response = Net::HTTP.get_response(search_url)
+        search_data = JSON.parse(search_response.body)
+        
+        if search_data['status'] == 'OK' && search_data['candidates'].present?
+          return search_data.dig('candidates', 0, 'place_id')
+        end
+      rescue StandardError => e
+        puts "❌ Error getting place_id for #{entity.class.name}: #{entity.name} - #{e.message}"
+      end
+      nil
+    end
+
+    def get_photo_reference(place_id, api_key)
+      return nil unless place_id
+
+      details_url = URI("https://maps.googleapis.com/maps/api/place/details/json")
+      details_params = {
+        place_id: place_id,
+        fields: 'photos',
+        key: api_key
+      }
+      details_url.query = URI.encode_www_form(details_params)
+      
+      begin
+        details_response = Net::HTTP.get_response(details_url)
+        details_data = JSON.parse(details_response.body)
+        return details_data.dig('result', 'photos', 0, 'photo_reference')
+      rescue StandardError => e
+        puts "❌ Error getting photo reference for place_id: #{place_id} - #{e.message}"
+      end
+      nil
+    end
+
+    def process_course_photo(course, photo_ref, api_key)
+      return false unless photo_ref
+
+      # Get the Google Places photo URL
+      photo_api_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photoreference=#{photo_ref}&key=#{api_key}"
+      
+      begin
+        # Download the image
+        image_response = URI.open(photo_api_url)
+        
+        # Upload to Cloudinary
+        upload = Cloudinary::Uploader.upload(
+          image_response,
+          folder: "golf_directory/courses",
+          public_id: "course_#{course.id}_#{SecureRandom.hex(4)}",
+          resource_type: "auto"
+        )
+        
+        # Update the course with Cloudinary URL
+        if course.update(image_url: upload['secure_url'])
+          puts "✅ Successfully updated image_url for Course: #{course.name}"
+          return true
+        else
+          puts "❌ Failed to update image_url for Course: #{course.name} - #{course.errors.full_messages.join(', ')}"
+          return false
+        end
+      rescue StandardError => e
+        puts "❌ Error processing photo for Course: #{course.name} - #{e.message}"
+        return false
+      end
+    end
+
+    def process_lodging_photo(lodging, photo_ref, api_key)
+      return false unless photo_ref
+
+      # First update the photo_reference
+      if lodging.update(photo_reference: photo_ref)
+        puts "✅ Updated photo_reference for Lodging: #{lodging.name}"
+        
+        # Then try to download and attach the photo
+        begin
+          lodging.download_photo
+          if lodging.photo.attached?
+            puts "✅ Successfully downloaded and attached photo for Lodging: #{lodging.name}"
+            return true
+          else
+            puts "❌ Photo download failed for Lodging: #{lodging.name}"
+            return false
+          end
+        rescue StandardError => e
+          puts "❌ Error downloading photo for Lodging: #{lodging.name} - #{e.message}"
+          return false
+        end
+      else
+        puts "❌ Failed to update photo_reference for Lodging: #{lodging.name} - #{lodging.errors.full_messages.join(', ')}"
+        return false
+      end
+    end
+
+    # Find entities missing photos
+    courses_without_photos = Course.where(image_url: nil)
+    lodgings_without_photos = Lodging.where(photo_reference: nil).or(Lodging.where.missing(:photo_attachment))
+
+    total_entities = courses_without_photos.count + lodgings_without_photos.count
+    puts "\nFound #{courses_without_photos.count} courses and #{lodgings_without_photos.count} lodgings without photos"
+
+    # Process courses
+    puts "\n=== Processing Courses ==="
+    courses_without_photos.find_each.with_index(1) do |course, index|
+      puts "\n[#{index}/#{courses_without_photos.count}] Processing Course: #{course.name}"
+      
+      place_id = get_place_id(course, api_key)
+      next unless place_id
+
+      photo_ref = get_photo_reference(place_id, api_key)
+      next unless photo_ref
+
+      if process_course_photo(course, photo_ref, api_key)
+        puts "✅ Successfully processed photo for Course: #{course.name}"
+      end
+
+      # Respect API rate limits
+      sleep 2
+    end
+
+    # Process lodgings
+    puts "\n=== Processing Lodgings ==="
+    lodgings_without_photos.find_each.with_index(1) do |lodging, index|
+      puts "\n[#{index}/#{lodgings_without_photos.count}] Processing Lodging: #{lodging.name}"
+      
+      place_id = get_place_id(lodging, api_key)
+      next unless place_id
+
+      photo_ref = get_photo_reference(place_id, api_key)
+      next unless photo_ref
+
+      if process_lodging_photo(lodging, photo_ref, api_key)
+        puts "✅ Successfully processed photo for Lodging: #{lodging.name}"
+      end
+
+      # Respect API rate limits
+      sleep 2
+    end
+
+    puts "\n=== Summary ==="
+    puts "Total entities processed: #{total_entities}"
+    puts "Courses remaining without photos: #{Course.where(image_url: nil).count}"
+    puts "Lodgings remaining without photos: #{Lodging.where(photo_reference: nil).or(Lodging.where.missing(:photo_attachment)).count}"
   end
 end
   
