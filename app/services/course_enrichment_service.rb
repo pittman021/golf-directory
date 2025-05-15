@@ -44,67 +44,90 @@
 #   rails "course:enrich[Location Name]"
 
 class CourseEnrichmentService
-  def initialize(location)
-    @location = location
-    # Use environment-specific API keys
+ 
+  def self.fetch_and_update_course_image(course)
+    return unless course.google_place_id.present?
+    return if course.image_url.present?
+
     if Rails.env.production?
-      @api_key = Rails.application.credentials.google_maps[:api_key]
+      api_key = Rails.application.credentials.google_maps[:api_key]
     elsif Rails.env.development? || Rails.env.test?
-      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+      api_key = Rails.application.credentials.google_maps[:development_api_key]
     end
+  
+    # Step 1: Fetch photo_reference
+    uri = URI('https://maps.googleapis.com/maps/api/place/details/json')
+    uri.query = URI.encode_www_form({
+      place_id: course.google_place_id,
+      fields: 'photos',
+      key: api_key
+    })
+  
+    response = Net::HTTP.get_response(uri)
+    return unless response.is_a?(Net::HTTPSuccess)
+  
+    data = JSON.parse(response.body)
+    photo_ref = data.dig('result', 'photos', 0, 'photo_reference')
+    return unless photo_ref
+  
+    # Step 2: Get image from Google Places Photo API
+    photo_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photoreference=#{photo_ref}&key=#{api_key}"
+    image_file = URI.open(photo_url)
+
+    puts "#{photo_url} for #{course.name}"
+  
+    # Step 3: Upload to Cloudinary
+    upload = Cloudinary::Uploader.upload(
+      image_file,
+      folder: "golf_directory/courses",
+      public_id: "course_#{course.id}_#{SecureRandom.hex(4)}",
+      resource_type: "image"
+    )
+  
+    # Step 4: Save final Cloudinary image URL
+    course.update(image_url: upload['secure_url'])
   end
 
-  def self.fetch_and_update_course_image(course)
-    # Use environment-specific API keys
+  def self.fetch_and_store_place_id(course)
+    return if course.google_place_id.present?
+
+    query = [course.name, course.locations.first&.name, "golf course"].compact.join(" ")
+    puts "🔎 Searching for: #{query}"
+
     api_key = if Rails.env.production?
       Rails.application.credentials.google_maps[:api_key]
     else
       Rails.application.credentials.google_maps[:development_api_key]
     end
 
-    return unless course.google_place_id.present?
-
-    # Fetch course details from Google Places API
-    params = {
-      place_id: course.google_place_id,
-      fields: 'photos',
+    search_url = URI("https://maps.googleapis.com/maps/api/place/findplacefromtext/json")
+    search_url.query = URI.encode_www_form({
+      input: query,
+      inputtype: "textquery",
+      fields: "place_id",
       key: api_key
-    }
+    })
 
-    uri = URI('https://maps.googleapis.com/maps/api/place/details/json')
-    uri.query = URI.encode_www_form(params)
+    response = Net::HTTP.get_response(search_url)
+    return unless response.is_a?(Net::HTTPSuccess)
 
-    response = Net::HTTP.get_response(uri)
+    data = JSON.parse(response.body)
 
-    if response.is_a?(Net::HTTPSuccess)
-      data = JSON.parse(response.body)
-      if data['status'] == 'OK' && data['result']['photos'].present?
-        photo_reference = data['result']['photos'][0]['photo_reference']
-        image_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=#{photo_reference}&key=#{api_key}"
-        
-        # Update the course's image_url
-        course.update(image_url: image_url)
-        
-        # Also attach the image to featured_image if not already attached
-        unless course.featured_image.attached?
-          begin
-            image_response = URI.open(image_url)
-            course.featured_image.attach(
-              io: image_response,
-              filename: "#{course.name.parameterize}_google.jpg",
-              content_type: 'image/jpeg'
-            )
-          rescue => e
-            puts "Error attaching featured image: #{e.message}"
-          end
-        end
-        
-        return true
-      end
+    place_id = data.dig("candidates", 0, "place_id")
+
+    if place_id
+      course.update!(google_place_id: place_id)
+      puts "✅ Stored place_id for #{course.name}"
+      true
+    else
+      puts "⚠️ No match for #{course.name}"
+      false
     end
-    
+  rescue => e
+    puts "❌ Error fetching place_id for #{course.name}: #{e.message}"
     false
   end
+  
 
   def enrich
     puts "\nStarting course enrichment for #{@location.name}"
