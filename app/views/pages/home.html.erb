@@ -4,67 +4,80 @@
   <!-- Filters Section - Redesigned as a horizontal bar above the map -->
   
   <div class="px-2 sm:px-4 lg:px-6 mt-2" data-controller="layout comparison filters">
-    <!-- Filters -->
-    <%= form_tag root_path, method: :get, 
-        data: { 
-          filters_target: "form"
-        } do %>
-      <div class="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
-        <%= select_tag :trip_cost,
-            options_for_select([
-              ['💰Budget (Up to $1,500)', 'budget'],
-              ['💰💰Mid-Range ($1,501 - $2,500)', 'mid_range'],
-              ['💰💰💰Premium ($2,501 - $4,000)', 'premium'],
-              ['💰💰💰💰Luxury ($4,000+)', 'luxury']
-            ], params[:price_category]),
-            { prompt: "Trip Cost",
-              class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-              data: { action: "change->filters#filter" } } %>
-              
-        <!-- Golf Experience Dropdown -->
-        <div class="relative">
-        <%= select_tag "golf",
-        options_for_select([
-          ['🎖️ Top 100 Courses', 'golf:top_100'],
-          ['🏆 Tournament Courses', 'golf:tournament'],
-          ['💰 Bucket List', 'golf:bucket_list'],
-          ['🏞️ Multiple Courses', 'golf:multiple_courses']
-        ], 
-        params[:tags]&.include?('golf:top100') ? 'golf:top_100' :
-        params[:tags]&.include?('golf:tournament') ? 'golf:tournament' :
-        params[:tags]&.include?('golf:bucket_list') ? 'golf:bucket_list' :
-        params[:tags]&.include?('golf:multiple_courses') ? 'golf:multiple_courses' : nil),
-        {
-          prompt: "Golf Experience",
-          class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-          data: { action: "change->filters#addTag" }
-        } %>
-    
-        </div>
-        
-        <!-- Trip Style Dropdown -->
-        <div class="relative">
-          <%= select_tag "trip_style",
+    <%= form_tag root_path, method: :get, data: { filters_target: "form" } do %>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2 max-w-5xl mx-auto w-full py-4">
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <%= select_tag :trip_cost,
               options_for_select([
-                ['🏨 Resort', 'style:resort'],
-                ['👨‍👩‍👧‍👦 Family Friendly', 'style:family'],
-                ['🏖️ Coastal ', 'style:coastal'],
-                ['🏔️ Mountain', 'style:mountain'],
-                ['🌵 Desert', 'style:desert']
-              ], params[:tags]&.include?('style:resort') ? 'style:resort' : 
-                 params[:tags]&.include?('style:family') ? 'style:family' : 
-                 params[:tags]&.include?('style:coastal') ? 'style:coastal' :
-                 params[:tags]&.include?('style:mountain') ? 'style:mountain' :
-                 params[:tags]&.include?('style:desert') ? 'style:desert' : nil),
-              { prompt: "Trip Style",
-                class: "w-full rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B]",
-                data: { action: "change->filters#addTag" } } %>
+                ['💰Budget (Up to $1,500)', 'budget'],
+                ['💰💰Mid-Range ($1,501 - $2,500)', 'mid_range'],
+                ['💰💰💰Premium ($2,501 - $4,000)', 'premium'],
+                ['💰💰💰💰Luxury ($4,000+)', 'luxury']
+              ], params[:price_category]),
+              { prompt: "Trip Cost",
+                class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                data: { action: "change->filters#filter" } } %>
+          <div class="relative">
+            <%= select_tag "golf",
+              options_for_select([
+                ['🎖️ Top 100 Courses', 'golf:top_100'],
+                ['🏆 Tournament Courses', 'golf:tournament'],
+                ['💰 Bucket List', 'golf:bucket_list'],
+                ['🏞️ Multiple Courses', 'golf:multiple_courses']
+              ], 
+              params[:tags]&.include?('golf:top100') ? 'golf:top_100' :
+              params[:tags]&.include?('golf:tournament') ? 'golf:tournament' :
+              params[:tags]&.include?('golf:bucket_list') ? 'golf:bucket_list' :
+              params[:tags]&.include?('golf:multiple_courses') ? 'golf:multiple_courses' : nil),
+              {
+                prompt: "Golf Experience",
+                class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                data: { action: "change->filters#addTag" }
+              } %>
+          </div>
+          <div class="relative">
+            <%= select_tag "trip_style",
+                options_for_select([
+                  ['🏨 Resort', 'style:resort'],
+                  ['👨‍👩‍👧‍👦 Family Friendly', 'style:family'],
+                  ['🏖️ Coastal ', 'style:coastal'],
+                  ['🏔️ Mountain', 'style:mountain'],
+                  ['🌵 Desert', 'style:desert']
+                ], params[:tags]&.include?('style:resort') ? 'style:resort' : 
+                   params[:tags]&.include?('style:family') ? 'style:family' : 
+                   params[:tags]&.include?('style:coastal') ? 'style:coastal' :
+                   params[:tags]&.include?('style:mountain') ? 'style:mountain' :
+                   params[:tags]&.include?('style:desert') ? 'style:desert' : nil),
+                { prompt: "Trip Style",
+                  class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                  data: { action: "change->filters#addTag" } } %>
+          </div>
+          <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
         </div>
-              
-        <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
+        <div class="layout-toggle hidden sm:block">
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+          <button type="button"
+          class="p-2 rounded-md border border-gray-300 bg-white hover:bg-white focus:ring-2 focus:ring-black"
+          data-action="click->layout#showGrid">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" />
+          </svg>
+        </button>
+
+
+
+        <button type="button"
+        class="p-2 m-1 rounded-md border border-gray-300 bg-white hover:bg-white focus:ring-2 focus:ring-black"
+        data-action="click->layout#showList">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+          </div>
+        </div>
       </div>
-      
-      <div id="selected_tags" class="mb-4 flex flex-wrap gap-2 justify-center">
+      <div id="selected_tags" class="mb-2 flex flex-wrap gap-2 justify-center">
         <% if params[:tags].present? %>
           <% params[:tags].each do |tag| %>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#355E3B]/10 text-[#355E3B]">
@@ -80,31 +93,8 @@
           <% end %>
         <% end %>
       </div>
+      <div class="w-full border-b border-gray-200 mb-4"></div>
     <% end %>
-
-    <!-- Layout Toggle -->
-    <div class="flex justify-end items-center mb-4 max-w-4xl mx-auto">
-      <div class="layout-toggle hidden sm:block">
-        <div class="inline-flex rounded-md shadow-sm" role="group">
-          <button type="button" 
-                  class="px-4 py-2 text-sm font-medium rounded-l-md border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500"
-                  data-layout-target="gridButton"
-                  data-action="click->layout#showGrid">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          </button>
-          <button type="button" 
-                  class="px-4 py-2 text-sm font-medium rounded-r-md border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500"
-                  data-layout-target="listButton"
-                  data-action="click->layout#showList">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Map and Cards Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -129,84 +119,11 @@
       <div data-layout-target="gridView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
         <div id="grid_view" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           <% @locations.each do |location| %>
-            <div class="location-card h-96" 
+            <div class="location-card" 
                  data-location-id="<%= location.id %>"
                  data-controller="location-card"
                  data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-              <!-- Redesigned Location Card -->
-              <div class="bg-white rounded-lg overflow-hidden shadow h-full flex flex-col">
-                <!-- Card Image Section with Overlay Text -->
-                <div class="relative h-48 flex-shrink-0">
-                  <% if location.image_url.present? %>
-                    <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: "#{location.name}" %>
-                  <% else %>
-                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span class="text-gray-400">No image</span>
-                    </div>
-                  <% end %>
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div class="absolute bottom-0 left-0 p-4">
-                    <h3 class="text-lg font-bold text-white truncate">
-                      <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" }, class: "text-white hover:text-gray-200" %>
-                    </h3>
-                    <p class="text-sm text-gray-200">
-                      <%= location.state || location.country %>
-                    </p>
-                  </div>
-                </div>
-                
-                <!-- Card Body Section -->
-                <div class="p-4 flex flex-col flex-grow">
-                  <!-- Tags Section -->
-                  <div class="flex flex-wrap gap-1 mb-3">
-                    <% top_tags = [] %>
-                    <% top_tags << "top_100_courses" if location.tags&.include?("top_100_courses") %>
-                    <% top_tags << "resort" if location.lodgings&.any? && location.tags&.include?("resort") %>
-                    <% top_tags << "family" if location.tags&.include?("family") %>
-                    <% top_tags << "hard_to_book" if location.tags&.include?("hard_to_book") %>
-                    <% top_tags << "bucket_list" if location.tags&.include?("bucket_list") %>
-                    
-                    <% top_tags.take(3).each do |tag| %>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
-                                <%= tag == 'top_100_courses' ? 'bg-blue-100 text-blue-800' : 
-                                   tag == 'resort' ? 'bg-green-100 text-green-800' :
-                                   tag == 'family' ? 'bg-yellow-100 text-yellow-800' :
-                                   tag == 'hard_to_book' ? 'bg-red-100 text-red-800' :
-                                   tag == 'bucket_list' ? 'bg-purple-100 text-purple-800' : 
-                                   'bg-gray-100 text-gray-800' %>">
-                        <% if tag == 'top_100_courses' %>
-                          🎖️ Top 100
-                        <% elsif tag == 'resort' %>
-                          Resort
-                        <% elsif tag == 'family' %>
-                          Family
-                        <% elsif tag == 'hard_to_book' %>
-                          Hard to Book
-                        <% elsif tag == 'bucket_list' %>
-                          Bucket List
-                        <% else %>
-                          <%= tag.titleize %>
-                        <% end %>
-                      </span>
-                    <% end %>
-                  </div>
-                  
-                  <!-- Price and Details -->
-                  <div class="mt-auto">
-                    <div class="flex justify-between items-center mt-3">
-                      <div class="text-xl font-bold text-gray-900">
-                        <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-                      </div>
-                    </div>
-                    
-                    <!-- Lodging and Green Fees Info -->
-                    <div class="mt-2 text-sm text-gray-600">
-                      <div>Lodging: <%= number_to_currency(location.avg_lodging_cost_per_night, precision: 0) %></div>
-                      <div>Green Fees: <%= number_to_currency(location.avg_green_fee, precision: 0) %></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <%= render partial: "locations/location_card", locals: { location: location } %>
             </div>
           <% end %>
         </div>
@@ -221,8 +138,9 @@
               <div class="location-card" 
                    data-location-id="<%= location.id %>"
                    data-controller="location-card"
+           
                    data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-                <%= render partial: "pages/location_card", locals: { location: location } %>
+                <%= render partial: "locations/location_card", locals: { location: location } %>
               </div>
             <% end %>
           </div>
@@ -299,13 +217,6 @@
 </div>
 
 <style>
-  .sort-link {
-    @apply text-gray-500 hover:text-gray-700 transition-colors duration-200;
-  }
-  
-  .sort-indicator {
-    @apply opacity-50 group-hover:opacity-100 transition-opacity duration-200;
-  }
   
   /* Responsive adjustments */
   @media (max-width: 1279px) {

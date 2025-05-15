@@ -1,7 +1,12 @@
 <!-- app/views/pages/home.turbo_stream.erb -->
 <%= turbo_stream.update "grid_view" do %>
   <% @locations.each do |location| %>
-    <%= render partial: "locations/location_card", locals: { location: location } %>
+    <div class="location-card" 
+         data-location-id="<%= location.id %>"
+         data-controller="location-card"
+         data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+      <%= render partial: "locations/location_card", locals: { location: location } %>
+    </div>
   <% end %>
 <% end %>
 
@@ -10,7 +15,12 @@
     <!-- Mobile View -->
     <div class="block lg:hidden">
       <% @locations.each do |location| %>
-        <%= render partial: "pages/location_card", locals: { location: location } %>
+        <div class="location-card" 
+             data-location-id="<%= location.id %>"
+             data-controller="location-card"
+             data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+          <%= render partial: "locations/location_card", locals: { location: location } %>
+        </div>
       <% end %>
     </div>
 
