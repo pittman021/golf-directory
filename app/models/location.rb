@@ -270,10 +270,17 @@ scope :with_any_tags, ->(tag_list) { where("tags && ARRAY[?]::varchar[]", tag_li
     def parse_summary
       return nil if summary.blank?
       
-      begin
-        JSON.parse(summary)
-      rescue JSON::ParserError => e
-        Rails.logger.error "Error parsing summary JSON: #{e.message}"
+      case summary
+      when Hash
+        summary
+      when String
+        begin
+          JSON.parse(summary)
+        rescue JSON::ParserError => e
+          Rails.logger.error "Error parsing summary JSON: #{e.message}"
+          nil
+        end
+      else
         nil
       end
     end

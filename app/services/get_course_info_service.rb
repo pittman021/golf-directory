@@ -29,11 +29,10 @@
 # - Cost effective for structured data
 # - Input: $0.0010 / 1K tokens
 # - Output: $0.0020 / 1K tokens
-
 class GetCourseInfoService
   MAX_RETRIES = 3
   INITIAL_RETRY_DELAY = 1 # seconds
-  MODEL = "gpt-3.5-turbo"
+  MODEL = "gpt-4-turbo"
 
   def initialize(course)
     @course = course
@@ -46,7 +45,7 @@ class GetCourseInfoService
     puts "\nGathering information for course: #{@course.name}"
     puts "Course ID: #{@course.id}"
     puts "Using model: #{MODEL}"
-    
+
     get_course_info
   end
 
@@ -72,38 +71,12 @@ class GetCourseInfoService
       - Latitude (decimal format, e.g. 37.7749)
       - Longitude (decimal format, e.g. -122.4194)
       - Additional notes
-      
-      Format the response as a JSON object with these keys:
-      {
-        "description": "string",
-        "notable_holes": ["string"],
-        "history": "string",
-        "designers": ["string"],
-        "tournament_history": ["string"],
-        "playing_tips": ["string"],
-        "course_tags": ["string"],
-        "number_of_holes": integer,
-        "par": integer,
-        "yardage": integer,
-        "green_fee": integer,
-        "course_type": "string",
-        "website_url": "string",
-        "latitude": float,
-        "longitude": float,
-        "notes": "string"
-      }
-      
-      For course_tags, only use tags from the provided list.
-      For course_type, only use one of: public_course, private_course, resort_course
-      For number_of_holes, only use 9 or 18
-      For par, use a whole number (typically between 60-75)
-      For yardage, use a whole number (typically between 5000-8000)
-      For green_fee, use a positive number
-      For latitude and longitude, use decimal format coordinates that accurately locate the course
-      For notes, include any additional relevant information that doesn't fit in other categories.
-      
+
+      Format the response as a JSON object.
       Keep responses concise and factual. Focus on key information.
     PROMPT
+
+    puts "Prompt length: #{prompt.length} characters"
 
     retry_count = 0
     last_error = nil
@@ -126,20 +99,18 @@ class GetCourseInfoService
         else
           content = response.dig("choices", 0, "message", "content")
           puts "\nReceived response from OpenAI. Parsing JSON..."
-          
-          # Try to find and extract a valid JSON object from the response content
           json_match = content.match(/\{.*\}/m)
-          
+
           if json_match
             begin
               course_info = JSON.parse(json_match[0])
-              
-              # Validate and clean the data
               course_info = clean_course_info(course_info)
-              
-              # Update the course with the gathered information
+
+              # Rewrite the description using the course info
+              rewritten_description = rewrite_description(course_info)
+              course_info['description'] = rewritten_description if rewritten_description.present?
+
               update_course(course_info)
-              
               return course_info
             rescue JSON::ParserError => e
               puts "Error parsing matched JSON: #{e.message}"
@@ -152,12 +123,6 @@ class GetCourseInfoService
             last_error = "No JSON object found in response"
           end
         end
-      rescue JSON::ParserError => e
-        puts "Error parsing ChatGPT response: #{e.message}"
-        last_error = e.message
-      rescue Faraday::ServerError => e
-        puts "OpenAI server error (attempt #{retry_count + 1}): #{e.message}"
-        last_error = e.message
       rescue => e
         puts "Unexpected error getting course information: #{e.message}"
         last_error = e.message
@@ -176,7 +141,6 @@ class GetCourseInfoService
   end
 
   def clean_course_info(course_info)
-    # Ensure all expected fields exist
     course_info['number_of_holes'] ||= 18
     course_info['par'] ||= 72
     course_info['yardage'] ||= 6500
@@ -193,34 +157,24 @@ class GetCourseInfoService
     course_info['latitude'] ||= @course.latitude
     course_info['longitude'] ||= @course.longitude
     course_info['notes'] ||= ''
-    
-    # Ensure number_of_holes is 9 or 18
+
     course_info['number_of_holes'] = course_info['number_of_holes'].to_i
     course_info['number_of_holes'] = 18 unless [9, 18].include?(course_info['number_of_holes'])
-
-    # Ensure par is a whole number
     course_info['par'] = course_info['par'].to_i
     course_info['par'] = 72 if course_info['par'] <= 0
-
-    # Ensure yardage is a whole number
     course_info['yardage'] = course_info['yardage'].to_i
     course_info['yardage'] = 6500 if course_info['yardage'] <= 0
-
-    # Ensure green_fee is a positive number
     course_info['green_fee'] = course_info['green_fee'].to_i
     course_info['green_fee'] = 100 if course_info['green_fee'] <= 0
 
-    # Ensure course_type is valid
     valid_types = Course.course_types.keys
     course_info['course_type'] = 'public_course' unless valid_types.include?(course_info['course_type'])
 
-    # Ensure course_tags is an array and contains valid tags
     course_info['course_tags'] = [] unless course_info['course_tags'].is_a?(Array)
     valid_tags = TAG_CATEGORIES.values.flatten
-    course_info['course_tags'] = course_info['course_tags'].select { |tag| valid_tags.include?(tag) } if course_info['course_tags'].is_a?(Array)
+    course_info['course_tags'] = course_info['course_tags'].select { |tag| valid_tags.include?(tag) }
     course_info['course_tags'] = ['traditional'] if course_info['course_tags'].empty?
 
-    # Ensure arrays are actually arrays
     %w[notable_holes designers tournament_history playing_tips].each do |field|
       course_info[field] = [course_info[field]] unless course_info[field].is_a?(Array)
     end
@@ -229,7 +183,6 @@ class GetCourseInfoService
   end
 
   def update_course(course_info)
-    # Create a notes field with the additional information
     notes_content = []
     notes_content << "Notable Holes: #{course_info['notable_holes'].join(', ')}" if course_info['notable_holes'].present?
     notes_content << "History: #{course_info['history']}" if course_info['history'].present?
@@ -237,44 +190,63 @@ class GetCourseInfoService
     notes_content << "Tournament History: #{course_info['tournament_history'].join(', ')}" if course_info['tournament_history'].present?
     notes_content << "Playing Tips: #{course_info['playing_tips'].join(', ')}" if course_info['playing_tips'].present?
     notes_content << course_info['notes'] if course_info['notes'].present?
-    
-    # Join the notes with double newlines
     combined_notes = notes_content.join("\n\n")
-    
-    update_params = {
-      description: course_info['description'].to_s,
+
+    @course.update!(
+      description: course_info['description'],
       number_of_holes: course_info['number_of_holes'],
       par: course_info['par'],
       yardage: course_info['yardage'],
       green_fee: course_info['green_fee'],
       course_type: course_info['course_type'],
       course_tags: course_info['course_tags'],
-      website_url: course_info['website_url'].to_s
-    }
-    
-    # Add latitude and longitude if they're present in the response
-    update_params[:latitude] = course_info['latitude'] if course_info['latitude'].present?
-    update_params[:longitude] = course_info['longitude'] if course_info['longitude'].present?
-    
-    # Only update notes if we have content
-    update_params[:notes] = combined_notes if combined_notes.present?
-    
-    puts "Updating course with params:"
-    puts "- Number of holes: #{update_params[:number_of_holes]}"
-    puts "- Par: #{update_params[:par]}"
-    puts "- Yardage: #{update_params[:yardage]}"
-    puts "- Green fee: #{update_params[:green_fee]}"
-    puts "- Course type: #{update_params[:course_type]}"
-    puts "- Tags: #{update_params[:course_tags].join(', ')}"
-    puts "- Latitude: #{update_params[:latitude]}" if update_params[:latitude].present?
-    puts "- Longitude: #{update_params[:longitude]}" if update_params[:longitude].present?
-    
-    begin
-      @course.update!(update_params)
-      puts "Course updated successfully!"
-    rescue => e
-      puts "Error updating course: #{e.message}"
-      raise e
-    end
+      latitude: course_info['latitude'],
+      longitude: course_info['longitude'],
+      website_url: course_info['website_url'],
+      notes: combined_notes,
+      summary: {
+        history: course_info['history'],
+        notable_holes: course_info['notable_holes'],
+        designers: course_info['designers'],
+        tournament_history: course_info['tournament_history'],
+        playing_tips: course_info['playing_tips']
+      }
+    )
   end
-end 
+
+  def rewrite_description(course_info)
+    summary = course_info.to_json
+    prompt = <<~PROMPT
+      Rewrite the following golf course description to sound more human, engaging, and SEO-rich — like it was written by a local golfer who knows the course inside and out.
+
+      Course name: #{@course.name}
+      Location: #{@course.locations.first&.name || 'Unknown location'}
+
+      Existing description:
+      #{course_info['description']}
+
+      Background info (for inspiration only — do not repeat as-is):
+      #{summary}
+
+      Writing goal:
+      Capture what makes this course unique, fun, and a classic New York City public golf experience.
+
+      Constraints:
+      - Include 1–2 historical facts from the background info
+      - Mention at least one notable hole
+      - Include one playing tip for first-time players
+      - Keep the tone conversational but informative
+      - Length: 150–200 words
+    PROMPT
+
+    response = @client.chat(
+      parameters: {
+        model: MODEL,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7
+      }
+    )
+
+    response.dig("choices", 0, "message", "content")&.strip
+  end
+end

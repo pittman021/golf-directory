@@ -36,6 +36,69 @@
           </dd>
         </div>
 
+        <% if @course.summary.present? %>
+          <% if @course.summary['history'].present? %>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">History</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <%= @course.summary['history'] %>
+              </dd>
+            </div>
+          <% end %>
+
+          <% if @course.summary['notable_holes'].present? %>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Notable Holes</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <ul class="list-disc pl-5 space-y-2">
+                  <% @course.summary['notable_holes'].each do |hole| %>
+                    <li><%= hole %></li>
+                  <% end %>
+                </ul>
+              </dd>
+            </div>
+          <% end %>
+
+          <% if @course.summary['designers'].present? %>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Designers</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <ul class="list-disc pl-5 space-y-2">
+                  <% @course.summary['designers'].each do |designer| %>
+                    <li><%= designer %></li>
+                  <% end %>
+                </ul>
+              </dd>
+            </div>
+          <% end %>
+
+          <% if @course.summary['tournament_history'].present? %>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Tournament History</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <ul class="list-disc pl-5 space-y-2">
+                  <% @course.summary['tournament_history'].each do |tournament| %>
+                    <li><%= tournament %></li>
+                  <% end %>
+                </ul>
+              </dd>
+            </div>
+          <% end %>
+
+          <% if @course.summary['playing_tips'].present? %>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Playing Tips</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <ul class="list-disc pl-5 space-y-2">
+                  <% @course.summary['playing_tips'].each do |tip| %>
+                    <li><%= tip %></li>
+                  <% end %>
+                </ul>
+              </dd>
+            </div>
+          <% end %>
+        <% end %>
+
         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Course Details</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">

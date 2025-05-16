@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_14_224205) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_16_010355) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -96,6 +96,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_14_224205) do
     t.string "image_url"
     t.string "slug"
     t.string "google_place_id"
+    t.json "summary"
     t.index ["course_tags"], name: "index_courses_on_course_tags", using: :gin
     t.index ["course_type"], name: "index_courses_on_course_type"
     t.index ["green_fee"], name: "index_courses_on_green_fee"
@@ -142,7 +143,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_14_224205) do
     t.integer "avg_lodging_cost_per_night"
     t.integer "estimated_trip_cost"
     t.string "tags", default: [], array: true
-    t.text "summary"
+    t.jsonb "summary"
     t.integer "lodging_price_min"
     t.integer "lodging_price_max"
     t.string "lodging_price_currency", default: "USD"
