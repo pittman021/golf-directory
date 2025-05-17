@@ -1,0 +1,615 @@
+<% content_for :google_maps, true %>
+
+<style>
+  /* Scroll behavior for smooth navigation */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Add scroll margin to account for the sticky header */
+  #information, #courses {
+    scroll-margin-top: 60px;
+  }
+  
+  /* Sticky navigation styling */
+  .sticky-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Active state for navigation */
+  .nav-link.active {
+    background-color: rgba(53, 94, 59, 0.1);
+    font-weight: 600;
+  }
+  
+  /* Course card styling */
+  .course-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Custom line clamp for truncated text */
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-height: 6em;
+    text-overflow: ellipsis;
+  }
+  
+  /* Infobar styling */
+  .infobar {
+    background-color: white;
+    border-bottom: 1px solid rgba(229, 231, 235, 1);
+    padding: 1.5rem 0;
+  }
+  
+  .info-section {
+    border-right: 1px solid rgba(229, 231, 235, 1);
+    padding: 0 1.5rem;
+  }
+  
+  .info-section:last-child {
+    border-right: none;
+  }
+  
+  .info-label {
+    font-size: 0.875rem;
+    color: rgba(107, 114, 128, 1);
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 1279px) {
+    .grid-view-wrapper .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .grid-view-wrapper .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lg\:grid-cols-2 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    #state-map {
+      height: 400px;
+      min-height: 400px;
+    }
+    .grid-view-wrapper {
+      height: auto;
+      min-height: 0;
+    }
+  }
+</style>
+
+<!-- Horizontal Information Section -->
+<div class="infobar">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row">
+      
+      <!-- State Name and Basic Info -->
+      <div class="info-section flex-grow md:w-1/3 pb-4 md:pb-0">
+        <h1 class="text-3xl font-bold text-gray-900"><%= @state.name %></h1>
+        <% if @state.description.present? %>
+          <p class="text-gray-700 mt-2">
+            <%= @state.description.split('.').first %>.
+          </p>
+        <% end %>
+      </div>
+      
+      <!-- Destinations Information -->
+      <div class="info-section md:w-1/5 pb-4 md:pb-0">
+        <div class="info-label">Destinations</div>
+        <div class="font-large text-xl"><%= pluralize(@locations.count, 'destination') %></div>
+        <div class="text-sm text-gray-600 mt-2">
+          <%= pluralize(@courses.count, 'course') %>
+        </div>
+      </div>
+      
+      <!-- Getting There -->
+      <div class="info-section md:w-1/5 pb-4 md:pb-0">
+        <div class="info-label pb-2">Getting There</div>
+        <div class="font-medium text-md">☀️ <%= @state.best_months %></div>
+      </div>
+
+     </div>
+  </div>
+</div>
+
+<!-- Sticky navigation bar -->
+<div class="sticky-nav">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="flex justify-center py-3">
+      <a href="#information" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Information
+      </a>
+      <a href="#courses" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Courses
+      </a>
+    </nav>
+  </div>
+</div>
+
+<div class="container-fluid px-2 sm:px-4 py-8">
+  <!-- Map and Courses Section -->
+  <div class="mb-12">
+    <div class="flex justify-between items-center mb-6 px-2 lg:px-4">
+      <h2 class="text-2xl font-bold text-gray-900">Golf Destinations in <%= @state.name %></h2>
+      <!-- View Toggle -->
+      <div class="inline-flex rounded-md shadow-sm" role="group" data-controller="view-toggle">
+        <button type="button" data-view-toggle-target="cardBtn" data-action="click->view-toggle#showCards" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 active">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        </button>
+        <button type="button" data-view-toggle-target="listBtn" data-action="click->view-toggle#showList" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <!-- Map View -->
+      <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
+           id="state-map"
+           data-controller="map"
+           data-map-markers-value="<%= [
+             # Location markers
+             *@locations.select { |l| l.latitude.present? && l.longitude.present? }.map { |location| {
+               latitude: location.latitude.to_f,
+               longitude: location.longitude.to_f,
+               name: location.name,
+               id: location.id,
+               type: 'location',
+               image_url: location.image_url,
+               courses_count: location.courses.count,
+               avg_green_fee: number_to_currency(location.avg_green_fee, precision: 0),
+               estimated_trip_cost: number_to_currency(location.estimated_trip_cost, precision: 0),
+               info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
+             }},
+             # Course markers
+             *@courses.select { |c| c.latitude.present? && c.longitude.present? }.map { |course| {
+               latitude: course.latitude.to_f,
+               longitude: course.longitude.to_f,
+               name: course.name,
+               id: course.id,
+               type: 'course',
+               image_url: course.image_url,
+               green_fee: number_to_currency(course.green_fee, precision: 0),
+               course_type: course.course_type.humanize,
+               number_of_holes: course.number_of_holes,
+               par: course.par,
+               yardage: course.yardage,
+               info: "#{course.name}<br>#{course.course_type.humanize}<br>#{number_to_currency(course.green_fee, precision: 0)}"
+             }}
+           ].to_json %>">
+      </div>
+
+      <!-- Course Cards Grid View -->
+      <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
+          <% @courses.each do |course| %>
+            <div class="course-card" 
+                 data-course-id="<%= course.id %>"
+                 data-controller="course-card"
+                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+              <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="relative h-40">
+                  <% if course.image_url.present? %>
+                    <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
+                  <% else %>
+                    <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-full object-cover", alt: course.name %>
+                  <% end %>
+                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                    <h3 class="text-white font-semibold text-sm truncate"><%= course.name %></h3>
+                    <div class="flex justify-between items-center mt-1">
+                      <span class="text-white/90 text-xs"><%= course.course_type.humanize %></span>
+                      <span class="text-white font-bold text-sm">$<%= course.green_fee %></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div data-view-toggle-target="listView" class="hidden">
+        <div class="bg-white rounded-lg shadow">
+          <!-- Mobile View -->
+          <div class="block lg:hidden">
+            <% @courses.each do |course| %>
+              <div class="course-card" 
+                   data-course-id="<%= course.id %>"
+                   data-controller="course-card"
+                   data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div class="relative h-40">
+                    <% if course.image_url.present? %>
+                      <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
+                    <% else %>
+                      <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-full object-cover", alt: course.name %>
+                    <% end %>
+                    <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                      <h3 class="text-white font-semibold text-sm truncate"><%= course.name %></h3>
+                      <div class="flex justify-between items-center mt-1">
+                        <span class="text-white/90 text-xs"><%= course.course_type.humanize %></span>
+                        <span class="text-white font-bold text-sm">$<%= course.green_fee %></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Green Fee</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @courses.each do |course| %>
+                    <tr class="hover:bg-gray-50 cursor-pointer"
+                        data-course-id="<%= course.id %>"
+                        data-controller="course-card"
+                        data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0 h-10 w-10">
+                            <% if course.image_url.present? %>
+                              <%= image_tag course.image_url, class: "h-10 w-10 rounded-full object-cover", alt: course.name %>
+                            <% else %>
+                              <%= image_tag Course::DEFAULT_IMAGE_URL, class: "h-10 w-10 rounded-full object-cover", alt: course.name %>
+                            <% end %>
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900"><%= course.name %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900"><%= course.course_type.humanize %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">$<%= course.green_fee %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <% if course.average_rating.present? %>
+                          <div class="flex items-center">
+                            <% course.average_rating.to_i.times do %>
+                              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                              </svg>
+                            <% end %>
+                            <span class="ml-1 text-sm text-gray-600">(<%= course.reviews.count %>)</span>
+                          </div>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div id="information" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="prose max-w-none">
+        <% if @state.description.present? %>
+          <div class="mb-6">
+            <%= simple_format(@state.description) %>
+          </div>
+        <% end %>
+
+        <div class="space-y-6">
+          <!-- Destination Overview -->
+          <% if @state.destination_overview.present? %>
+            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+              <div class="prose max-w-none text-gray-700">
+                <div data-expandable-target="teaser" class="line-clamp-4">
+                  <%= simple_format(@state.destination_overview) %>
+                </div>
+                <div data-expandable-target="full" class="hidden">
+                  <%= simple_format(@state.destination_overview) %>
+                </div>
+                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Golf Experience -->
+          <% if @state.golf_experience.present? %>
+            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
+              <div class="prose max-w-none text-gray-700">
+                <div data-expandable-target="teaser" class="line-clamp-4">
+                  <%= simple_format(@state.golf_experience) %>
+                </div>
+                <div data-expandable-target="full" class="hidden">
+                  <%= simple_format(@state.golf_experience) %>
+                </div>
+                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Travel Information -->
+          <% if @state.travel_information.present? %>
+            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
+              <div class="prose max-w-none text-gray-700">
+                <div data-expandable-target="teaser" class="line-clamp-4">
+                  <%= simple_format(@state.travel_information) %>
+                </div>
+                <div data-expandable-target="full" class="hidden">
+                  <%= simple_format(@state.travel_information) %>
+                </div>
+                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Local Attractions -->
+          <% if @state.local_attractions.present? %>
+            <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+              <div class="prose max-w-none text-gray-700">
+                <div data-expandable-target="teaser" class="line-clamp-4">
+                  <%= simple_format(@state.local_attractions) %>
+                </div>
+                <div data-expandable-target="full" class="hidden">
+                  <%= simple_format(@state.local_attractions) %>
+                </div>
+                <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Destinations Section -->
+  <div id="featured-destinations" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Destinations</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if @state.featured_locations.any? %>
+        <% @state.featured_locations.each do |location| %>
+          <div class="location-card bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="relative h-48">
+              <% if location.image_url.present? %>
+                <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: location.name %>
+              <% else %>
+                <%= image_tag 'placeholder_golf_course.jpg', class: "w-full h-full object-cover", alt: "Placeholder" %>
+              <% end %>
+              <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                <h3 class="text-white text-xl font-semibold"><%= location.name %></h3>
+                <div class="text-white/90 text-sm mt-1">
+                  <%= pluralize(location.courses.count, 'course') %> • Avg: <%= number_to_currency(location.avg_green_fee, precision: 0) %>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                  Est. Trip: <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
+                </div>
+                <%= link_to "View Destination", location_path(location), class: "text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg">
+          <p class="text-gray-500">No featured destinations yet. Check back soon for updates!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Featured Courses Section -->
+  <div id="featured-courses" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Courses</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if @state.featured_courses.any? %>
+        <% @state.featured_courses.each do |course| %>
+          <div class="course-card bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="relative">
+              <img src="<%= course.image_url.present? ? course.image_url : Course::DEFAULT_IMAGE_URL %>" 
+                   alt="<%= course.name %>" 
+                   class="w-full h-48 object-cover">
+              <div class="absolute top-2 right-2 bg-[#355E3B] text-white px-2 py-1 rounded text-sm">
+                <%= number_to_currency(course.green_fee, precision: 0) %>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= course.name %></h3>
+              <div class="flex items-center text-gray-600 mb-2">
+                <% if course.course_type == 'public' %>
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                <% elsif course.course_type == 'private' %>
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                <% else %>
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                <% end %>
+                <span class="text-sm"><%= course.course_type.humanize %></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <% if course.average_rating.present? %>
+                  <div class="flex items-center">
+                    <% course.average_rating.to_i.times do %>
+                      <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    <% end %>
+                    <span class="ml-1 text-sm text-gray-600">(<%= course.reviews.count %>)</span>
+                  </div>
+                <% end %>
+                <%= link_to "View", course_path(course), class: "inline-block text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg">
+          <p class="text-gray-500">No featured courses yet. Check back soon for updates!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- View Toggle Controller -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    class ViewToggle {
+      constructor(element) {
+        this.element = element;
+        this.cardBtn = element.querySelector('[data-view-toggle-target="cardBtn"]');
+        this.listBtn = element.querySelector('[data-view-toggle-target="listBtn"]');
+        this.cardView = document.querySelector('[data-view-toggle-target="cardView"]');
+        this.listView = document.querySelector('[data-view-toggle-target="listView"]');
+        
+        // Set up event listeners
+        this.cardBtn.addEventListener('click', this.showCards.bind(this));
+        this.listBtn.addEventListener('click', this.showList.bind(this));
+      }
+      
+      showCards() {
+        this.cardBtn.classList.add('active');
+        this.listBtn.classList.remove('active');
+        this.cardView.classList.remove('hidden');
+        this.listView.classList.add('hidden');
+      }
+      
+      showList() {
+        this.listBtn.classList.add('active');
+        this.cardBtn.classList.remove('active');
+        this.listView.classList.remove('hidden');
+        this.cardView.classList.add('hidden');
+      }
+    }
+    
+    // Initialize all view-toggle elements
+    document.querySelectorAll('[data-controller="view-toggle"]').forEach(element => {
+      new ViewToggle(element);
+    });
+  });
+</script>
+
+<!-- Expandable text controller -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    class Expandable {
+      constructor(element) {
+        this.element = element;
+        this.teaser = element.querySelector('[data-expandable-target="teaser"]');
+        this.full = element.querySelector('[data-expandable-target="full"]');
+        this.button = element.querySelector('[data-expandable-target="button"]');
+        
+        // Set up event listeners
+        if (this.button) {
+          this.button.addEventListener('click', this.toggle.bind(this));
+        }
+      }
+      
+      toggle(event) {
+        event.preventDefault();
+        
+        if (this.teaser.classList.contains('hidden')) {
+          // Show teaser, hide full content
+          this.teaser.classList.remove('hidden');
+          this.full.classList.add('hidden');
+          this.button.textContent = 'Read More';
+        } else {
+          // Hide teaser, show full content
+          this.teaser.classList.add('hidden');
+          this.full.classList.remove('hidden');
+          this.button.textContent = 'Show Less';
+        }
+      }
+    }
+    
+    // Initialize all expandable elements
+    document.querySelectorAll('[data-controller="expandable"]').forEach(element => {
+      new Expandable(element);
+    });
+  });
+</script>
+
+<style>
+  /* Custom marker styles */
+  .custom-marker {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .custom-marker:hover {
+    transform: scale(1.2);
+  }
+
+  .location-marker {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  .course-marker {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  /* Info window styles */
+  .gm-style .gm-style-iw-c {
+    padding: 0 !important;
+    max-height: none !important;
+    box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);
+    border-radius: 8px !important;
+  }
+
+  .gm-style .gm-style-iw-d {
+    max-height: none !important;
+  }
+
+  .gm-style-iw-d::-webkit-scrollbar { 
+    display: none;
+  }
+
+  .gm-ui-hover-effect {
+    display: none !important;
+  }
+
+  .gm-style-iw-tc, .gm-style-iw-tc:after {
+    display: none !important;
+  }
+</style> 

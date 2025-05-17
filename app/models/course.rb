@@ -7,6 +7,7 @@ class Course < ApplicationRecord
     has_many :locations, through: :location_courses
     has_many :reviews, dependent: :destroy
     has_many_attached :images
+    belongs_to :state
     
     enum course_type: {
       public_course: 0,
@@ -21,6 +22,7 @@ class Course < ApplicationRecord
     validates :yardage, presence: true, numericality: { only_integer: true }
     validates :green_fee, presence: true, numericality: { greater_than_or_equal_to: 0 }
     validates :course_tags, presence: true
+    validates :state_id, presence: true
     
     # Set a default image URL for when none is provided
     DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"

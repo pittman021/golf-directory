@@ -102,17 +102,36 @@
       <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
            id="locations-map"
            data-controller="map location-hover"
-           data-map-markers-value="<%= @locations.map { |location| {
-             latitude: location.latitude.to_f,
-             longitude: location.longitude.to_f,
-             name: location.name,
-             id: location.id,
-             image_url: location.image_url,
-             courses_count: location.courses.count,
-             avg_green_fee: number_to_currency(location.avg_green_fee, precision: 0),
-             estimated_trip_cost: number_to_currency(location.estimated_trip_cost, precision: 0),
-             info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
-           }}.to_json %>">
+           data-map-markers-value="<%= [
+             # Location markers
+             *@locations.map { |location| {
+               latitude: location.latitude.to_f,
+               longitude: location.longitude.to_f,
+               name: location.name,
+               id: location.id,
+               type: 'location',
+               image_url: location.image_url,
+               courses_count: location.courses.count,
+               avg_green_fee: number_to_currency(location.avg_green_fee, precision: 0),
+               estimated_trip_cost: number_to_currency(location.estimated_trip_cost, precision: 0),
+               info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
+             }},
+             # Course markers
+             *Course.includes(:reviews).where.not(latitude: nil).where.not(longitude: nil).map { |course| {
+               latitude: course.latitude.to_f,
+               longitude: course.longitude.to_f,
+               name: course.name,
+               id: course.id,
+               type: 'course',
+               image_url: course.image_url,
+               green_fee: number_to_currency(course.green_fee, precision: 0),
+               course_type: course.course_type.humanize,
+               number_of_holes: course.number_of_holes,
+               par: course.par,
+               yardage: course.yardage,
+               info: "#{course.name}<br>#{course.course_type.humanize}<br>#{number_to_currency(course.green_fee, precision: 0)}"
+             }}
+           ].to_json %>">
       </div>
       
       <!-- Location Cards Grid View -->

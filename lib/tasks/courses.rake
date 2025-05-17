@@ -133,8 +133,8 @@ namespace :courses do
   task :enrich_sparse => :environment do
     puts "Finding courses with sparse information..."
     
-    # Find courses with short descriptions or few tags
-    sparse_courses = Course.where("length(description) < 100 OR array_length(course_tags, 1) < 3")
+    # Find courses with short descriptions, few tags, or specific note
+    sparse_courses = Course.where("length(description) < 100 OR array_length(course_tags, 1) < 3 OR notes = 'Automatically imported from Google Places API'")
     count = sparse_courses.count
     
     if count == 0
@@ -143,6 +143,10 @@ namespace :courses do
     end
     
     puts "Found #{count} courses with sparse information."
+    puts "Breakdown:"
+    puts "- Short descriptions: #{Course.where('length(description) < 100').count}"
+    puts "- Few tags: #{Course.where('array_length(course_tags, 1) < 3').count}"
+    puts "- Auto-imported: #{Course.where(notes: 'Automatically imported from Google Places API').count}"
     
     processed = 0
     updated = 0

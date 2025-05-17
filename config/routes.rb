@@ -16,6 +16,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :states, only: [:show], param: :slug
+
   resources :courses, only: [:show], param: :slug do
     resources :reviews, only: [:create]
   end

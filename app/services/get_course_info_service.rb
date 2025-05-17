@@ -217,28 +217,26 @@ class GetCourseInfoService
   def rewrite_description(course_info)
     summary = course_info.to_json
     prompt = <<~PROMPT
-      Rewrite the following golf course description to sound more human, engaging, and SEO-rich — like it was written by a local golfer who knows the course inside and out.
+    
+  Rewrite the following golf course description as if you're a seasoned golf writer who’s played hundreds of courses across the country. Your tone should be clear, knowledgeable, and a bit dry-witted — not fluffy, not overly poetic. You know what matters to golfers: layout, history, conditions, and how the course plays.
 
-      Course name: #{@course.name}
-      Location: #{@course.locations.first&.name || 'Unknown location'}
+  Course name: #{@course.name}
+  Location: #{@course.locations.first&.name || 'Unknown location'}
 
-      Existing description:
-      #{course_info['description']}
+  Existing description:
+  #{course_info['description']}
 
-      Background info (for inspiration only — do not repeat as-is):
-      #{summary}
+  Additional background (for reference only — do not repeat directly):
+  #{summary}
 
-      Writing goal:
-      Capture what makes this course unique, fun, and a classic New York City public golf experience.
-
-      Constraints:
-      - Include 1–2 historical facts from the background info
-      - Mention at least one notable hole
-      - Include one playing tip for first-time players
-      - Keep the tone conversational but informative
-      - Length: 150–200 words
-    PROMPT
-
+  Guidelines:
+  - Open with a strong detail or insight that would stand out to an experienced golfer
+  - Reference 1–2 historical facts only if they're meaningful or add context
+  - Highlight at least one memorable or challenging hole
+  - Include one useful playing tip for first-timers
+  - Avoid hype — write like someone who knows the course, not someone trying to sell it
+  - Length: 150–200 words
+PROMPT
     response = @client.chat(
       parameters: {
         model: MODEL,

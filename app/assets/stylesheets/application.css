@@ -20,3 +20,50 @@
   width: 100%;
   background-color: #f0f0f0;
 }
+
+/* Custom marker styles */
+.custom-marker {
+  transition: transform 0.2s ease-in-out;
+}
+
+.custom-marker:hover {
+  transform: scale(1.2);
+}
+
+.location-marker {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.course-marker {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Highlight effect for markers */
+.highlighted-marker {
+  transform: scale(1.2);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Info window styles */
+.gm-style .gm-style-iw-c {
+  padding: 0 !important;
+  max-height: none !important;
+  box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);
+  border-radius: 8px !important;
+}
+
+.gm-style .gm-style-iw-d {
+  max-height: none !important;
+}
+
+.gm-style-iw-d::-webkit-scrollbar { 
+  display: none;
+}
+
+.gm-ui-hover-effect {
+  display: none !important;
+}
+
+.gm-style-iw-tc, .gm-style-iw-tc:after {
+  display: none !important;
+}

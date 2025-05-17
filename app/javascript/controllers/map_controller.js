@@ -159,7 +159,7 @@ export default class extends Controller {
           content: infoContent,
           maxWidth: 320,
           pixelOffset: new google.maps.Size(0, -5),
-          disableAutoPan: true, // Ensure this is active
+          disableAutoPan: true,
           ariaLabel: markerData.name
         });
         
@@ -169,19 +169,40 @@ export default class extends Controller {
         let marker;
         
         if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+          // Create custom marker content based on type
+          const markerContent = document.createElement('div');
+          markerContent.className = 'custom-marker';
+          
+          if (markerData.type === 'location') {
+            markerContent.innerHTML = `
+              <div class="location-marker">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="16" cy="16" r="16" fill="#355E3B"/>
+                  <circle cx="16" cy="16" r="8" fill="white"/>
+                </svg>
+              </div>
+            `;
+          } else {
+            markerContent.innerHTML = `
+              <div class="course-marker">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#E53E3E"/>
+                  <path d="M2 17L12 22L22 17" stroke="#E53E3E" stroke-width="2"/>
+                </svg>
+              </div>
+            `;
+          }
+          
           // Use the new AdvancedMarkerElement
           marker = new google.maps.marker.AdvancedMarkerElement({
             map: this.map,
             position: position,
-            title: markerData.name
+            title: markerData.name,
+            content: markerContent
           });
           
           // For advanced markers, we need to add click listeners differently
           marker.addListener('click', () => {
-            // Save current map center and zoom
-            // const currentCenter = this.map.getCenter(); // Not needed, we pan to new state
-            // const currentZoom = this.map.getZoom(); // Not needed
-            
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
@@ -203,26 +224,31 @@ export default class extends Controller {
               // Then, after a short delay for panTo to settle, adjust for InfoWindow visibility
               setTimeout(() => {
                 this.panMapToShowInfoWindow(infoWindow);
-              }, 100); // Slightly increased delay for panTo animation
+              }, 100);
             });
             
             // Trigger marker click event
             this.markerClicked(markerData.id);
           });
         } else {
-          // Fall back to legacy Marker
+          // Fall back to legacy Marker with custom icon
+          const icon = {
+            url: markerData.type === 'location' 
+              ? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0iIzM1NUUzQiIvPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9IndoaXRlIi8+PC9zdmc+'
+              : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwxMiAxMkwyMiA3TDEyIDJaIiBmaWxsPSIjRTUzRTNFIi8+PHBhdGggZD0iTTIgMTdMMTIgMjJMMjIgMTciIHN0cm9rZT0iI0U1M0UzRSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+',
+            scaledSize: new google.maps.Size(32, 32),
+            anchor: new google.maps.Point(16, 16)
+          };
+          
           marker = new google.maps.Marker({
             position: position,
             map: this.map,
-            title: markerData.name
+            title: markerData.name,
+            icon: icon
           });
           
           // Add click listener
           marker.addListener('click', () => {
-            // Save current map center and zoom
-            // const currentCenter = this.map.getCenter(); // Not needed
-            // const currentZoom = this.map.getZoom(); // Not needed
-            
             // Close all info windows first
             this.infoWindows.forEach(info => info.close());
             
@@ -244,7 +270,7 @@ export default class extends Controller {
               // Then, after a short delay for panTo to settle, adjust for InfoWindow visibility
               setTimeout(() => {
                 this.panMapToShowInfoWindow(infoWindow);
-              }, 100); // Slightly increased delay for panTo animation
+              }, 100);
             });
             
             // Trigger marker click event
@@ -324,7 +350,7 @@ export default class extends Controller {
     if (markerData.type === 'course') {
       // Create a styled info window for courses
       return `
-        <div style="width: 280px; padding: 0; margin: 0; /* overflow: visible; */ font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+        <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/courses/${markerData.id}'">
           <div style="height: 140px; overflow: hidden; position: relative;">
             <img src="${markerData.image_url}" alt="${markerData.name}" 
@@ -357,7 +383,7 @@ export default class extends Controller {
               </tr>
               <tr>
                 <td style="padding-bottom: 4px;"><strong>Yardage:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.yardage} yards</td>
+                <td style="padding-bottom: 4px;">${markerData.yardage}</td>
               </tr>
             </table>
           </div>
@@ -366,7 +392,7 @@ export default class extends Controller {
     } else {
       // Create a styled info window for locations
       return `
-        <div style="width: 280px; padding: 0; margin: 0; /* overflow: visible; */ font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
+        <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/locations/${markerData.id}'">
           <div style="height: 140px; overflow: hidden; position: relative;">
             <img src="${markerData.image_url}" alt="${markerData.name}" 
