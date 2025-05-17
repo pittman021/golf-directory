@@ -1,5 +1,5 @@
 namespace :db do
-  desc "Export full database data for production import"
+  desc "Export database data (use TYPE=production for production-ready dump)"
   task export: :environment do
     # Check if we have a valid database connection
     begin
@@ -10,12 +10,13 @@ namespace :db do
       exit 1
     end
 
-    puts "\n=== Exporting Full Database Data ==="
+    puts "\n=== Exporting Database Data ==="
     
     # Create output directory if it doesn't exist
     FileUtils.mkdir_p(Rails.root.join('tmp'))
     timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
-    dump_file = Rails.root.join('tmp', "golf_directory_#{timestamp}.dump")
+    dump_type = ENV['TYPE'] == 'production' ? 'dev_to_prod' : 'golf_directory'
+    dump_file = Rails.root.join('tmp', "#{dump_type}_#{timestamp}.dump")
     
     # Get database configuration
     config = ActiveRecord::Base.connection_db_config.configuration_hash
@@ -46,15 +47,33 @@ namespace :db do
     puts "Running: #{cmd}"
     
     if system(cmd)
-      puts "\n=== Export Complete ==="
+      puts "\n✅ Export Complete"
       puts "Database dump saved to: #{dump_file}"
-      puts 
-      puts "To import to production:"
-      puts "1. Copy this file to your production server"
-      puts "2. Run: pg_restore -d <database_name> #{File.basename(dump_file)}"
-      puts "   or within Rails: rails dbconsole production < #{File.basename(dump_file)}"
+      
+      if ENV['TYPE'] == 'production'
+        puts "\n=== Next Step: Upload and Restore to Production ==="
+        puts <<~INSTRUCTIONS
+
+          1. Copy the file to your production server:
+
+             scp #{dump_file} your-server:/tmp/
+
+          2. SSH into your production server and run:
+
+             pg_restore --verbose --clean --no-acl --no-owner \\
+               --dbname="postgres://[username]:[password]@[host]/[db_name]" \\
+               /tmp/#{File.basename(dump_file)}
+
+          Replace the values above with your actual Render credentials.
+
+        INSTRUCTIONS
+      else
+        puts "\nTo import this dump:"
+        puts "pg_restore -d <database_name> #{File.basename(dump_file)}"
+        puts "or within Rails: rails dbconsole < #{File.basename(dump_file)}"
+      end
     else
-      puts "\nError: Database export failed"
+      puts "\n❌ Error: Database export failed"
       exit 1
     end
   end
