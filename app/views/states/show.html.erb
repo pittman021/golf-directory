@@ -133,6 +133,9 @@
       <a href="#information" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
         Information
       </a>
+      <a href="#destinations" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+        Destinations
+      </a>
       <a href="#courses" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
         Courses
       </a>
@@ -394,6 +397,38 @@
           <% end %>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Destinations Section -->
+  <div id="destinations" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Destinations in <%= @state.name %></h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @locations.each do |location| %>
+        <div class="location-card bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="relative h-48">
+            <% if location.image_url.present? %>
+              <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: location.name %>
+            <% else %>
+              <%= image_tag 'placeholder_golf_course.jpg', class: "w-full h-full object-cover", alt: "Placeholder" %>
+            <% end %>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+              <h3 class="text-white text-xl font-semibold"><%= location.name %></h3>
+              <div class="text-white/90 text-sm mt-1">
+                <%= pluralize(location.courses.count, 'course') %> • Avg: <%= number_to_currency(location.avg_green_fee, precision: 0) %>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex justify-between items-center">
+              <div class="text-sm text-gray-600">
+                Est. Trip: <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
+              </div>
+              <%= link_to "View Destination", location_path(location), class: "text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 
