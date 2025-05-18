@@ -204,10 +204,12 @@
       <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           <% @courses.each do |course| %>
-            <div class="course-card" 
-                 data-course-id="<%= course.id %>"
-                 data-controller="course-card"
-                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+            <%= link_to course_path(course), class: "course-card", 
+                data: {
+                  course_id: course.id,
+                  controller: "course-card",
+                  action: "mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                } do %>
               <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="relative h-40">
                   <% if course.image_url.present? %>
@@ -224,7 +226,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            <% end %>
           <% end %>
         </div>
       </div>
@@ -235,10 +237,12 @@
           <!-- Mobile View -->
           <div class="block lg:hidden">
             <% @courses.each do |course| %>
-              <div class="course-card" 
-                   data-course-id="<%= course.id %>"
-                   data-controller="course-card"
-                   data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+              <%= link_to course_path(course), class: "course-card", 
+                  data: {
+                    course_id: course.id,
+                    controller: "course-card",
+                    action: "mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                  } do %>
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div class="relative h-40">
                     <% if course.image_url.present? %>
@@ -255,7 +259,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              <% end %>
             <% end %>
           </div>
 

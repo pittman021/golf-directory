@@ -237,7 +237,7 @@
         <div data-view-toggle-target="cardView" class="h-full">
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             <% @courses.each do |course| %>
-              <div class="course-card bg-white rounded-lg shadow-sm overflow-hidden">
+              <%= link_to course_path(course), class: "course-card bg-white rounded-lg shadow-sm overflow-hidden" do %>
                 <div class="relative h-36">
                   <% if course.image_url.present? %>
                     <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
@@ -253,24 +253,7 @@
                   </div>
                 </div>
                 <div class="p-3">
-                  <div class="flex items-center justify-between gap-2 mb-2">
-                    <!-- Par -->
-                    <div class="flex items-center text-gray-600">
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span class="text-xs">Par <%= course.par %></span>
-                    </div>
-                    
-                    <!-- Number of Holes -->
-                    <div class="flex items-center text-gray-600">
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      <span class="text-xs"><%= course.number_of_holes %></span>
-                    </div>
-                    
-                    <!-- Course Type -->
+                  <div class="flex justify-between items-center">
                     <div class="flex items-center text-gray-600">
                       <% if course.course_type == 'public' %>
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,10 +282,9 @@
                         <span class="ml-1 text-xs text-gray-600">(<%= course.reviews.count %>)</span>
                       </div>
                     <% end %>
-                    <%= link_to "View", course_path(course), class: "inline-block text-xs text-blue-600 hover:text-blue-800 font-medium" %>
                   </div>
                 </div>
-              </div>
+              <% end %>
             <% end %>
           </div>
         </div>

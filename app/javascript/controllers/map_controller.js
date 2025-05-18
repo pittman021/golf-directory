@@ -10,6 +10,7 @@ export default class extends Controller {
   
   connect() {
     console.log("Map controller connected");
+    console.log("Google Maps API status:", typeof google !== 'undefined' ? 'loaded' : 'not loaded');
     
     // Set a timer to check if Google Maps API is loaded
     this.checkGoogleMapsLoaded();
@@ -18,8 +19,11 @@ export default class extends Controller {
   checkGoogleMapsLoaded() {
     // Check if Google Maps is already loaded
     if (typeof google !== 'undefined' && google.maps) {
+      console.log("Google Maps API is ready");
+      console.log("Advanced Markers available:", !!(google.maps.marker && google.maps.marker.AdvancedMarkerElement));
       this.initializeMap();
     } else {
+      console.log("Google Maps API not ready, waiting...");
       // Add a listener for when Google Maps API is loaded
       document.addEventListener('google-maps-callback', this.initializeMap.bind(this));
       
@@ -127,21 +131,23 @@ export default class extends Controller {
   
   addMarkers() {
     try {
+      console.log("Starting to add markers...");
       const markersData = this.markersValue;
+      console.log("Markers data:", markersData);
       const bounds = new google.maps.LatLngBounds();
-      
-      console.log(`Adding ${markersData.length} markers`);
       
       // Store markers and info windows
       this.markers = [];
       this.infoWindows = [];
       
       markersData.forEach((markerData, index) => {
+        console.log(`Processing marker ${index}:`, markerData);
+        console.log(`Marker type: ${markerData.type}`);
+        
         // Ensure latitude and longitude are valid numbers
         const latitude = parseFloat(markerData.latitude);
         const longitude = parseFloat(markerData.longitude);
 
-        console.log(latitude, longitude);
         
         // Skip invalid coordinates
         if (isNaN(latitude) || isNaN(longitude)) {
@@ -169,11 +175,13 @@ export default class extends Controller {
         let marker;
         
         if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+          console.log("Using Advanced Marker API");
           // Create custom marker content based on type
           const markerContent = document.createElement('div');
           markerContent.className = 'custom-marker';
           
           if (markerData.type === 'location') {
+            console.log("Creating location marker");
             markerContent.innerHTML = `
               <div class="location-marker">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,11 +193,21 @@ export default class extends Controller {
           } else {
             markerContent.innerHTML = `
               <div class="course-marker">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#E53E3E"/>
-                  <path d="M2 17L12 22L22 17" stroke="#E53E3E" stroke-width="2"/>
-                </svg>
-              </div>
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none">
+                  <path
+                    d="M16 0C9.37 0 4 5.37 4 12c0 7.25 10.4 19.33 11.1 20.17a1 1 0 0 0 1.8 0C17.6 31.33 28 19.25 28 12c0-6.63-5.37-12-12-12Z"
+                    fill="#E53E3E"
+                  />
+                  <circle cx="16" cy="12" r="5" fill="white"/>
+                  <path
+                    d="M17 9l4 2-4 2v-4Z"
+                    fill="#1A202C"
+                  />
+                  <line x1="17" y1="9" x2="17" y2="15" stroke="#1A202C" stroke-width="1.5"/>
+                </g>
+              </svg>
+            </div>
             `;
           }
           
