@@ -11,13 +11,13 @@ namespace :golf do
   desc "Seed golf courses for a state using multiple centerpoints"
   task :get_courses_by_state, [:state_name] => :environment do |_, args|
     state = args[:state_name]
-    unless STATE_COORDINATES[state]
-      puts "❌ No coordinates found for #{state}. Add it to STATE_COORDINATES."
+    unless Data::StateCoordinates[state]
+      puts "❌ No coordinates found for #{state}. Add it to Data::StateCoordinates."
       exit
     end
 
     puts "📍 Starting seed for #{state}..."
-    STATE_COORDINATES[state].each_with_index do |coord, i|
+    Data::StateCoordinates[state].each_with_index do |coord, i|
       puts "🔄 Point ##{i + 1} (#{coord[:lat]}, #{coord[:lng]})"
       FindCoursesByCoordinatesService.new(
         lat: coord[:lat],
@@ -30,7 +30,7 @@ namespace :golf do
 
   desc "Seed courses for all 50 states"
   task :get_courses_for_all_states => :environment do
-    STATE_COORDINATES.each_key do |state|
+    Data::StateCoordinates.each_key do |state|
       Rake::Task["golf:get_courses_by_state"].invoke(state)
       Rake::Task["golf:get_courses_by_state"].reenable
     end
