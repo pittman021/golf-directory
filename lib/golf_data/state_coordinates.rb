@@ -1,4 +1,4 @@
-module Data
+module GolfData
   StateCoordinates = {
     # "Alabama" => [ { lat: 32.8067, lng: -86.7911 } ],  # State center
     # "Alaska" => [ { lat: 64.2008, lng: -149.4937 } ],
