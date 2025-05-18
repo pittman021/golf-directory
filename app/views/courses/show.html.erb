@@ -1,262 +1,287 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <!-- Course Header with Image -->
-  <div class="bg-white shadow rounded-lg overflow-hidden">
-    <!-- Featured Image -->
-    <div class="w-full h-64 relative">
-      <%= image_tag @course.image_url, 
-          class: "w-full h-64 object-cover",
-          alt: "#{@course.name} image" %>
-      <!-- Gradient Overlay -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-      
-      <!-- Course Title Overlay -->
-      <div class="absolute bottom-0 left-0 w-full p-6">
-        <div class="flex items-center">
-          <%= link_to location_path(@course.locations.first), class: "text-sm text-white hover:text-gray-200" do %>
-            ← Back to <%= @course.locations.first.name %>
+<!-- Course Show Page - Updated Layout -->
+<style>
+  /* Scroll behavior for smooth navigation */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Add scroll margin to account for the sticky header */
+  #details, #fees, #nearby, #photos {
+    scroll-margin-top: 60px;
+  }
+  
+  /* Sticky navigation styling */
+  .sticky-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Active state for navigation */
+  .nav-link.active {
+    background-color: rgba(53, 94, 59, 0.1);
+    font-weight: 600;
+  }
+</style>
+
+<div class="bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <% if @course.locations.any? %>
+      <%= link_to location_path(@course.locations.first), class: "text-sm text-gray-500 hover:underline" do %>
+        ← Back to <%= @course.locations.first.name %>
+      <% end %>
+    <% end %>
+
+    <!-- Header with Image and Info -->
+    <div class="flex flex-col lg:flex-row gap-6 mt-4">
+      <!-- Left: Image -->
+      <div class="w-full lg:w-1/2 rounded-lg overflow-hidden">
+        <%= image_tag @course.image_url, class: "object-cover w-full h-64", alt: "#{@course.name}" %>
+      </div>
+
+      <!-- Right: Info -->
+      <div class="flex-1 space-y-4">
+        <h1 class="text-3xl font-bold text-gray-900"><%= @course.name %></h1>
+
+        <div class="flex flex-wrap items-center gap-4">
+          <span class="text-gray-700 text-base"> <%= @course.number_of_holes %> Holes </span>
+          <span class="text-gray-700 text-base"> Par <%= @course.par %> </span>
+          <% if @course.yardage.present? %>
+            <span class="text-gray-700 text-base"><%= @course.yardage %> yds</span>
           <% end %>
         </div>
-        <h1 class="mt-2 text-3xl font-bold text-white drop-shadow-md"><%= @course.name %></h1>
-        <div class="flex items-center mt-2">
-          <p class="text-sm text-white/90"><%= @course.course_type.humanize %></p>
-          <span class="inline-flex items-center ml-4 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            <%= @course.green_fee_range %>
+
+        <div class="flex flex-wrap gap-2">
+          <% @course.course_tags.each do |tag| %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <%= tag.titleize %>
+            </span>
+          <% end %>
+        </div>
+
+        <div class="mt-4">
+          <span class="block text-sm text-gray-600 mb-1">Est. Green Fee</span>
+          <span class="text-3xl font-extrabold text-[#355E3B]">
+            <%= number_to_currency(@course.green_fee) %>
           </span>
+          <% if @course.green_fee_range.present? %>
+            <p class="text-sm text-gray-500">(<%= @course.green_fee_range %>)</p>
+          <% end %>
         </div>
       </div>
     </div>
 
-    <!-- Course Details -->
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-      <dl class="sm:divide-y sm:divide-gray-200">
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Description</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= @course.description %>
-          </dd>
-        </div>
-
-        <% if @course.summary.present? %>
-          <% if @course.summary['history'].present? %>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">History</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                <%= @course.summary['history'] %>
-              </dd>
-            </div>
-          <% end %>
-
-          <% if @course.summary['notable_holes'].present? %>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Notable Holes</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                <ul class="list-disc pl-5 space-y-2">
-                  <% @course.summary['notable_holes'].each do |hole| %>
-                    <li><%= hole %></li>
-                  <% end %>
-                </ul>
-              </dd>
-            </div>
-          <% end %>
-
-          <% if @course.summary['designers'].present? %>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Designers</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                <ul class="list-disc pl-5 space-y-2">
-                  <% @course.summary['designers'].each do |designer| %>
-                    <li><%= designer %></li>
-                  <% end %>
-                </ul>
-              </dd>
-            </div>
-          <% end %>
-
-          <% if @course.summary['tournament_history'].present? %>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Tournament History</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                <ul class="list-disc pl-5 space-y-2">
-                  <% @course.summary['tournament_history'].each do |tournament| %>
-                    <li><%= tournament %></li>
-                  <% end %>
-                </ul>
-              </dd>
-            </div>
-          <% end %>
-
-          <% if @course.summary['playing_tips'].present? %>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Playing Tips</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                <ul class="list-disc pl-5 space-y-2">
-                  <% @course.summary['playing_tips'].each do |tip| %>
-                    <li><%= tip %></li>
-                  <% end %>
-                </ul>
-              </dd>
-            </div>
-          <% end %>
-        <% end %>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Course Details</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <div class="flex flex-wrap gap-4">
-              <!-- Par -->
-              <div class="flex items-center text-gray-600">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Par <%= @course.par %></span>
-              </div>
-              
-              <!-- Number of Holes -->
-              <div class="flex items-center text-gray-600">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <span><%= @course.number_of_holes %> Holes</span>
-              </div>
-              
-              <!-- Course Type -->
-              <div class="flex items-center text-gray-600">
-                <% if @course.course_type == 'public' %>
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                <% elsif @course.course_type == 'private' %>
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                <% else %>
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                <% end %>
-                <span><%= @course.course_type.humanize %></span>
-              </div>
-              
-              <% if @course.yardage.present? %>
-                <div class="flex items-center text-gray-600">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  <span><%= @course.yardage %> yards</span>
-                </div>
-              <% end %>
-            </div>
-          </dd>
-        </div>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Course Features</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <div class="flex flex-wrap gap-2">
-              <% @course.course_tags.each do |tag| %>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  <%= tag.titleize %>
-                </span>
-              <% end %>
-            </div>
-          </dd>
-        </div>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Website</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= link_to @course.website_url, @course.website_url, class: "text-indigo-600 hover:text-indigo-500", target: "_blank" if @course.website_url.present? %>
-          </dd>
-        </div>
-
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Green Fee</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <span class="font-medium text-lg text-green-700"><%= number_to_currency(@course.green_fee) %></span>
-            <% if @course.green_fee_range.present? %>
-              <span class="text-gray-500 ml-2">(<%= @course.green_fee_range %>)</span>
-            <% end %>
-          </dd>
-        </div>
-
-        <% if @course.notes.present? %>
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Notes</dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 bg-amber-50 p-3 rounded-md">
-            <%= @course.notes %>
-          </dd>
-        </div>
-        <% end %>
-      </dl>
-    </div>
-  </div>
-
-  <!-- Reviews Section -->
-  <div class="mt-8">
-    <div class="bg-white shadow sm:rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <div class="flex justify-between items-center">
-          <h2 class="text-lg font-medium text-gray-900">Reviews</h2>
-          <% if user_signed_in? %>
-            <button data-modal-target="review-modal" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Write a Review
-            </button>
-          <% else %>
-            <%= link_to "Sign in to Review", new_user_session_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200" %>
-          <% end %>
-        </div>
-
-        <!-- Review Stats -->
-        <div class="mt-6 border-t border-b border-gray-200 py-6">
-          <div class="flex items-center">
-            <div class="flex-1">
-              <div class="flex items-center">
-                <% @course.average_rating.to_i.times do %>
-                  <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                <% end %>
-                <p class="ml-2 text-sm text-gray-900">
-                  <%= @course.average_rating.to_f.round(1) %> out of 5
-                </p>
-              </div>
-              <p class="mt-1 text-sm text-gray-500"><%= pluralize(@reviews.count, 'review') %></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Review List -->
-        <div class="mt-6 space-y-6">
-          <% @reviews.each do |review| %>
-            <div class="flex space-x-4">
-              <div class="flex-1">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-sm font-medium text-gray-900"><%= review.user.username %></h3>
-                  <p class="text-sm text-gray-500"><%= review.played_on.strftime("%B %d, %Y") %></p>
-                </div>
-                <div class="mt-1 flex items-center">
-                  <% review.rating.times do %>
-                    <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                  <% end %>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Course condition: <%= review.course_condition %></p>
-                <p class="mt-2 text-sm text-gray-600"><%= review.comment %></p>
-              </div>
-            </div>
-          <% end %>
-        </div>
+    <!-- Sticky Navigation -->
+    <div class="sticky-nav mt-8 border-t border-gray-200 pt-4">
+      <div class="flex justify-center space-x-8">
+        <a href="#overview" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Overview
+          
+        </a>
+        <a href="#course-info" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Course Info
+        </a>
+        <a href="#notable-holes" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Notable Holes
+        </a>
+        <a href="#playing-tips" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Playing Tips
+        </a>
+        <a href="#nearby" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Nearby
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Review Modal -->
-<% if user_signed_in? %>
-  <div id="review-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-    <div class="bg-white rounded-lg overflow-hidden shadow-xl max-w-lg w-full">
-      <%= render 'reviews/form', course: @course, review: @review %>
+<!-- Content Sections -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Overview Section -->
+  <div id="overview" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Course Overview</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <!-- Course Description -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <div class="prose max-w-none text-gray-700">
+          <%= simple_format(@course.description) %>
+        </div>
+      </div>
     </div>
   </div>
-<% end %>
+
+  <!-- Course Info Section -->
+  <div id="course-info" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Course Information</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <!-- Basic Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 pb-6 border-b border-gray-200">
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 mb-1">Course Type</h4>
+          <p class="text-gray-700"><%= @course.course_type.titleize %></p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 mb-1">Holes</h4>
+          <p class="text-gray-700"><%= @course.number_of_holes %></p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 mb-1">Par</h4>
+          <p class="text-gray-700"><%= @course.par %></p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 mb-1">Yardage</h4>
+          <p class="text-gray-700"><%= @course.yardage %> yards</p>
+        </div>
+      </div>
+
+      <!-- Course Designers -->
+      <% if @course.summary&.dig("designers")&.any? %>
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-2">Course Designers</h3>
+          <div class="flex flex-wrap gap-2">
+            <% @course.summary["designers"].each do |designer| %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-lg font-medium bg-gray-100 text-gray-800">
+                <%= designer %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Tournament History -->
+      <% if @course.summary&.dig("tournament_history")&.any? %>
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-2">Tournament History</h3>
+          <div class="prose max-w-none text-gray-700">
+            <ul class="list-disc pl-5 space-y-2">
+              <% @course.summary["tournament_history"].each do |history| %>
+                <li class="text-lg"><%= history %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Additional Notes -->
+      <% if @course.notes.present? %>
+        <div>
+          <h3 class="text-2xl font-semibold text-gray-900 mb-2">Additional Notes</h3>
+          <div class="prose max-w-none text-gray-700 text-lg">
+            <%= simple_format(@course.notes) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Notable Holes Section -->
+  <div id="notable-holes" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Notable Holes</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <% if @course.summary&.dig("notable_holes")&.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <% @course.summary["notable_holes"].each do |hole| %>
+            <div class="bg-gray-50 rounded-lg p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#355E3B] text-white font-semibold text-lg">
+                  <%= hole["hole_number"] %>
+                </span>
+                <h3 class="text-xl font-semibold text-gray-900"><%= hole["course_name"] %></h3>
+              </div>
+              <p class="text-gray-700 text-lg"><%= hole["description"] %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-600 text-lg">No notable holes information available.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Playing Tips Section -->
+  <div id="playing-tips" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Playing Tips</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <% if @course.summary&.dig("playing_tips")&.any? %>
+        <div class="prose max-w-none text-gray-700">
+          <ul class="list-disc pl-5 space-y-4">
+            <% @course.summary["playing_tips"].each do |tip| %>
+              <li class="text-lg"><%= tip %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% else %>
+        <p class="text-gray-600 text-lg">No playing tips available.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Nearby Section -->
+  <div id="nearby" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Nearby Courses</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <% if @course.locations.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% @course.locations.first.courses.where.not(id: @course.id).limit(6).each do |nearby_course| %>
+            <%= link_to course_path(nearby_course), class: "block group" do %>
+              <div class="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                <%= image_tag nearby_course.image_url, class: "w-full h-48 object-cover", alt: nearby_course.name %>
+                <div class="p-4">
+                  <h3 class="text-lg font-semibold text-gray-900 group-hover:text-[#355E3B]"><%= nearby_course.name %></h3>
+                  <div class="mt-2 flex items-center justify-between">
+                    <span class="text-lg text-gray-600"><%= nearby_course.number_of_holes %> holes</span>
+                    <span class="text-lg font-bold text-[#355E3B]"><%= number_to_currency(nearby_course.green_fee) %></span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-600 text-lg">No nearby courses found.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for highlighting active section -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements to observe
+    const sections = document.querySelectorAll('#overview, #course-info, #notable-holes, #playing-tips, #nearby');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Create an intersection observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // If section is in view
+        if (entry.isIntersecting) {
+          // Get the corresponding nav link
+          const targetId = entry.target.id;
+          const targetLink = document.querySelector(`a[href="#${targetId}"]`);
+          
+          // Remove active class from all links
+          navLinks.forEach(link => link.classList.remove('active'));
+          
+          // Add active class to current link
+          if (targetLink) {
+            targetLink.classList.add('active');
+          }
+        }
+      });
+    }, {
+      rootMargin: '-80px 0px -80% 0px', // Adjust rootMargin to consider top navbar and trigger earlier
+      threshold: 0
+    });
+    
+    // Observe each section
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  });
+</script>
+

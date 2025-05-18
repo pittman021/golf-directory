@@ -36,7 +36,6 @@ class Location < ApplicationRecord
   }
 
   before_save :calculate_estimated_trip_cost
-  after_save :update_avg_green_fee
   after_create :update_tags_from_courses!
 
   VIBES = %w[coastal scenic\ views resort\ style desert\ golf lake\ access mountains]
@@ -183,6 +182,10 @@ class Location < ApplicationRecord
   def update_tags_from_courses!
     combined = (manual_tags + derived_tags).uniq
     update_column(:tags, combined)
+  end
+
+  def update_avg_green_fee
+    update_column(:avg_green_fee, courses.average(:green_fee).to_i)
   end
 
   def tags_for(namespace)

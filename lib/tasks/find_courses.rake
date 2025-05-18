@@ -1,87 +1,38 @@
 # This file contains Rake tasks for finding and processing golf courses by location.
 # 
 # Tasks included:
-# - golf:find_las_vegas_courses: Finds and processes golf courses in Las Vegas
-# - golf:find_courses_for_location[location_name]: Finds and processes golf courses for a specified location
-#
-# These tasks use the FindCoursesByLocationService to find courses, update their information,
-# and calculate statistics like average green fees and estimated trip costs.
+
+# - golf:get_courses_for_all_states: Finds and processes golf courses for all 50 states
+# - golf:get_courses_by_state[state_name]: Finds and processes golf courses for a specified state
+
+require_relative "../data/state_coordinates"
 
 namespace :golf do
-  desc "Find golf courses in Las Vegas"
-  task find_las_vegas_courses: :environment do
-    puts "Starting to find golf courses in Las Vegas..."
-    
-    # Create or find Las Vegas location
-    location = Location.find_or_create_by!(
-      name: "Las Vegas",
-      state: "Nevada",
-      country: "USA",
-      region: "West"
-    ) do |loc|
-      # Set default coordinates for Las Vegas
-      loc.latitude = 36.1699
-      loc.longitude = -115.1398
-    end
-    
-    puts "\nProcessing location: #{location.name}"
-    
-    # Use FindCoursesByLocationService to find and enrich courses
-    service = FindCoursesByLocationService.new(location)
-    service.find_and_enrich
-    
-    # Update location statistics
-    location.update_avg_green_fee
-    location.calculate_estimated_trip_cost
-    
-    puts "\nFound #{location.courses.count} courses in Las Vegas:"
-    location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Green Fee: $#{course.green_fee || 'N/A'})"
-    end
-    
-    puts "\nLocation Statistics:"
-    puts "- Average Green Fee: $#{location.avg_green_fee || 'N/A'}"
-    puts "- Estimated Trip Cost: $#{location.estimated_trip_cost || 'N/A'}"
-    
-    puts "\nCourse search completed!"
-  end
-
-  desc "Find golf courses for a specific location"
-  task :find_courses_for_location, [:location_name] => :environment do |t, args|
-    if args[:location_name].blank?
-      puts "Please specify a location name. Usage: rails golf:find_courses_for_location[location_name]"
+  desc "Seed golf courses for a state using multiple centerpoints"
+  task :get_courses_by_state, [:state_name] => :environment do |_, args|
+    state = args[:state_name]
+    unless STATE_COORDINATES[state]
+      puts "❌ No coordinates found for #{state}. Add it to STATE_COORDINATES."
       exit
     end
 
-    puts "Starting to find golf courses for #{args[:location_name]}..."
-    
-    # Find the location
-    location = Location.find_by(name: args[:location_name])
-    
-    if location.nil?
-      puts "Location '#{args[:location_name]}' not found in the database."
-      exit
+    puts "📍 Starting seed for #{state}..."
+    STATE_COORDINATES[state].each_with_index do |coord, i|
+      puts "🔄 Point ##{i + 1} (#{coord[:lat]}, #{coord[:lng]})"
+      FindCoursesByCoordinatesService.new(
+        lat: coord[:lat],
+        lng: coord[:lng],
+        state: state
+      ).find_and_seed
     end
-    
-    puts "\nProcessing location: #{location.name}"
-    
-    # Use FindCoursesByLocationService to find and enrich courses
-    service = FindCoursesByLocationService.new(location)
-    service.find_and_enrich
-    
-    # Update location statistics
-    location.update_avg_green_fee
-    location.calculate_estimated_trip_cost
-    
-    puts "\nFound #{location.courses.count} courses in #{location.name}:"
-    location.courses.each do |course|
-      puts "- #{course.name} (Rating: #{course.average_rating || 'N/A'}, Green Fee: $#{course.green_fee || 'N/A'})"
-    end
-    
-    puts "\nLocation Statistics:"
-    puts "- Average Green Fee: $#{location.avg_green_fee || 'N/A'}"
-    puts "- Estimated Trip Cost: $#{location.estimated_trip_cost || 'N/A'}"
-    
-    puts "\nCourse search completed!"
+    puts "✅ Finished seeding courses for #{state}!"
   end
-end 
+
+  desc "Seed courses for all 50 states"
+  task :get_courses_for_all_states => :environment do
+    STATE_COORDINATES.each_key do |state|
+      Rake::Task["golf:get_courses_by_state"].invoke(state)
+      Rake::Task["golf:get_courses_by_state"].reenable
+    end
+  end
+end

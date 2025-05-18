@@ -171,7 +171,7 @@ class CourseEnrichmentService
         rated_places
       else
         puts "Error: #{data['status']}"
-        nil
+        nfil
       end
     else
       puts "HTTP Error: #{response.code} - #{response.message}"
