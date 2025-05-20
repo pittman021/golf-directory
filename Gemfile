@@ -97,6 +97,6 @@ end
 
 gem 'ruby-openai'
 gem 'activestorage-cloudinary-service'
-gem 'friendly_id', '~> 5.4.0'
+gem 'friendly_id', '~> 5.5.1'
 gem 'sitemap_generator'
 gem 'fuzzy_match'
