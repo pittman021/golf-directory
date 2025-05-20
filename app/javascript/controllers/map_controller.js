@@ -9,8 +9,7 @@ export default class extends Controller {
   }
   
   connect() {
-    console.log("Map controller connected");
-    console.log("Google Maps API status:", typeof google !== 'undefined' ? 'loaded' : 'not loaded');
+  
     
     // Set a timer to check if Google Maps API is loaded
     this.checkGoogleMapsLoaded();
@@ -19,11 +18,10 @@ export default class extends Controller {
   checkGoogleMapsLoaded() {
     // Check if Google Maps is already loaded
     if (typeof google !== 'undefined' && google.maps) {
-      console.log("Google Maps API is ready");
-      console.log("Advanced Markers available:", !!(google.maps.marker && google.maps.marker.AdvancedMarkerElement));
+  
       this.initializeMap();
     } else {
-      console.log("Google Maps API not ready, waiting...");
+   
       // Add a listener for when Google Maps API is loaded
       document.addEventListener('google-maps-callback', this.initializeMap.bind(this));
       
@@ -55,10 +53,8 @@ export default class extends Controller {
       const lng = this.longitudeValue || -95.7129;
       const zoom = 8;
       
-      console.log(`Map center: ${lat}, ${lng}`);
       
-      // Initialize the map on the element with the controller
-      this.element.style.height = '400px';
+      // Initialize the map on the element with the controller  
       this.map = new google.maps.Map(this.element, {
         center: { lat, lng },
         zoom: zoom,
@@ -370,7 +366,7 @@ export default class extends Controller {
       return `
         <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/courses/${markerData.id}'">
-          <div style="height: 140px; overflow: hidden; position: relative;">
+          <div style="height: 140px; overflow: hidden">
             <img src="${markerData.image_url}" alt="${markerData.name}" 
                  style="width: 100%; height: 100%; object-fit: cover;">
             <div style="position: absolute; top: 8px; right: 8px;">
@@ -413,8 +409,12 @@ export default class extends Controller {
         <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
              onclick="window.location.href='/locations/${markerData.id}'">
           <div style="height: 140px; overflow: hidden; position: relative;">
-            <img src="${markerData.image_url}" alt="${markerData.name}" 
-                 style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="${markerData.image_url}"
+              loading="lazy"
+              width="280"
+              height="140"
+              style="object-fit: cover; width: 280px; height: 140px;"
+              >
             <div style="position: absolute; top: 8px; right: 8px;">
               <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
                     onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>

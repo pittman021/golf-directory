@@ -221,6 +221,11 @@ class Location < ApplicationRecord
 
   private
 
+  def calculate_estimated_trip_cost
+    return unless avg_lodging_cost_per_night.present? && avg_green_fee.present?
+    self.estimated_trip_cost = avg_lodging_cost_per_night * 3 + avg_green_fee * 3
+  end
+
   def parse_summary
     return if summary.blank?
   

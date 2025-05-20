@@ -99,7 +99,8 @@
     <!-- Map and Cards Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
       <!-- Map View - Full width and more prominent -->
-      <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
+      <div class="relative w-full overflow-hidden">
+      <div class="relative w-full h-[calc(100vh-200px)] min-h-[600px] overflow-hidden bg-white rounded-lg shadow-sm sticky top-4"
            id="locations-map"
            data-controller="map location-hover"
            data-map-markers-value="<%= [
@@ -117,6 +118,7 @@
                info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
              }}
            ].to_json %>">
+      </div>
       </div>
       
       <!-- Location Cards Grid View -->

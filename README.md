@@ -1,57 +1,108 @@
-# README
+# Golf Directory - Find Your Perfect Golf Destination
 
-1. Problem Statement
-Groups of friends want to plan summer golf trips but struggle to find:
+A comprehensive platform for discovering and planning golf trips, featuring detailed information about courses, destinations, and trip planning tools.
 
-Unique golf course layouts with interesting features (elevation, forced carries, scenic views)
+## Features
 
-Affordable lodging options nearby
+### 1. Interactive Course & Destination Discovery
 
-Aggregated info on course quality, player reviews, and logistics
+#### Map-Based Exploration
+- Interactive maps showing golf courses and destinations
+- Visual representation of course locations with detailed markers
+- Real-time filtering and search capabilities
 
-A way to compare destinations easily
+#### Advanced Filtering
+- Filter by golf experience:
+  - 🎖️ Top 100 Courses
+  - 🏆 Tournament Courses
+  - 💰 Bucket List Destinations
+  - 🏞️ Multiple Course Locations
 
-2. Goals and Objectives
-Let users explore and compare golf destinations based on “uniqueness,” cost, and group-friendliness
+#### Course Categories & Tags
+- Experience tags: Top 100, PGA Event Host, Major Championship Host
+- Design & Style: Walkable, Desert, Mountain, Links, Resort
+- Amenities: Onsite Lodging, Nightlife, Multiple Courses, Caddie Service
+- Trip Types: Buddies Trip, Luxury, Remote, Weekend Trip, Group-Friendly
+- Layout Features: Water Holes, Elevation Changes, Tree Lined, Island Greens
 
-Include recommendations from past users and public reviews
+### 2. Detailed Course Information
 
-Provide course stats (elevation, par, difficulty, holes, etc.)
+#### Course Profiles
+- Comprehensive course details:
+  - Green fees and pricing
+  - Course type (public, private, resort)
+  - Number of holes and par information
+  - Total yardage
+  - Course layout and design features
+- High-quality course photos
+- User ratings and reviews
+- Course description and history
+- Notable holes and features
 
-Show nearby lodging with estimated prices
+#### Location Intelligence
+- Nearest airports and travel information
+- Best months to visit
+- Local weather patterns
+- Driving distances from major cities
 
-Allow users to create and share trip plans with friends
+### 3. Trip Planning Tools
 
-3. Key Features
-Course Explorer
-Filterable by state (ND, SD, MN, WI)
+#### Destination Insights
+- Detailed destination overviews
+- Golf experience descriptions
+- Local attractions and activities
+- Practical travel tips
+- Estimated trip costs
 
-Tag filters: “Unique Layout,” “Great Views,” “Budget-friendly,” “Group Lodging Nearby”
+#### Cost Estimation
+- Green fee comparisons
+- Lodging price ranges
+- Total trip cost calculations
+- Per-person cost breakdowns
 
-Course profiles with:
+#### Location Comparison
+- Side-by-side destination comparison
+- Course variety analysis
+- Price comparisons
+- Travel logistics comparison
 
-Photos
+### 4. User Experience Features
 
-Ratings
+#### Smart Search
+- Course name search with Google Places integration
+- Location-based course discovery
+- Tag-based filtering
+- State and region exploration
 
-Layout notes (e.g., elevation, forced carries)
+#### Rich Media
+- High-quality course and destination photos
+- Interactive course maps
+- Detailed hole descriptions
+- Course layout visualizations
 
-Comments from past trips
+#### Social Features
+- User reviews and ratings
+- Trip reports and stories
+- Course recommendations
+- Community insights
 
-Nearby lodging options and costs
+## Technical Features
 
-Drive time from major cities (e.g., Minneapolis, Fargo)
+- Google Places API integration for accurate course data
+- Cloudinary integration for image management
+- Interactive mapping with course/destination markers
+- Responsive design for all devices
+- Real-time filtering and search
+- Geolocation services for nearby course discovery
 
-Trip Planner
-Build a trip with a shortlist of courses and lodging
+## Getting Started
 
-View lodging and total estimated trip cost per person
+[Installation and setup instructions to be added]
 
-Save and share trip plans
+## Contributing
 
-Voting option for group members to weigh in on options
+[Contribution guidelines to be added]
 
-User Reviews & Stories
-Let users leave short comments and photos of past trips
+## License
 
-Highlight especially “unique” holes or features
+[License information to be added]

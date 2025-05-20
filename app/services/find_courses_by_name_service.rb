@@ -1,28 +1,25 @@
-# FindCoursesByLocationService
+# FindCoursesByNameService
 #
-# This service is responsible for finding golf courses near a specific location
-# using the Google Places API and enriching them with detailed information.
+# This service is responsible for finding golf courses by name
+# using the Google Places API.
 #
 # Process:
-# 1. Takes a location and finds nearby golf courses using Google Places API
-# 2. For each course found, uses GetCourseInfoService to gather detailed information
-# 3. Creates or updates course records in the database
+# 1. Takes a name and finds matching golf courses using Google Places API
+# 2. Creates or updates course records with detailed information
 #
 # Usage:
-#   service = FindCoursesByLocationService.new(location)
-#   service.find_and_enrich
+#   service = FindCoursesByNameService.new(name)
+#   courses = service.find_and_create
 # 
 # Note: This service requires:
-# - A valid location record in the database
 # - Google Places API credentials
-# - OpenAI API credentials
 
-class FindCoursesByLocationService
-  BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+class FindCoursesByNameService
+  BASE_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json"
   MAX_RESULTS = 20
 
-  def initialize(location)
-    @location = location
+  def initialize(name)
+    @name = name
     # Use environment-specific API keys
     if Rails.env.production?
       @api_key = Rails.application.credentials.google_maps[:api_key]
@@ -31,22 +28,24 @@ class FindCoursesByLocationService
     end
   end
 
-  def find_and_enrich
-    return unless @location.present?
+  def find_and_create
+    return [] unless @name.present?
 
-    puts "\nFinding courses near #{@location.name}..."
+    puts "\nFinding courses matching '#{@name}'..."
     begin
       courses = fetch_courses_from_google
       if courses.empty?
-        puts "⚠️ No courses found for #{@location.name}"
-        return
+        puts "⚠️ No courses found matching '#{@name}'"
+        return []
       end
 
-      puts "Found #{courses.size} courses. Enriching with detailed information..."
-      enrich_courses(courses)
+      puts "Found #{courses.size} courses. Creating/updating records..."
+      created_courses = create_or_update_courses(courses)
+      created_courses
     rescue StandardError => e
-      puts "❌ Error in find_and_enrich: #{e.message}"
+      puts "❌ Error in find_and_create: #{e.message}"
       puts "Backtrace: #{e.backtrace.first(5).join("\n")}"
+      []
     end
   end
 
@@ -54,23 +53,18 @@ class FindCoursesByLocationService
 
   def fetch_courses_from_google
     keywords = ["golf course", "golf club", "golf resort"]
-    radius = 70000 # Increased to 70km radius
     all_results = []
 
     puts "Making requests to Google Places API..."
     keywords.each do |keyword|
       params = {
-        location: "#{@location.latitude},#{@location.longitude}",
-        radius: radius,
-        keyword: keyword,
+        query: "#{@name} #{keyword}",
         type: "golf_course", # Primary type
         key: @api_key
       }
 
       puts "\nSearching with parameters:"
-      puts "- Location: #{params[:location]}"
-      puts "- Radius: #{params[:radius]}m"
-      puts "- Keyword: #{params[:keyword]}"
+      puts "- Query: #{params[:query]}"
       puts "- Type: #{params[:type]}"
 
       begin
@@ -129,67 +123,74 @@ class FindCoursesByLocationService
     filtered_courses.first(MAX_RESULTS)
   end
 
-  def enrich_courses(courses)
+  def create_or_update_courses(courses)
+    created_courses = []
+    
     courses.each do |course_data|
       begin
         # Log the raw course data for debugging
-        puts "\nRaw course data:"
+        puts "\nProcessing course data:"
         puts "Name: #{course_data['name']}"
         puts "Place ID: #{course_data['place_id']}"
         puts "Types: #{course_data['types'].join(', ')}"
-        puts "Rating: #{course_data['rating']}"
-        puts "Green Fee: #{course_data['green_fee']}"
-        puts "Vicinity: #{course_data['vicinity']}"
 
-        # Find or create the course
+        # Get detailed place information including photos
+        if course_data['place_id'].present?
+          begin
+            details_service = GetCourseInfoService.new(course_data['place_id'])
+            detailed_info = details_service.get_details
+
+            if detailed_info.present?
+              course_data.merge!(detailed_info)
+              puts "✅ Retrieved detailed information"
+            end
+          rescue StandardError => e
+            puts "⚠️ Error fetching detailed info: #{e.message}"
+          end
+        end
+
+        # Find or initialize course
         course = Course.find_or_initialize_by(
           name: course_data['name'],
           latitude: course_data['geometry']['location']['lat'],
           longitude: course_data['geometry']['location']['lng']
         )
 
-        # Determine course type based on Google Places categories
+        # Determine course type
         course_type = determine_course_type(course_data['types'])
 
-        # Set required fields with default values if not available
-        # Only set these defaults for new records or if fields are blank
-        attributes_to_update = {}
-        
-        # Always update Google Place data
-        attributes_to_update[:google_place_id] = course_data['place_id'] if course_data['place_id'].present?
-        
-        # For new records or blank fields, set defaults
-        if course.new_record?
-          attributes_to_update[:course_type] = course_type
-          attributes_to_update[:number_of_holes] = 18    # Default to 18 holes
-          attributes_to_update[:par] = 72                # Default to par 72
-          attributes_to_update[:yardage] = 6500          # Default to 6500 yards
-          attributes_to_update[:green_fee] = 100         # Default to $100
-          attributes_to_update[:course_tags] = course_data['types'] || [] # Required field
-          attributes_to_update[:description] = course_data['vicinity'] if course_data['vicinity'].present?
-          attributes_to_update[:website_url] = course_data['website'] if course_data['website'].present?
-          attributes_to_update[:notes] = "Automatically imported from Google Places API"
-        else
-          # For existing records, only update if blank
-          attributes_to_update[:course_type] = course_type if course.course_type.blank?
-          attributes_to_update[:number_of_holes] = 18 if course.number_of_holes.blank?
-          attributes_to_update[:par] = 72 if course.par.blank?
-          attributes_to_update[:yardage] = 6500 if course.yardage.blank?
-          attributes_to_update[:green_fee] = 100 if course.green_fee.blank?
-          attributes_to_update[:course_tags] = course_data['types'] || [] if course.course_tags.blank?
-          attributes_to_update[:description] = course_data['vicinity'] if course.description.blank? && course_data['vicinity'].present?
-          attributes_to_update[:website_url] = course_data['website'] if course.website_url.blank? && course_data['website'].present?
+        # Build attributes to update
+        attributes = {
+          google_place_id: course_data['place_id'],
+          course_type: course_type,
+          course_tags: course_data['types'] || [],
+          phone_number: course_data['formatted_phone_number'],
+          website_url: course_data['website'],
+          description: course_data['editorial_summary']&.dig('overview') || course_data['vicinity']
+        }
+
+        # Handle photos if present
+        if course_data['photos'].present?
+          photo_references = course_data['photos'].map { |photo| photo['photo_reference'] }
+          attributes[:photo_references] = photo_references
         end
-        
-        # Only update the fields that need updating
-        course.assign_attributes(attributes_to_update)
+
+        # Set default values for new records
+        if course.new_record?
+          attributes.merge!({
+            number_of_holes: 18,    # Default to 18 holes
+            par: 72,                # Default to par 72
+            yardage: 6500,         # Default to 6500 yards
+            green_fee: 100,        # Default to $100
+            notes: "Automatically imported from Google Places API"
+          })
+        end
+
+        # Update attributes and save
+        course.assign_attributes(attributes)
 
         if course.save
-          # Associate with location if not already
-          unless course.locations.include?(@location)
-            course.locations << @location
-            puts "✅ Successfully associated #{course.name} with #{@location.name}"
-          end
+          created_courses << course
           puts "✅ Successfully saved course: #{course.name}"
         else
           puts "❌ Failed to save course #{course.name}:"
@@ -203,6 +204,8 @@ class FindCoursesByLocationService
         puts "Backtrace: #{e.backtrace.first(5).join("\n")}"
       end
     end
+
+    created_courses
   end
 
   def determine_course_type(types)

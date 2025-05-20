@@ -181,7 +181,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_17_011202) do
     t.integer "display_order"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "photo_reference"
+    t.string "image_url"
     t.index ["google_place_id"], name: "index_lodgings_on_google_place_id", unique: true
     t.index ["location_id"], name: "index_lodgings_on_location_id"
   end

@@ -345,4 +345,81 @@ namespace :lodging do
       puts "To find lodgings, run: rails lodging:find_and_enrich[\"#{location.name}\"]"
     end
   end
+
+  desc "Backfill image_url for lodgings using Google Place API + Cloudinary"
+  task lodging_images: :environment do
+    limit = ENV['LIMIT']&.to_i
+    puts "🔍 Looking for lodgings missing image_url..."
+
+    lodgings = Lodging.where(image_url: nil).where.not(google_place_id: nil)
+    lodgings = lodgings.limit(limit) if limit && limit > 0
+
+    puts "Found #{lodgings.count} lodgings without images"
+
+    lodgings.find_each.with_index(1) do |lodging, index|
+      puts "\n[#{index}/#{lodgings.count}] Processing: #{lodging.name}"
+
+      if LodgingEnrichmentService.fetch_and_update_lodging_image(lodging)
+        puts "✅ Success"
+      else
+        puts "❌ Failed or skipped"
+      end
+
+      sleep 2 # Respect Google API rate limits
+    end
+
+    puts "\n🎉 Done processing lodging images."
+  end
+
+  desc "Fetch and store google_place_id for lodgings"
+  task lodging_place_ids: :environment do
+    lodgings = Lodging.where(google_place_id: nil)
+
+    puts "Found #{lodgings.count} lodgings missing place_id"
+
+    lodgings.find_each.with_index(1) do |lodging, i|
+      puts "\n[#{i}/#{lodgings.count}] #{lodging.name}"
+      LodgingEnrichmentService.fetch_and_store_place_id(lodging)
+      sleep 1
+    end
+
+    puts "\n🎉 Place ID enrichment complete."
+  end
+
+  desc "Enrich lodgings for a specific location"
+  task :enrich_location, [:location_name] => :environment do |t, args|
+    if args[:location_name].blank?
+      puts "Please provide a location name. Usage: rails lodging:enrich_location[location_name]"
+      exit 1
+    end
+
+    puts "Starting lodging enrichment for #{args[:location_name]}..."
+    
+    # Find the location
+    location = Location.find_by(name: args[:location_name])
+    if location.nil?
+      puts "Error: Location '#{args[:location_name]}' not found"
+      exit 1
+    end
+    
+    # Process the location
+    service = LodgingEnrichmentService.new(location)
+    service.enrich
+  end
+
+  desc "Enrich all lodgings for all locations"
+  task enrich_all: :environment do
+    puts "Starting enrichment for all locations..."
+    
+    Location.find_each do |location|
+      puts "\nProcessing #{location.name}..."
+      service = LodgingEnrichmentService.new(location)
+      service.enrich
+      
+      # Add a small delay to avoid hitting API rate limits
+      sleep 2
+    end
+    
+    puts "\nEnrichment process completed!"
+  end
 end 

@@ -82,11 +82,11 @@
       grid-template-columns: minmax(0, 1fr);
     }
     #state-map {
-      height: 400px;
-      min-height: 400px;
+      /* height: 400px; */
+      /* min-height: 400px; */
     }
     .grid-view-wrapper {
-      height: auto;
+      height: auto; /* This might need to be adjusted to match the map's height behavior */
       min-height: 0;
     }
   }
@@ -165,7 +165,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
       <!-- Map View -->
-      <div class="w-full h-[calc(100vh-200px)] min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden sticky top-4" 
+      <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
            id="state-map"
            data-controller="map"
            data-map-markers-value="<%= [
@@ -201,7 +201,7 @@
       </div>
 
       <!-- Course Cards Grid View -->
-      <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
+      <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           <% @courses.each do |course| %>
             <%= link_to course_path(course), class: "course-card", 

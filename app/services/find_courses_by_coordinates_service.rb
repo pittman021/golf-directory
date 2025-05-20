@@ -30,6 +30,7 @@ class FindCoursesByCoordinatesService
       res = Net::HTTP.get_response(uri)
       data = JSON.parse(res.body)
 
+
       return data["results"] || []
     end
   
