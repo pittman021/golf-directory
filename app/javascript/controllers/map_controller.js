@@ -83,7 +83,8 @@ export default class extends Controller {
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `
-      .gm-style .gm-style-iw-c {
+   
+    .gm-style .gm-style-iw-c {
         padding: 0 !important;
         /* overflow: visible !important; */ /* Let Google Maps handle this initially */
         max-height: none !important;
@@ -361,87 +362,31 @@ export default class extends Controller {
   }
   
   createInfoWindowContent(markerData) {
-    if (markerData.type === 'course') {
-      // Create a styled info window for courses
-      return `
-        <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
-             onclick="window.location.href='/courses/${markerData.id}'">
-          <div style="height: 140px; overflow: hidden">
-            <img src="${markerData.image_url}" alt="${markerData.name}" 
-                 style="width: 100%; height: 100%; object-fit: cover;">
-            <div style="position: absolute; top: 8px; right: 8px;">
-              <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
-                    onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
-            </div>
-            <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
-              <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
-            </div>
-          </div>
-          <div style="padding: 12px; background-color: white;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Type:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.course_type}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Green Fee:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.green_fee}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Holes:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.number_of_holes}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Par:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.par}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Yardage:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.yardage}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      `;
+    // Rectangle layout, image left, text right
+    const isCourse = markerData.type === 'course';
+    const linkPath = isCourse ? `/courses/${markerData.id}` : `/locations/${markerData.id}`;
+    const imageUrl = markerData.image_url || (isCourse ? '/placeholder_golf_course.jpg' : '/placeholder_golf_course.jpg');
+    const name = markerData.name;
+    // Always use state for subtext if available
+    const stateName = markerData.state || '';
+    let details = '';
+    if (isCourse) {
+      details = `${markerData.course_type || ''}${markerData.green_fee ? ` • ${markerData.green_fee}` : ''}`;
     } else {
-      // Create a styled info window for locations
-      return `
-        <div style="width: 280px; padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; cursor: pointer;" 
-             onclick="window.location.href='/locations/${markerData.id}'">
-          <div style="height: 140px; overflow: hidden; position: relative;">
-            <img src="${markerData.image_url}"
-              loading="lazy"
-              width="280"
-              height="140"
-              style="object-fit: cover; width: 280px; height: 140px;"
-              >
-            <div style="position: absolute; top: 8px; right: 8px;">
-              <span style="display: inline-block; background-color: rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer;"
-                    onclick="event.stopPropagation(); this.closest('.gm-style-iw-a').querySelector('.gm-ui-hover-effect').click();">×</span>
-            </div>
-            <div style="position: absolute; bottom: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 6px 10px;">
-              <span style="font-size: 14px; font-weight: 600;">${markerData.name}</span>
-            </div>
-          </div>
-          <div style="padding: 12px; background-color: white;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #666;">
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Courses:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.courses_count}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Avg Green Fee:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.avg_green_fee}</td>
-              </tr>
-              <tr>
-                <td style="padding-bottom: 4px;"><strong>Est. Trip Cost:</strong></td>
-                <td style="padding-bottom: 4px;">${markerData.estimated_trip_cost}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      `;
+      details = `${markerData.courses_count} course${markerData.courses_count == 1 ? '' : 's'}${markerData.avg_green_fee ? ` • Avg ${markerData.avg_green_fee}` : ''}${markerData.estimated_trip_cost ? ` • ${markerData.estimated_trip_cost}` : ''}`;
     }
+    return `
+      <div style="display: flex; flex-direction: row; align-items: stretch; width: 340px; min-height: 110px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.13); cursor: pointer;" onclick=\"window.location.href='${linkPath}'\">
+        <div style=\"flex: 0 0 110px; height: 110px; background: #eee; display: flex; align-items: stretch;\">
+          <img src=\"${imageUrl}\" alt=\"${name}\" style=\"width: 110px; height: 110px; object-fit: cover; display: block; margin: 0; padding: 0;\">
+        </div>
+        <div style=\"flex: 1 1 0%; padding: 10px 16px 10px 16px; display: flex; flex-direction: column; justify-content: center;\">
+          <div style=\"font-weight: bold; font-size: 1.08rem; color: #222; margin-bottom: 2px; margin-top: 0; text-align: left;\">${name}</div>
+          <div style=\"color: #bbb; font-size: 0.93rem; margin-bottom: 6px; text-align: left;\">${stateName}</div>
+          <div style=\"color: #444; font-size: 0.97rem; text-align: left;\">${details}</div>
+        </div>
+      </div>
+    `;
   }
 
   panMapToShowInfoWindow(infoWindow) {

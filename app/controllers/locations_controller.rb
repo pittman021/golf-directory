@@ -48,7 +48,7 @@ class LocationsController < ApplicationController
   end
 
   def show
-    @courses = @location.courses.ordered_by_price.includes(:reviews)
+    @courses = @location.courses.ordered_by_price.includes(:reviews, :state)
     
     @reviews = Review.joins(:course)
                     .where(courses: { id: @location.course_ids })

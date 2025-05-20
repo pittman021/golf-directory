@@ -1,41 +1,8 @@
-<%= link_to location_path(location), class: "block group" do %>
-<div class="rounded-xl overflow-hidden shadow bg-white relative">
-  <!-- Image -->
-  <div class="relative h-40">
-    <% if location.image_url.present? %>
-      <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: location.name %>
-    <% else %>
-      <%= image_tag 'placeholder_golf_course.jpg', class: "w-full h-full object-cover", alt: "Placeholder" %>
-    <% end %>
-
-    <!-- Overlayed Title and State -->
-    <div class="absolute bottom-2 right-3 text-right">
-      <div class="text-white text-lg font-semibold drop-shadow-md"><%= location.name %></div>
-      <div class="text-white text-xs drop-shadow-md"><%= location.state || location.country %></div>
-    </div>
-  </div>
-
-  <!-- Content Section -->
-  <div class="p-4 grid grid-cols-2 gap-4">
-    <!-- Left: Tag if Top 100 -->
-    <div class="flex flex-col gap-1">
-      <% if location.tags.include?("golf:top_100") %>
-        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
-          🎖️ Top 100
-        </span>
-      <% end %>
-    </div>
-
-    <!-- Right: Trip Info -->
-    <div class="text-right">
-      <div class="text-xl font-bold text-gray-900">
-        <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-      </div>
-      <div class="text-sm text-gray-600 mt-1">
-        <div>Lodging: <%= number_to_currency(location.avg_lodging_cost_per_night || 0, precision: 0) %></div>
-        <div>Green Fees: <%= number_to_currency(location.avg_green_fee || 0, precision: 0) %></div>
-      </div>
-    </div>
-  </div>
-</div>
-<% end %>
+<%= render 'shared/card',
+  item: location,
+  type: 'location',
+  link_path: location_path(location),
+  title_position: 'right',
+  show_detailed_pricing: true,
+  classes: 'rounded-xl'
+%>
