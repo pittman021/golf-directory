@@ -37,6 +37,42 @@
   }
 
   /* Add any other custom Tailwind components here */
+
+  .tag {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+    @apply bg-blue-50 text-blue-700;
+    @apply border border-blue-100;
+    @apply transition-colors duration-200;
+  }
+
+  .tag:hover {
+    @apply bg-blue-100;
+  }
+
+  /* Optional: Different tag variants */
+  .tag--success {
+    @apply bg-green-50 text-green-700 border-green-100;
+  }
+
+  .tag--success:hover {
+    @apply bg-green-100;
+  }
+
+  .tag--warning {
+    @apply bg-yellow-50 text-yellow-700 border-yellow-100;
+  }
+
+  .tag--warning:hover {
+    @apply bg-yellow-100;
+  }
+
+  .tag--error {
+    @apply bg-red-50 text-red-700 border-red-100;
+  }
+
+  .tag--error:hover {
+    @apply bg-red-100;
+  }
 }
 
 /* Custom styles */

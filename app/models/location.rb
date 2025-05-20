@@ -157,6 +157,7 @@ class Location < ApplicationRecord
     image_with_transformation(width: 1200, height: 800, crop: 'fill')
   end
 
+  # TAG Setup # 
   def stored_tags
     self[:tags] || []
   end
@@ -184,10 +185,6 @@ class Location < ApplicationRecord
     update_column(:tags, combined)
   end
 
-  def update_avg_green_fee
-    update_column(:avg_green_fee, courses.average(:green_fee).to_i)
-  end
-
   def tags_for(namespace)
     tags.select { |tag| tag.start_with?("#{namespace}:") }
   end
@@ -210,6 +207,10 @@ class Location < ApplicationRecord
 
   scope :with_tag, ->(tag) { where("? = ANY(tags)", tag) }
   scope :with_any_tags, ->(tag_list) { where("tags && ARRAY[?]::varchar[]", tag_list) }
+
+  def update_avg_green_fee
+    update_column(:avg_green_fee, courses.average(:green_fee).to_i)
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     %w[best_months country created_at description destination_overview estimated_trip_cost golf_experience id latitude local_attractions longitude name nearest_airports practical_tips region state summary tags travel_information updated_at weather_info cloudinary_url]

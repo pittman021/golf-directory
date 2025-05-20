@@ -1,5 +1,11 @@
 module GolfData
-TOP_COURSES = [
+  class Top100Courses
+    def self.list
+      TOP_COURSES
+    end
+  end
+
+  TOP_COURSES = [
   { name: "Pine Valley Golf Club", state: "New Jersey", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Augusta National Golf Club", state: "Georgia", sources: ["Golf Digest"] },
   { name: "Cypress Point Club", state: "California", sources: ["Golf Digest", "Golf Magazine"] },
@@ -12,7 +18,7 @@ TOP_COURSES = [
   { name: "Fishers Island Club", state: "New York", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Chicago Golf Club", state: "Illinois", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Los Angeles Country Club (North)", state: "California", sources: ["Golf Digest", "Golf Magazine"] },
-  { name: "Friar’s Head", state: "New York", sources: ["Golf Digest", "Golf Magazine"] },
+  { name: "Friar's Head", state: "New York", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "The Country Club (Clyde/Squirrel)", state: "Massachusetts", sources: ["Golf Digest"] },
   { name: "Winged Foot Golf Club (West)", state: "New York", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Seminole Golf Club", state: "Florida", sources: ["Golf Digest", "Golf Magazine"] },

@@ -204,29 +204,17 @@
       <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           <% @courses.each do |course| %>
-            <%= link_to course_path(course), class: "course-card", 
-                data: {
-                  course_id: course.id,
-                  controller: "course-card",
-                  action: "mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
-                } do %>
-              <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="relative h-40">
-                  <% if course.image_url.present? %>
-                    <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
-                  <% else %>
-                    <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-full object-cover", alt: course.name %>
-                  <% end %>
-                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                    <h3 class="text-white font-semibold text-sm truncate"><%= course.name %></h3>
-                    <div class="flex justify-between items-center mt-1">
-                      <span class="text-white/90 text-xs"><%= course.course_type.humanize %></span>
-                      <span class="text-white font-bold text-sm">$<%= course.green_fee %></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% end %>
+            <div class="course-card" 
+                 data-course-id="<%= course.id %>"
+                 data-controller="course-card"
+                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+              <%= render partial: "shared/card", locals: { 
+                item: course,
+                type: 'course',
+                link_path: course_path(course),
+                show_details: true
+              } %>
+            </div>
           <% end %>
         </div>
       </div>

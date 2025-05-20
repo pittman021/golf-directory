@@ -129,7 +129,12 @@
                  data-location-id="<%= location.id %>"
                  data-controller="location-card"
                  data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-              <%= render partial: "locations/location_card", locals: { location: location } %>
+              <%= render partial: "shared/card", locals: { 
+                item: location,
+                type: 'location',
+                link_path: location_path(location),
+                show_details: true
+              } %>
             </div>
           <% end %>
         </div>
