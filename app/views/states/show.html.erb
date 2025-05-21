@@ -95,6 +95,15 @@
             <%= @state.description.split('.').first %>.
           </p>
         <% end %>
+        <div class="flex flex-wrap gap-1 mt-2">
+          <% golf_tags = @state.tags.select { |tag| tag.start_with?('golf:') } %>
+          <% golf_tags.each do |tag| %>
+            <span class="tag">
+              <%= TagEmojiService.emoji_for(tag) %>
+              <%= tag.gsub('golf:', '').titleize %>
+            </span>
+          <% end %>
+        </div>
       </div>
       
       <!-- Destinations Information -->
@@ -106,9 +115,20 @@
         </div>
       </div>
       
+      <!-- Courses Information -->
+      <div class="info-section md:w-1/5 pb-4 md:pb-0">
+        <div class="text-center info-label">Courses</div>
+        <div class="flex flex-col items-center justify-center h-full">
+          <div class="text-center -mt-2">
+            <div class="text-5xl font-bold"><%= @courses.count %></div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Getting There -->
       <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="info-label pb-2">Getting There</div>
+        <div class="text-center info-label pb-2">Getting There</div>
+        <div class="font-medium text-md">✈️ <%= @state.nearest_airports %></div><BR>
         <div class="font-medium text-md">☀️ <%= @state.best_months %></div>
       </div>
 

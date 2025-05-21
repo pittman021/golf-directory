@@ -39,9 +39,7 @@
   /* Add any other custom Tailwind components here */
 
   .tag {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
-    @apply bg-blue-50 text-blue-700;
-    @apply border border-blue-100;
+    @apply inline-flex px-1 py-1 text-xs font-medium;
     @apply transition-colors duration-200;
   }
 

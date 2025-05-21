@@ -83,12 +83,6 @@
             <%= @location.destination_overview.split('.').first %>.
           </p>
         <% end %>
-      </div>
-      
-      <!-- Courses Information -->
-      <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="info-label">Courses</div>
-        <div class="font-large text-xl"><%= pluralize(@courses.count, 'course') %></div>
         <div class="flex flex-wrap gap-1 mt-2">
           <% golf_tags = @location.tags.select { |tag| tag.start_with?('golf:') } %>
           <% golf_tags.each do |tag| %>
@@ -100,16 +94,26 @@
         </div>
       </div>
       
+      <!-- Courses Information -->
+      <div class="info-section md:w-1/5 pb-4 md:pb-0">
+        <div class="text-center info-label">Courses</div>
+        <div class="flex flex-col items-center justify-center h-full">
+          <div class="text-center -mt-2">
+            <div class="text-5xl font-bold"><%= @courses.count %></div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Getting There -->
       <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="info-label pb-2">Getting There</div>
+        <div class="text-center info-label pb-2">Getting There</div>
         <div class="font-medium text-md">✈️ <%= @location.nearest_airports %></div><BR>
         <div class="font-medium text-md">☀️ <%= @location.best_months %></div>
       </div>
       
       <!-- Trip Costs -->
-      <div class="info-section md:w-1/5">
-        <div class="info-label">Est. Trip Cost</div>
+      <div class="info-section md:w-1/5 pb-4 md:pb-0">
+        <div class="text-center info-label pb-2">Est. Trip Cost</div>
         <% if @location.estimated_trip_cost.present? %>
           <div class="font-bold text-2xl text-[#355E3B]">$<%= number_with_delimiter(@location.estimated_trip_cost.to_i) %></div>
           <div class="text-xs text-gray-500">3 nights + 3 rounds</div>
@@ -279,95 +283,93 @@
 
     <div class="container mx-auto px-2 sm:px-4">
       
-      <!-- Information Section -->
-      <div id="information" class="mb-16">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <% if @location.weather_info.present? %>
-            <!-- Weather Information -->
-            <div class="mb-6 pb-6 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Weather</h3>
-              <div class="flex items-center bg-blue-50 rounded-lg p-4">
-                <div class="flex-shrink-0 mr-4">
-                  <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                  </svg>
+    <!-- Information Section -->
+    <div id="information" class="mb-16">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <% summary = @location.summary || {} %>
+        <% golf = summary['golf_experience'] || {} %>
+    
+        <% if summary.present? %>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div class="space-y-6">
+              <% if summary['destination_overview'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                  <div class="prose text-gray-700">
+                    <%= simple_format(summary['destination_overview']) %>
+                  </div>
                 </div>
-                <div class="prose text-gray-700">
-                  <%= simple_format(@location.weather_info) %>
-                  <div class="font-medium mt-2">Best time to visit: <%= @location.best_months %></div>
+              <% end %>
+    
+              <% if golf['notable_courses'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Notable Courses</h3>
+                  <div class="prose text-gray-700">
+                    <% golf['notable_courses'].each do |course| %>
+                      <div class="mb-2">• <%= course %></div>
+                    <% end %>
+                  </div>
                 </div>
+              <% end %>
+    
+              <% if golf['golf_culture'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Culture</h3>
+                  <div class="prose text-gray-700">
+                    <%= simple_format(golf['golf_culture']) %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+    
+            <!-- Right Column -->
+            <div class="space-y-6">
+              <% if summary['travel_information'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Best Time to Visit</h3>
+                  <div class="prose text-gray-700">
+                    <%= simple_format(summary['travel_information']) %>
+                  </div>
+                </div>
+              <% end %>
+    
+              <% if golf['events'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Special Events</h3>
+                  <div class="prose text-gray-700">
+                    <% golf['events'].each do |event| %>
+                      <div class="mb-2">• <%= event %></div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+    
+              <% if summary['local_attractions'].present? %>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                  <div class="prose text-gray-700">
+                    <%= simple_format(summary['local_attractions']) %>
+                  </div>
+                </div>
+              <% end %>
+    
+              <% if summary['practical_tips'].present? %>
+              <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
+              <div class="prose text-gray-700">
+                <%= simple_format(summary['practical_tips']) %>
               </div>
             </div>
           <% end %>
-          
-          <div class="space-y-6">
-            <!-- Destination Overview -->
-            <% if @location.destination_overview.present? %>
-              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <div data-expandable-target="teaser" class="line-clamp-4">
-                    <%= simple_format(@location.destination_overview) %>
-                  </div>
-                  <div data-expandable-target="full" class="hidden">
-                    <%= simple_format(@location.destination_overview) %>
-                  </div>
-                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-                </div>
-              </div>
-            <% end %>
-
-            <!-- Golf Experience -->
-            <% if @location.golf_experience.present? %>
-              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Experience</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <div data-expandable-target="teaser" class="line-clamp-4">
-                    <%= simple_format(@location.golf_experience) %>
-                  </div>
-                  <div data-expandable-target="full" class="hidden">
-                    <%= simple_format(@location.golf_experience) %>
-                  </div>
-                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-                </div>
-              </div>
-            <% end %>
-
-            <!-- Travel Information -->
-            <% if @location.travel_information.present? %>
-              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Travel Information</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <div data-expandable-target="teaser" class="line-clamp-4">
-                    <%= simple_format(@location.travel_information) %>
-                  </div>
-                  <div data-expandable-target="full" class="hidden">
-                    <%= simple_format(@location.travel_information) %>
-                  </div>
-                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-                </div>
-              </div>
-            <% end %>
-
-            <!-- Local Attractions -->
-            <% if @location.local_attractions.present? %>
-              <div class="mb-6 pb-6 border-b border-gray-200" data-controller="expandable">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-                <div class="prose max-w-none text-gray-700">
-                  <div data-expandable-target="teaser" class="line-clamp-4">
-                    <%= simple_format(@location.local_attractions) %>
-                  </div>
-                  <div data-expandable-target="full" class="hidden">
-                    <%= simple_format(@location.local_attractions) %>
-                  </div>
-                  <button data-action="expandable#toggle" data-expandable-target="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none">Read More</button>
-                </div>
-              </div>
-            <% end %>
-          </div>
         </div>
       </div>
+    <% else %>
+      <div class="text-gray-500">No summary available for this location</div>
+    <% end %>
+  </div>
+</div>    
 
       <!-- Courses Section -->
       <div id="courses" class="mb-16">
