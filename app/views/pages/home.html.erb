@@ -1,6 +1,19 @@
 <% content_for :google_maps, true %>
 
 <div>
+
+<!-- Hero Banner -->
+<div class="relative bg-cover bg-center h-[315px] flex items-center justify-center text-center text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= @locations.first&.image_url || "https://source.unsplash.com/1600x900/?golf" %>');">
+<div class="max-w-4xl mx-auto px-4">
+  <h1 class="text-4xl md:text-5xl font-bold mb-4">
+    Plan Your Next Golf Trip
+  </h1>
+  <p class="text-md md:text-xl">
+    Explore the <%= @stats[:locations_count] %> golf destinations and <%= @stats[:courses_count] %> golf courses to plan your next golf trip.
+  </p>
+</div>
+</div> 
+
   <!-- Filters Section - Redesigned as a horizontal bar above the map -->
   
   <div class="px-2 sm:px-4 lg:px-6 mt-2" data-controller="layout comparison filters">

@@ -46,6 +46,21 @@
   }
 </style>
 
+<!-- Hero Banner -->
+<div class="relative bg-cover bg-center h-[315px] flex items-center justify-center text-center text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= @courses.first&.image_url.presence || "https://source.unsplash.com/1600x900/?golf" %>');">
+  <div class="max-w-4xl mx-auto px-4">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+      The Top 100 Golf Courses in the United States
+    </h1>
+    <p class="text-md md:text-xl">
+      Explore the top <%= @courses.size %> golf courses in the United States.
+      <% if @average_top_100_green_fee %>
+        The average green fee is approximately <%= number_to_currency(@average_top_100_green_fee, precision: 0) %>.
+      <% end %>
+    </p>
+  </div>
+</div> 
+
 <div class="container-fluid px-2 sm:px-4 py-8">
   <!-- Layout Toggle -->
   <div class="flex justify-between items-center mb-6">

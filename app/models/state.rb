@@ -27,6 +27,17 @@ class State < ApplicationRecord
     Location.where(id: featured_location_ids)
   end
 
+  def average_green_fee
+    @average_green_fee ||= begin
+      relevant_courses = courses.where.not(green_fee: nil)
+      if relevant_courses.any?
+        relevant_courses.average(:green_fee)
+      else
+        nil
+      end
+    end
+  end
+
   def tags
     @tags ||= courses.flat_map(&:course_tags).uniq
   end

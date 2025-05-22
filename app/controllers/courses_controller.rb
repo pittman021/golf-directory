@@ -14,6 +14,13 @@ class CoursesController < ApplicationController
     @courses = Course.where("'top_100_courses' = ANY(course_tags)")
                     .includes(:reviews, :locations, :state)
                     .order(:name)
+
+    relevant_courses_for_average = @courses.where.not(green_fee: nil)
+    if relevant_courses_for_average.any?
+      @average_top_100_green_fee = relevant_courses_for_average.average(:green_fee)
+    else
+      @average_top_100_green_fee = nil
+    end
     
     # Set SEO meta tags
     @page_title = "Top 100 Golf Courses – Best Golf Destinations"
