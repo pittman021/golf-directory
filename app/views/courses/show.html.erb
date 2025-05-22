@@ -29,12 +29,8 @@
 
 <div class="bg-white border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Breadcrumb -->
-    <% if @course.locations.any? %>
-      <%= link_to location_path(@course.locations.first), class: "text-sm text-gray-500 hover:underline" do %>
-        ← Back to <%= @course.locations.first.name %>
-      <% end %>
-    <% end %>
+    <!-- Breadcrumbs -->
+    <%= render 'shared/breadcrumbs', context: @course %>
 
     <!-- Header with Image and Info -->
     <div class="flex flex-col lg:flex-row gap-6 mt-4">

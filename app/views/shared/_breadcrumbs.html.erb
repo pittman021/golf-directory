@@ -1,0 +1,52 @@
+<%# _breadcrumbs.html.erb - Smart breadcrumbs for Course and Location pages %>
+<nav aria-label="Breadcrumb" class="text-sm text-gray-600 mb-4">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList" class="flex flex-wrap items-center space-x-2">
+    <%# Home %>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+      <%= link_to root_path, itemprop: "item", class: "hover:text-gray-900" do %>
+        <span itemprop="name">Home</span>
+      <% end %>
+      <meta itemprop="position" content="1" />
+      <span class="mx-2">/</span>
+    </li>
+
+    <%# State %>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+      <% if context.is_a?(Course) %>
+        <%= link_to state_path(context.state), itemprop: "item", class: "hover:text-gray-900" do %>
+          <span itemprop="name"><%= context.state.name %></span>
+        <% end %>
+      <% elsif context.is_a?(Location) %>
+        <%= link_to state_path(context.state), itemprop: "item", class: "hover:text-gray-900" do %>
+          <span itemprop="name"><%= context.state %></span>
+        <% end %>
+      <% end %>
+      <meta itemprop="position" content="2" />
+      <span class="mx-2">/</span>
+    </li>
+
+    <%# Location (if exists) %>
+    <% if context.is_a?(Course) && context.locations.any? %>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+        <%= link_to location_path(context.locations.first), itemprop: "item", class: "hover:text-gray-900" do %>
+          <span itemprop="name"><%= context.locations.first.name %></span>
+        <% end %>
+        <meta itemprop="position" content="3" />
+        <span class="mx-2">/</span>
+      </li>
+    <% elsif context.is_a?(Location) %>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+        <span itemprop="name" class="text-gray-900"><%= context.name %></span>
+        <meta itemprop="position" content="3" />
+      </li>
+    <% end %>
+
+    <%# Course (if context is a Course) %>
+    <% if context.is_a?(Course) %>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+        <span itemprop="name" class="text-gray-900"><%= context.name %></span>
+        <meta itemprop="position" content="<%= context.locations.any? ? 4 : 3 %>" />
+      </li>
+    <% end %>
+  </ol>
+</nav> 

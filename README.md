@@ -39,6 +39,15 @@ A comprehensive platform for discovering and planning golf trips, featuring deta
 - Course description and history
 - Notable holes and features
 
+#### AI-Powered Course Intelligence
+- Automated course information gathering using GPT-4
+- Detailed course descriptions written by AI
+- Historical information and notable facts
+- Playing tips and course strategy
+- Tournament history and course records
+- Designer information and architectural details
+- Course tags and categorization
+
 #### Location Intelligence
 - Nearest airports and travel information
 - Best months to visit
@@ -89,11 +98,15 @@ A comprehensive platform for discovering and planning golf trips, featuring deta
 ## Technical Features
 
 - Google Places API integration for accurate course data
+- OpenAI GPT-4 integration for intelligent course information gathering
 - Cloudinary integration for image management
 - Interactive mapping with course/destination markers
 - Responsive design for all devices
 - Real-time filtering and search
 - Geolocation services for nearby course discovery
+- Automated course data enrichment
+- Intelligent content generation and rewriting
+- Robust error handling and retry mechanisms
 
 ## Getting Started
 
