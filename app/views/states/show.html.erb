@@ -155,20 +155,9 @@
   <!-- Map and Courses Section -->
   <div class="mb-12">
     <div class="flex justify-between items-center mb-6 px-2 lg:px-4">
-      <h2 class="text-2xl font-bold text-gray-900">Golf Destinations in <%= @state.name %></h2>
+      <h2 class="text-2xl font-bold text-gray-900">Golf Courses and Destinations in <%= @state.name %></h2>
       <!-- View Toggle -->
-      <div class="inline-flex rounded-md shadow-sm" role="group" data-controller="view-toggle">
-        <button type="button" data-view-toggle-target="cardBtn" data-action="click->view-toggle#showCards" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 active">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-        </button>
-        <button type="button" data-view-toggle-target="listBtn" data-action="click->view-toggle#showList" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
+
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -208,8 +197,8 @@
            ].to_json %>">
       </div>
 
-      <!-- Course Cards Grid View -->
-      <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
+      <!-- Grid View -->
+      <div class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           <% @courses.each do |course| %>
             <div class="course-card" 
@@ -228,7 +217,7 @@
       </div>
 
       <!-- List View -->
-      <div data-view-toggle-target="listView" class="hidden">
+      <div class="hidden">
         <div class="bg-white rounded-lg shadow">
           <!-- Mobile View -->
           <div class="block lg:hidden">
@@ -402,7 +391,7 @@
 
   <!-- Destinations Section -->
   <div id="destinations" class="mb-16">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Destinations in <%= @state.name %></h2>
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Destinations</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @locations.each do |location| %>
         <div class="location-card bg-white rounded-lg shadow-sm overflow-hidden">
@@ -527,44 +516,6 @@
     </div>
   </div>
 </div>
-
-<!-- View Toggle Controller -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    class ViewToggle {
-      constructor(element) {
-        this.element = element;
-        this.cardBtn = element.querySelector('[data-view-toggle-target="cardBtn"]');
-        this.listBtn = element.querySelector('[data-view-toggle-target="listBtn"]');
-        this.cardView = document.querySelector('[data-view-toggle-target="cardView"]');
-        this.listView = document.querySelector('[data-view-toggle-target="listView"]');
-        
-        // Set up event listeners
-        this.cardBtn.addEventListener('click', this.showCards.bind(this));
-        this.listBtn.addEventListener('click', this.showList.bind(this));
-      }
-      
-      showCards() {
-        this.cardBtn.classList.add('active');
-        this.listBtn.classList.remove('active');
-        this.cardView.classList.remove('hidden');
-        this.listView.classList.add('hidden');
-      }
-      
-      showList() {
-        this.listBtn.classList.add('active');
-        this.cardBtn.classList.remove('active');
-        this.listView.classList.remove('hidden');
-        this.cardView.classList.add('hidden');
-      }
-    }
-    
-    // Initialize all view-toggle elements
-    document.querySelectorAll('[data-controller="view-toggle"]').forEach(element => {
-      new ViewToggle(element);
-    });
-  });
-</script>
 
 <!-- Expandable text controller -->
 <script>

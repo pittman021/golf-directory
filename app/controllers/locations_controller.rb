@@ -115,11 +115,6 @@ class LocationsController < ApplicationController
     @location = Location.new(location_params)
 
     if @location.save
-      # Attach featured image if present
-      if params[:location][:featured_image].present?
-        @location.featured_image.attach(params[:location][:featured_image])
-      end
-      
       redirect_to @location, notice: 'Location was successfully created.'
     else
       render :new
@@ -129,11 +124,6 @@ class LocationsController < ApplicationController
   # PATCH/PUT /locations/1
   def update
     if @location.update(location_params)
-      # Attach featured image if present
-      if params[:location][:featured_image].present?
-        @location.featured_image.attach(params[:location][:featured_image])
-      end
-      
       redirect_to @location, notice: 'Location was successfully updated.'
     else
       render :edit
@@ -161,10 +151,8 @@ class LocationsController < ApplicationController
     # Only allow a trusted parameter "white list" through.
     def location_params
       params.require(:location).permit(
-        :name, :description, :latitude, :longitude, 
-        :region, :state, :country, :best_months, 
-        :nearest_airports, :weather_info, :image_url,
-        tags: []
+        :name, :description, :region, :state, :best_months,
+        :image_url, :courses_count, :tags
       )
     end
     

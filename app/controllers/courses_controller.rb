@@ -1,12 +1,23 @@
 # app/controllers/courses_controller.rb
 class CoursesController < ApplicationController
   before_action :set_course, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate_user!, except: [:index, :show]
-  before_action :authorize_admin!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :top_100]
+  before_action :authorize_admin!, except: [:index, :show, :top_100]
 
   # GET /courses
   def index
     @courses = Course.all.includes(:reviews, :locations).order(:name)
+  end
+
+  # GET /top-100-courses
+  def top_100
+    @courses = Course.where("'top_100_courses' = ANY(course_tags)")
+                    .includes(:reviews, :locations, :state)
+                    .order(:name)
+    
+    # Set SEO meta tags
+    @page_title = "Top 100 Golf Courses – Best Golf Destinations"
+    @page_description = "Discover the best golf courses in the world. Our curated list of top 100 golf courses features championship venues, bucket list destinations, and premier golf experiences."
   end
 
   # GET /courses/1
@@ -93,10 +104,8 @@ class CoursesController < ApplicationController
     # Only allow a trusted parameter "white list" through.
     def course_params
       params.require(:course).permit(
-        :name, :description, :latitude, :longitude, 
-        :course_type, :green_fee_range, :green_fee,
-        :number_of_holes, :par, :yardage, :website_url, 
-        :image_url, course_tags: []
+        :name, :description, :green_fee, :par, :length,
+        :image_url, :location_id, :tags
       )
     end
     

@@ -149,37 +149,23 @@
 
 <div class="container-fluid px-2 sm:px-4 py-8">
   <!-- Map and Courses Section - Matching Homepage Experience -->
-  <div class="mb-12">
+  <div class="mb-12" data-controller="view-toggle">
     <div class="flex justify-between items-center mb-6 px-2 lg:px-4">
       <h2 class="text-2xl font-bold text-gray-900">Courses in <%= @location.name %></h2>
-      <!-- View Toggle -->
-      <div class="inline-flex rounded-md shadow-sm" role="group" data-controller="view-toggle">
-        <button type="button" data-view-toggle-target="cardBtn" data-action="click->view-toggle#showCards" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 active">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-        </button>
-        <button type="button" data-view-toggle-target="listBtn" data-action="click->view-toggle#showList" class="px-4 py-2 text-sm font-medium text-[#355E3B] bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
+      <%= render 'shared/view_toggle' %>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-    <!-- Map View - Full width and more prominent -->
-    <div class="relative w-full overflow-hidden">
-      <div id="location-map"
-           class="relative w-full h-[calc(100vh-3.5rem)] min-h-[600px] overflow-hidden bg-white rounded-lg shadow-sm"
+      <!-- Map View -->
+      <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
+           id="location-map"
            data-controller="map"
-           data-map-latitude-value="<%= @location.latitude.present? ? @location.latitude.to_f : 0 %>"
-           data-map-longitude-value="<%= @location.longitude.present? ? @location.longitude.to_f : 0 %>"
            data-map-markers-value="<%= [
-             *@courses.select { |course| course.latitude.present? && course.longitude.present? }.map { |course| {
+             *@courses.select { |c| c.latitude.present? && c.longitude.present? }.map { |course| {
                latitude: course.latitude.to_f,
                longitude: course.longitude.to_f,
                name: course.name,
+               id: course.id,
                type: 'course',
                image_url: course.image_url,
                green_fee: number_to_currency(course.green_fee, precision: 0),
@@ -187,186 +173,199 @@
                number_of_holes: course.number_of_holes,
                par: course.par,
                yardage: course.yardage,
-               description: course.description
+               info: "#{course.name}<br>#{course.course_type.humanize}<br>#{number_to_currency(course.green_fee, precision: 0)}"
              }}
            ].to_json %>">
       </div>
-    </div>
-  
 
-
-
-
-      <!-- Course Cards Grid View -->
-      <div class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto" data-controller="view-toggle">
-        <!-- Card View (Default) -->
-        <div data-view-toggle-target="cardView" class="h-full">
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            <% @courses.each do |course| %>
-              <div class="course-card" 
-                   data-course-id="<%= course.id %>"
-                   data-controller="course-card"
-                   data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
-                <%= render partial: "shared/card", locals: { 
-                  item: course,
-                  type: 'course',
-                  link_path: course_path(course),
-                  show_details: true
-                } %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-
-        <!-- List View (Initially Hidden) -->
-        <div data-view-toggle-target="listView" class="hidden h-full">
-          <div class="space-y-3">
-            <% @courses.each do |course| %>
-              <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="flex items-center p-3">
-                  <div class="flex-shrink-0 h-14 w-14 rounded-md overflow-hidden mr-3">
-                    <% if course.image_url.present? %>
-                      <%= image_tag course.image_url, class: "h-full w-full object-cover", alt: course.name %>
-                    <% else %>
-                      <%= image_tag Course::DEFAULT_IMAGE_URL, class: "h-full w-full object-cover", alt: course.name %>
-                    <% end %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-base font-semibold text-gray-900 truncate"><%= course.name %></h3>
-                    <div class="flex items-center gap-3 mt-1">
-                      <!-- Par -->
-                      <div class="flex items-center text-gray-600">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-xs">Par <%= course.par %></span>
-                      </div>
-                      
-                      <!-- Number of Holes -->
-                      <div class="flex items-center text-gray-600">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <span class="text-xs"><%= course.number_of_holes %> Holes</span>
-                      </div>
-                      
-                      <!-- Course Type -->
-                      <div class="flex items-center text-gray-600">
-                        <% if course.course_type == 'public' %>
-                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        <% elsif course.course_type == 'private' %>
-                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                        <% else %>
-                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                          </svg>
-                        <% end %>
-                        <span class="text-xs"><%= course.course_type.humanize %></span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex flex-col items-end ml-3">
-                    <span class="text-base font-bold text-[#355E3B]">$<%= course.green_fee %></span>
-                    <%= link_to "View", course_path(course), class: "mt-1 text-xs text-blue-600 hover:text-blue-800 font-medium" %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="container mx-auto px-2 sm:px-4">
-      
-    <!-- Information Section -->
-    <div id="information" class="mb-16">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <% summary = @location.summary || {} %>
-        <% golf = summary['golf_experience'] || {} %>
-    
-        <% if summary.present? %>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Left Column -->
-            <div class="space-y-6">
-              <% if summary['destination_overview'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-                  <div class="prose text-gray-700">
-                    <%= simple_format(summary['destination_overview']) %>
-                  </div>
-                </div>
-              <% end %>
-    
-              <% if golf['notable_courses'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Notable Courses</h3>
-                  <div class="prose text-gray-700">
-                    <% golf['notable_courses'].each do |course| %>
-                      <div class="mb-2">• <%= course %></div>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-    
-              <% if golf['golf_culture'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Culture</h3>
-                  <div class="prose text-gray-700">
-                    <%= simple_format(golf['golf_culture']) %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-    
-            <!-- Right Column -->
-            <div class="space-y-6">
-              <% if summary['travel_information'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Best Time to Visit</h3>
-                  <div class="prose text-gray-700">
-                    <%= simple_format(summary['travel_information']) %>
-                  </div>
-                </div>
-              <% end %>
-    
-              <% if golf['events'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Special Events</h3>
-                  <div class="prose text-gray-700">
-                    <%= simple_format(golf['events']) %>
-                  </div>
-                </div>
-              <% end %>
-    
-              <% if summary['local_attractions'].present? %>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-                  <div class="prose text-gray-700">
-                    <%= simple_format(summary['local_attractions']) %>
-                  </div>
-                </div>
-              <% end %>
-    
-              <% if summary['practical_tips'].present? %>
-              <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
-              <div class="prose text-gray-700">
-                <%= simple_format(summary['practical_tips']) %>
-              </div>
+      <!-- Grid View -->
+      <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
+          <% @courses.each do |course| %>
+            <div class="course-card" 
+                 data-course-id="<%= course.id %>"
+                 data-controller="course-card"
+                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+              <%= render partial: "shared/card", locals: { 
+                item: course,
+                type: 'course',
+                link_path: course_path(course),
+                show_details: true
+              } %>
             </div>
           <% end %>
         </div>
       </div>
-    <% else %>
-      <div class="text-gray-500">No summary available for this location</div>
-    <% end %>
+
+      <!-- List View -->
+      <div data-view-toggle-target="listView" class="hidden">
+        <div class="bg-white rounded-lg shadow">
+          <!-- Mobile View -->
+          <div class="block lg:hidden">
+            <% @courses.each do |course| %>
+              <%= link_to course_path(course), class: "course-card", 
+                  data: {
+                    course_id: course.id,
+                    controller: "course-card",
+                    action: "mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                  } do %>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div class="relative h-40">
+                    <% if course.image_url.present? %>
+                      <%= image_tag course.image_url, class: "w-full h-full object-cover", alt: course.name %>
+                    <% else %>
+                      <%= image_tag Course::DEFAULT_IMAGE_URL, class: "w-full h-full object-cover", alt: course.name %>
+                    <% end %>
+                    <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                      <h3 class="text-white font-semibold text-sm truncate"><%= course.name %></h3>
+                      <div class="flex justify-between items-center mt-1">
+                        <span class="text-white/90 text-xs"><%= course.course_type.humanize %></span>
+                        <span class="text-white font-bold text-sm">$<%= course.green_fee %></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Green Fee</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @courses.each do |course| %>
+                    <tr class="hover:bg-gray-50 cursor-pointer"
+                        data-course-id="<%= course.id %>"
+                        data-controller="course-card"
+                        data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0 h-10 w-10">
+                            <% if course.image_url.present? %>
+                              <%= image_tag course.image_url, class: "h-10 w-10 rounded-full object-cover", alt: course.name %>
+                            <% else %>
+                              <%= image_tag Course::DEFAULT_IMAGE_URL, class: "h-10 w-10 rounded-full object-cover", alt: course.name %>
+                            <% end %>
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900"><%= course.name %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900"><%= course.course_type.humanize %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900"><%= number_to_currency(course.green_fee) %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <%= link_to "View", course_path(course), class: "text-blue-600 hover:text-blue-900" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <div class="container mx-auto px-2 sm:px-4">
+    
+  <!-- Information Section -->
+  <div id="information" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <% summary = @location.summary || {} %>
+      <% golf = summary['golf_experience'] || {} %>
+  
+      <% if summary.present? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Left Column -->
+          <div class="space-y-6">
+            <% if summary['destination_overview'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
+                <div class="prose text-gray-700">
+                  <%= simple_format(summary['destination_overview']) %>
+                </div>
+              </div>
+            <% end %>
+    
+            <% if golf['notable_courses'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Notable Courses</h3>
+                <div class="prose text-gray-700">
+                  <% golf['notable_courses'].each do |course| %>
+                    <div class="mb-2">• <%= course %></div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+    
+            <% if golf['golf_culture'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Culture</h3>
+                <div class="prose text-gray-700">
+                  <%= simple_format(golf['golf_culture']) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+    
+          <!-- Right Column -->
+          <div class="space-y-6">
+            <% if summary['travel_information'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Best Time to Visit</h3>
+                <div class="prose text-gray-700">
+                  <%= simple_format(summary['travel_information']) %>
+                </div>
+              </div>
+            <% end %>
+    
+            <% if golf['events'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Special Events</h3>
+                <div class="prose text-gray-700">
+                  <%= simple_format(golf['events']) %>
+                </div>
+              </div>
+            <% end %>
+    
+            <% if summary['local_attractions'].present? %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
+                <div class="prose text-gray-700">
+                  <%= simple_format(summary['local_attractions']) %>
+                </div>
+              </div>
+            <% end %>
+    
+            <% if summary['practical_tips'].present? %>
+            <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
+            <div class="prose text-gray-700">
+              <%= simple_format(summary['practical_tips']) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-gray-500">No summary available for this location</div>
+  <% end %>
+</div>
 </div>    
 
       <!-- Courses Section -->

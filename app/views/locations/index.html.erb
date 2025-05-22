@@ -1,5 +1,5 @@
 # app/views/locations/index.html.erb
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-controller="layout">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-controller="view-toggle">
   <!-- Filters -->
   <div class="bg-white shadow rounded-lg mb-8 p-6">
     <h2 class="text-lg font-medium text-gray-900 mb-4">Filter Locations</h2>
@@ -93,38 +93,78 @@
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-xl font-semibold text-gray-800">Locations (<%= @locations.size %>)</h2>
     
-    <div class="layout-toggle hidden sm:block">
-      <div class="inline-flex rounded-md shadow-sm" role="group">
-        <button type="button" 
-                class="px-4 py-2 text-sm font-medium rounded-l-md border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500"
-                data-layout-target="gridButton"
-                data-action="click->layout#showGrid">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-        </button>
-        <button type="button" 
-                class="px-4 py-2 text-sm font-medium rounded-r-md border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500"
-                data-layout-target="listButton"
-                data-action="click->layout#showList">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
-    </div>
+    <%= render 'shared/view_toggle' %>
   </div>
 
   <!-- Grid View -->
-  <div data-layout-target="gridView" class="grid grid-cols-1 gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    <%= render partial: 'location_card', collection: @locations, as: :location %>
+  <div data-view-toggle-target="cardView" class="grid grid-cols-1 gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <% @locations.each do |location| %>
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="relative h-48">
+          <% if location.image_url.present? %>
+            <%= image_tag location.image_url, class: "w-full h-full object-cover", alt: location.name %>
+          <% else %>
+            <%= image_tag 'placeholder_golf_course.jpg', class: "w-full h-full object-cover", alt: "Placeholder" %>
+          <% end %>
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-white text-xl font-semibold"><%= location.name %></h3>
+            <div class="text-white/90 text-sm mt-1">
+              <%= pluralize(location.courses_count, 'course') %>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center">
+            <div class="text-sm text-gray-600">
+              <%= location.best_months %>
+            </div>
+            <%= link_to "View Location", location_path(location), class: "text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- List View -->
-  <div data-layout-target="listView" class="hidden">
+  <div data-view-toggle-target="listView" class="hidden">
     <div class="overflow-x-auto shadow rounded-lg">
       <table class="min-w-full divide-y divide-gray-200">
-        <%= render partial: "locations_table", locals: { locations: @locations } %>
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Courses</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Best Time to Visit</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @locations.each do |location| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <% if location.image_url.present? %>
+                      <%= image_tag location.image_url, class: "h-10 w-10 rounded-full object-cover", alt: location.name %>
+                    <% else %>
+                      <%= image_tag 'placeholder_golf_course.jpg', class: "h-10 w-10 rounded-full object-cover", alt: "Placeholder" %>
+                    <% end %>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900"><%= location.name %></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900"><%= location.courses_count %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900"><%= location.best_months %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to "View", location_path(location), class: "text-blue-600 hover:text-blue-900" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
       </table>
     </div>
   </div>

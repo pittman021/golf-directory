@@ -15,18 +15,11 @@
     <%= f.text_field :name %>
   </div>
 
-  <div class="field">
-    <%= f.label :featured_image, "Location Image" %>
-    <%= f.file_field :featured_image, direct_upload: true %>
-
-    <% if location.featured_image.attached? %>
+  <div class="mb-4">
+    <%= f.label :image_url, "Location Image URL" %>
+    <%= f.text_field :image_url, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    <% if location.image_url.present? %>
       <div class="mt-2">
-        <p>Current image:</p>
-        <%= image_tag url_for(location.featured_image), class: "w-48 h-32 object-cover" %>
-      </div>
-    <% elsif location.image_url.present? %>
-      <div class="mt-2">
-        <p>Current image:</p>
         <%= image_tag location.image_url, class: "w-48 h-32 object-cover" %>
       </div>
     <% end %>
