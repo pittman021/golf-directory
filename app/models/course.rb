@@ -36,6 +36,11 @@ class Course < ApplicationRecord
     # Scope to order courses by price
     scope :ordered_by_price, -> { order(green_fee: :desc) }
 
+    # Scope to find courses within a radius of given coordinates
+    scope :nearby, ->(lat, lng, radius_meters = 50000) {
+      where("earth_distance(ll_to_earth(latitude, longitude), ll_to_earth(?, ?)) <= ?", lat, lng, radius_meters)
+    }
+
     def average_rating
       reviews.average(:rating)
     end

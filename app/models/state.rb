@@ -28,7 +28,7 @@ class State < ApplicationRecord
   end
 
   def tags
-    @tags ||= courses.flat_map(&:tags).uniq
+    @tags ||= courses.flat_map(&:course_tags).uniq
   end
 
   def golf_tags

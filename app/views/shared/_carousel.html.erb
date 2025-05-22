@@ -1,0 +1,57 @@
+<%# Shared carousel component
+  Required locals:
+  - items: Array of items to display
+  - partial: The partial to render for each item
+  - partial_locals: Hash of locals to pass to the partial
+  
+  Optional locals:
+  - title: The title of the carousel section
+  - subtitle: The subtitle of the carousel section
+  - subtitle_link: Hash with path and text for the subtitle link
+%>
+
+<div class="relative group" data-controller="carousel">
+  <% if title.present? %>
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2"><%= title %></h2>
+      <% if subtitle.present? && subtitle_link.present? %>
+        <%= link_to subtitle_link[:text], subtitle_link[:path], class: "text-[#355E3B] hover:text-[#2A4A30] text-sm font-medium" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="relative">
+    <%# Navigation Buttons %>
+    <button data-carousel-target="prevButton" 
+            data-action="click->carousel#previous"
+            class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white flex items-center justify-center h-10 w-10 rounded-full shadow-md transition-all duration-200 border border-gray-200"
+            aria-label="Previous">
+      <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <button data-carousel-target="nextButton"
+            data-action="click->carousel#next"
+            class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white flex items-center justify-center h-10 w-10 rounded-full shadow-md transition-all duration-200 border border-gray-200"
+            aria-label="Next">
+      <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+
+    <%# Carousel Container %>
+    <div class="relative overflow-hidden">
+      <div data-carousel-target="container" 
+           class="flex transition-transform duration-300 ease-in-out"
+           style="transform: translateX(0px)">
+        <% items.each do |item| %>
+          <div class="flex-shrink-0 w-64 px-2">
+            <% link_path = partial_locals[:link_path].respond_to?(:call) ? partial_locals[:link_path].call(item) : partial_locals[:link_path] %>
+            <%= render partial: partial, locals: partial_locals.merge(item: item, link_path: link_path) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -12,11 +12,7 @@ namespace :seed do
   
       # Courses with the default Google note
       google_imported = Course.where("notes LIKE ?", "%Automatically imported from Google Places API%")
-  
       # Courses with default filler values
-      default_values = Course.where(
-        "number_of_holes = 18 AND par = 72 AND yardage = 6500 AND green_fee = 100"
-      )
   
       # Courses with very few tags
       minimal_tags = Course.where("array_length(course_tags, 1) <= 2")

@@ -56,6 +56,16 @@ class LocationsController < ApplicationController
                     .order(created_at: :desc)
                     .limit(5)
 
+    # Get nearby courses if coordinates are available
+    if @location.latitude && @location.longitude
+      @nearby_courses = Course.nearby(@location.latitude, @location.longitude, 80467) # 50 miles in meters
+                             .where.not(id: @location.course_ids)
+                             .includes(:reviews, :state)
+                             .limit(10)
+    else
+      @nearby_courses = Course.where.not(id: @location.course_ids).limit(10)
+    end
+
     # Get nearby locations if coordinates are available
     if @location.latitude && @location.longitude
       @nearby_locations = Location.where.not(id: @location.id)
