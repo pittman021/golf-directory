@@ -1,5 +1,5 @@
 <% if defined?(state) && state.present? %>
-  <div class="relative bg-cover bg-center h-[315px] flex items-center justify-center text-center text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= state.featured_image.presence || state.courses.first&.image_url.presence || "https://source.unsplash.com/1600x900/?golf" %>');">
+  <div class="relative bg-cover bg-center h-[315px] flex items-center justify-center text-center text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= state.courses.first&.image_url || "https://source.unsplash.com/1600x900/?golf" %>');">
     <div class="max-w-4xl mx-auto px-4">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">
         Best Golf Courses in <%= state.name %>

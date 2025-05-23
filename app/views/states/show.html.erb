@@ -86,7 +86,12 @@
 
 <!-- Hero Banner -->
 <div class="hero-banner">
-  <%= render 'shared/hero_banner', state: @state %>
+  <% if @state.present? %>
+    <%= render 'shared/hero_banner', state: @state %>
+  <% else %>
+    <%# Optionally, render a default banner or a placeholder %>
+    <%# <p>State information is not available.</p> %>
+  <% end %>
 </div>
 
 <!-- Sticky navigation bar -->

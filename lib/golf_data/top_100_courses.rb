@@ -7,6 +7,7 @@ module GolfData
 
   TOP_COURSES = [
   { name: "Pine Valley Golf Club", state: "New Jersey", sources: ["Golf Digest", "Golf Magazine"] },
+  { name: "Crooked Stick Golf Club", state: "Indiana", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Augusta National Golf Club", state: "Georgia", sources: ["Golf Digest"] },
   { name: "Cypress Point Club", state: "California", sources: ["Golf Digest", "Golf Magazine"] },
   { name: "Shinnecock Hills Golf Club", state: "New York", sources: ["Golf Digest", "Golf Magazine"] },

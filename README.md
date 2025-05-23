@@ -11,12 +11,20 @@ A comprehensive platform for discovering and planning golf trips, featuring deta
 - Visual representation of course locations with detailed markers
 - Real-time filtering and search capabilities
 
+### SEO Optimized Page Templates
+- Meta description and title tags per page
+- Internal linking course page > destination
+- Course > state where needed
+- 
+
 #### Advanced Filtering
 - Filter by golf experience:
   - 🎖️ Top 100 Courses
   - 🏆 Tournament Courses
   - 💰 Bucket List Destinations
   - 🏞️ Multiple Course Locations
+  - Est Trip Price (budget to premium)
+  
 
 #### Course Categories & Tags
 - Experience tags: Top 100, PGA Event Host, Major Championship Host
