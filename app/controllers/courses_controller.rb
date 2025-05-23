@@ -1,5 +1,6 @@
 # app/controllers/courses_controller.rb
 class CoursesController < ApplicationController
+  include ActionView::Helpers::NumberHelper
   before_action :set_course, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: [:index, :show, :top_100]
   before_action :authorize_admin!, except: [:index, :show, :top_100]
@@ -34,7 +35,7 @@ class CoursesController < ApplicationController
 
     # Set SEO meta tags
     @page_title = "#{@course.name} – Green Fees, Yardage, Course Info"
-    @page_description = @course.description.present? ? @course.description.truncate(155) : "Play #{@course.name}, a #{@course.course_type.humanize} golf course in #{@course.locations.first.name}. #{@course.number_of_holes} holes, par #{@course.par}, green fee #{number_to_currency(@course.green_fee)}."
+    @page_description = @course.description.present? ? @course.description.truncate(155) : "Play #{@course.name}, a #{@course.course_type.humanize} golf course in #{@course.state.name}. #{@course.number_of_holes} holes, par #{@course.par}, green fee #{number_to_currency(@course.green_fee)}."
   end
 
   # GET /courses/new
@@ -104,7 +105,13 @@ class CoursesController < ApplicationController
         course = Course.find(params[:slug])
         redirect_to course_path(course), status: :moved_permanently
       else
-        @course = Course.friendly.find(params[:slug])
+        begin
+          @course = Course.includes(:state, :reviews, :locations).friendly.find(params[:slug])
+        rescue => e
+          Rails.logger.error "Error finding course: #{e.message}"
+          flash[:alert] = "Course not found"
+          redirect_to courses_path
+        end
       end
     end
 

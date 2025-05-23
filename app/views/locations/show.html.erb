@@ -36,23 +36,23 @@
   .infobar {
     background-color: white;
     border-bottom: 1px solid rgba(229, 231, 235, 1);
-    padding: 1.5rem 0;
+    /* padding: 1.5rem 0; */ /* Adjusted by new layout */
   }
   
-  .info-section {
-    border-right: 1px solid rgba(229, 231, 235, 1);
-    padding: 0 1.5rem;
-  }
+  /* .info-section { */ /* Removed as part of layout refactor */
+    /* border-right: 1px solid rgba(229, 231, 235, 1); */
+    /* padding: 0 1.5rem; */
+  /* } */
   
-  .info-section:last-child {
-    border-right: none;
-  }
+  /* .info-section:last-child { */ /* Removed */
+    /* border-right: none; */
+  /* } */
   
-  .info-label {
-    font-size: 0.875rem;
-    color: rgba(107, 114, 128, 1);
-    margin-bottom: 0.25rem;
-  }
+  /* .info-label { */ /* Removed */
+    /* font-size: 0.875rem; */
+    /* color: rgba(107, 114, 128, 1); */
+    /* margin-bottom: 0.25rem; */
+  /* } */
 
   @media (max-width: 1279px) {
     .grid-view-wrapper .grid {
@@ -63,7 +63,7 @@
     .grid-view-wrapper .grid {
       grid-template-columns: minmax(0, 1fr);
     }
-    .lg\:grid-cols-2 {
+    .lg\\:grid-cols-2 { /* This specific class might need review if it's used elsewhere after infobar changes */
       grid-template-columns: minmax(0, 1fr);
     }
   }
@@ -72,60 +72,98 @@
 <!-- Horizontal Information Section -->
 <div class="infobar">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col md:flex-row">
-      
-      <!-- Location Name and Basic Info -->
-      <div class="info-section flex-grow md:w-1/3 pb-4 md:pb-0">
-        <h1 class="text-3xl font-bold text-gray-900"><%= @location.name %></h1>
-        <div class="text-gray-600 mt-1"><%= @location.state %></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start py-6">
+      <%# Data setup for this section %>
+      <%
+        details_json = @location.details_json || {}
+        course_conditions_data = details_json["course_conditions"] || {}
+        level = course_conditions_data["condition_level"].to_s.downcase
+        region_name = @location.region.presence || @location.state.presence || "Information not available"
+      %>
+
+      <%# Left Column: Destination Name, Subtext, Description %>
+      <div class="md:col-span-1 space-y-3">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900"><%= @location.name %></h1>
+          <p class="text-sm text-gray-600 mt-1">
+            Golf Destination · <%= region_name %>
+          </p>
+        </div>
         <% if @location.destination_overview.present? %>
-          <p class="text-gray-700 mt-2">
-            <%= @location.destination_overview.split('.').first %>.
+          <p class="text-base text-gray-700">
+            <%= @location.destination_overview.split('. ').first(2).join('. ') + '.' %>
+          </p>
+        <% else %>
+          <p class="text-base text-gray-700">
+            Discover premier golf in <%= @location.name %>, offering challenging courses and stunning scenery. Plan your unforgettable golf getaway today.
           </p>
         <% end %>
-        <div class="flex flex-wrap gap-1 mt-2">
-          <% golf_tags = @location.tags.select { |tag| tag.start_with?('golf:') } %>
-          <% golf_tags.each do |tag| %>
-            <span class="tag">
-              <%= TagEmojiService.emoji_for(tag) %>
-              <%= tag.gsub('golf:', '').titleize %>
-            </span>
+      </div>
+
+      <%# Middle Column: Fast Facts %>
+      <div class="md:col-span-1 space-y-3">
+        <h2 class="text-lg font-semibold text-gray-800">Fast Facts</h2>
+        <ul class="space-y-2">
+          <li class="flex items-center text-sm text-gray-600">
+            <span class="text-lg mr-2">✈️</span>
+            <strong>Nearest Airports:</strong>&nbsp;<%= @location.nearest_airports.presence || "N/A" %>
+          </li>
+          <li class="flex items-center text-sm text-gray-600">
+            <span class="text-lg mr-2">☀️</span>
+            <strong>Best Season:</strong>&nbsp;<%= @location.best_months.presence || "Year-round" %>
+          </li>
+          <li class="flex items-center text-sm text-gray-600">
+            <span class="text-lg mr-2">📍</span>
+            <strong>Region:</strong>&nbsp;<%= region_name %>
+          </li>
+          <li class="flex items-center text-sm text-gray-600">
+            <span class="text-lg mr-2">⛳️</span>
+            <strong>Courses:</strong>&nbsp;<%= @courses.count %> available
+          </li>
+          <% if course_conditions_data["condition_level"].present? && ['good', 'fair', 'poor'].include?(level) %>
+            <% condition_emoji = case level
+                               when 'good' then '✅'
+                               when 'fair' then '⚠️'
+                               when 'poor' then '❌'
+                               else '❔'
+                               end %>
+            <li class="flex items-center text-sm text-gray-600">
+              <span class="text-lg mr-2"><%= condition_emoji %></span>
+              <strong>Current Condition:</strong>&nbsp;<%= level.capitalize %>
+            </li>
+          <% else %>
+            <li class="flex items-center text-sm text-gray-600">
+              <span class="text-lg mr-2">❔</span>
+              <strong>Current Condition:</strong>&nbsp;Not Available
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <%# Right column: Stylized Cost Card %>
+      <div class="md:col-span-1">
+        <div class="bg-gray-50 rounded-xl p-6 shadow-md h-full flex flex-col text-center">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Est. Trip Cost</h3>
+          <% if @location.estimated_trip_cost.present? %>
+            <p class="text-4xl font-bold text-green-700 my-2">
+              $<%= number_with_delimiter(@location.estimated_trip_cost.to_i) %>
+            </p>
+            <p class="text-xs text-gray-500 mb-4">Includes 3 nights & 3 rounds</p>
+            <div class="space-y-1 text-sm text-gray-600 mt-auto border-t border-gray-200 pt-3">
+              <div class="flex justify-between items-center">
+                <span>Lodging (avg/night):</span>
+                <span class="font-semibold text-gray-700">$<%= number_with_delimiter(@location.avg_lodging_cost_per_night.to_i) %></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Green Fees (avg):</span>
+                <span class="font-semibold text-gray-700">$<%= number_with_delimiter(@location.avg_green_fee.to_i) %></span>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-gray-600 py-8 my-auto">Call for pricing details.</p>
           <% end %>
         </div>
       </div>
-      
-      <!-- Courses Information -->
-      <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="text-center info-label">Courses</div>
-        <div class="flex flex-col items-center justify-center h-full">
-          <div class="text-center -mt-2">
-            <div class="text-5xl font-bold"><%= @courses.count %></div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Getting There -->
-      <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="text-center info-label pb-2">Getting There</div>
-        <div class="font-medium text-md">✈️ <%= @location.nearest_airports %></div><BR>
-        <div class="font-medium text-md">☀️ <%= @location.best_months %></div>
-      </div>
-      
-      <!-- Trip Costs -->
-      <div class="info-section md:w-1/5 pb-4 md:pb-0">
-        <div class="text-center info-label pb-2">Est. Trip Cost</div>
-        <% if @location.estimated_trip_cost.present? %>
-          <div class="font-bold text-2xl text-[#355E3B]">$<%= number_with_delimiter(@location.estimated_trip_cost.to_i) %></div>
-          <div class="text-xs text-gray-500">3 nights + 3 rounds</div>
-          <div class="text-sm text-gray-600 mt-2">
-            <div>Lodging: $<%= number_with_delimiter(@location.avg_lodging_cost_per_night.to_i) %></div>
-            <div>Green Fees: $<%= number_with_delimiter(@location.avg_green_fee.to_i) %></div>
-          </div>
-        <% else %>
-          <div class="font-medium">Call for pricing</div>
-        <% end %>
-      </div>
-      
     </div>
   </div>
 </div>
@@ -281,193 +319,229 @@
   <div id="information" class="mb-16">
     <h2 class="text-2xl font-bold text-gray-900 mb-6">Information</h2>
     <div class="bg-white rounded-lg shadow-sm p-6">
-      <% summary = @location.summary || {} %>
-      <% golf = summary['golf_experience'] || {} %>
-  
-      <% if summary.present? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Left Column -->
-          <div class="space-y-6">
-            <% if summary['destination_overview'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Destination Overview</h3>
-                <div class="prose text-gray-700">
-                  <%= simple_format(summary['destination_overview']) %>
-                </div>
-              </div>
-            <% end %>
-    
-            <% if golf['notable_courses'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Notable Courses</h3>
-                <div class="prose text-gray-700">
-                  <% golf['notable_courses'].each do |course| %>
-                    <div class="mb-2">• <%= course %></div>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-    
-            <% if golf['golf_culture'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Golf Culture</h3>
-                <div class="prose text-gray-700">
-                  <%= simple_format(golf['golf_culture']) %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-    
-          <!-- Right Column -->
-          <div class="space-y-6">
-            <% if summary['travel_information'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Best Time to Visit</h3>
-                <div class="prose text-gray-700">
-                  <%= simple_format(summary['travel_information']) %>
-                </div>
-              </div>
-            <% end %>
-    
-            <% if golf['events'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Special Events</h3>
-                <div class="prose text-gray-700">
-                  <%= simple_format(golf['events']) %>
-                </div>
-              </div>
-            <% end %>
-    
-            <% if summary['local_attractions'].present? %>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Local Attractions</h3>
-                <div class="prose text-gray-700">
-                  <%= simple_format(summary['local_attractions']) %>
-                </div>
-              </div>
-            <% end %>
-    
-            <% if summary['practical_tips'].present? %>
-            <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Practical Tips</h3>
-            <div class="prose text-gray-700">
-              <%= simple_format(summary['practical_tips']) %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% else %>
-    <div class="text-gray-500">No summary available for this location</div>
-  <% end %>
-</div>
-</div>    
+      <% details = @location.details_json || {} %>
 
-      <!-- Courses Section -->
-      <div id="courses" class="mb-16">
-        <%= render partial: "shared/carousel", locals: {
-          title: "Courses Nearby",
-          subtitle: "View all courses in #{@location.state}",
-          subtitle_link: {
-            text: "View all courses in #{@location.state}",
-            path: state_path(@location.state)
-          },
-          items: @nearby_courses,
-          partial: "shared/card",
-          partial_locals: {
-            type: 'course',
-            show_details: true,
-            link_path: ->(item) { course_path(item) }
-          }
-        } %>
-      </div>
+      <% if details.present? %>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Left Column (66%) -->
+          <div class="space-y-6 md:col-span-2">
+            <% if details["destination_overview"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">🏖️ Background</h3>
+                <div class="prose text-gray-700 mt-2">
+                  <%= simple_format(details["destination_overview"]) %>
+                </div>
+              </div>
+            <% end %>
 
-      <!-- Lodging Section -->
-      <div id="lodging" class="mb-16">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Lodging Options</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <% @location.lodgings.each do |lodging| %>
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-              <% if lodging.image_url.present? %>
-                <div class="aspect-w-16 aspect-h-9">
-                  <%= image_tag lodging.image_url, class: "w-full h-48 object-cover", alt: lodging.name %>
-                </div>
-              <% else %>
-                <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center h-48">
-                  <span class="text-gray-400">No photo available</span>
-                </div>
-              <% end %>
-              <div class="p-4">
-                <h3 class="text-lg font-semibold text-gray-900"><%= lodging.name %></h3>
-                <% if lodging.rating.present? %>
-                  <div class="flex items-center mt-1">
-                    <div class="flex items-center">
-                      <% lodging.rating.to_i.times do %>
-                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                      <% end %>
-                      <span class="ml-2 text-sm text-gray-600"><%= lodging.rating %> stars</span>
-                    </div>
-                  </div>
-                <% end %>
-                <p class="mt-2 text-sm text-gray-600"><%= lodging.formatted_address %></p>
-                <% if lodging.formatted_phone_number.present? %>
-                  <p class="mt-1 text-sm text-gray-600">
-                    <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                    </svg>
-                    <%= lodging.formatted_phone_number %>
-                  </p>
-                <% end %>
-                <% if lodging.types.present? %>
-                  <div class="mt-2 flex flex-wrap gap-1">
-                    <% lodging.types.each do |type| %>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        <%= type.titleize %>
-                      </span>
+            <% if details["weather_notes"].present? || details["calendar_notes"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">📅 When to Go</h3>
+                <% if details["weather_notes"].present? %>
+                  <ul class="list-disc list-inside prose text-gray-700 mt-2">
+                    <% details["weather_notes"].each do |note| %>
+                      <li><%= note %></li>
                     <% end %>
-                  </div>
+                  </ul>
                 <% end %>
-                <div class="mt-4 space-y-2">
-                  <% if lodging.website.present? %>
-                    <%= link_to "Visit Website", lodging.website, target: "_blank", class: "inline-block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+
+                <% if details["calendar_notes"].present? %>
+                  <h4 class="text-md font-semibold text-gray-800 mt-4 mb-2">Upcoming Events</h4>
+                  <ul class="list-disc list-inside prose text-gray-700 mt-2">
+                    <% details["calendar_notes"].each do |event_note| %>
+                      <li><strong><%= event_note["event"] %> (<%= event_note["dates"] %>):</strong> <%= event_note["note"] %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </div>
+            <% end %>
+
+            <% if details["getting_there"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">✈️ Getting There</h3>
+                <ul class="list-disc list-inside prose text-gray-700 mt-2">
+                  <% details["getting_there"].each do |key, value| %>
+                    <% emoji = case key.to_s.downcase
+                               when "airport" then "✈️ "
+                               when "drive" then "🚗 "
+                               when "shuttle_tips" then "🚌 "
+                               else ""
+                               end %>
+                    <li class="text-gray-700"><strong class="text-sm font-semibold"><%= emoji %><%= key.to_s.titleize %>:</strong> <%= value %></li>
                   <% end %>
-                  <%= link_to "View on Google Maps", "https://www.google.com/maps/place/?q=place_id:#{lodging.google_place_id}", target: "_blank", class: "inline-block w-full text-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Right Column (33%) -->
+          <div class="space-y-6 md:col-span-1">
+            <% if details["course_conditions"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                  ⚠️
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block mr-1 align-text-bottom">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                   Course Conditions
+                </h3>
+                <%
+                  course_conditions_data = details["course_conditions"]
+                  level = course_conditions_data["condition_level"].to_s # Ensure level is a string
+                  level_classes = {
+                    'good' => 'bg-green-50 border-green-500 text-green-700',
+                    'fair' => 'bg-yellow-50 border-yellow-500 text-yellow-700',
+                    'poor' => 'bg-red-50 border-red-500 text-red-700'
+                  }.fetch(level, 'bg-gray-50 border-gray-500 text-gray-700') # Default for unknown levels
+                  base_classes = "border-l-4 p-4 rounded-md mt-2"
+                %>
+                <div class="<%= level_classes %> <%= base_classes %>">
+                  <% if level.present? && level_classes.include?(level) %>
+                    <strong class="block mb-1 text-sm font-semibold"><%= level.capitalize %> Condition</strong>
+                  <% else %>
+                    <strong class="block mb-1 text-sm font-semibold">Condition Status</strong>
+                  <% end %>
+                  <p class="text-sm"><%= course_conditions_data["notes"] %></p>
+                  <% if course_conditions_data["last_updated"].present? %>
+                    <p class="text-xs mt-2">Last updated: <%= Time.parse(course_conditions_data["last_updated"]).strftime("%B %d, %Y") %></p>
+                  <% end %>
                 </div>
               </div>
+            <% end %>
+
+            <% if details["tee_time_tips"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">⏰ Tee Time Tips</h3>
+                <ul class="list-disc list-inside prose text-gray-700 mt-2">
+                  <% details["tee_time_tips"].each do |tip| %>
+                    <li><%= tip %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <% if details["trip_tips"].present? %>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">💡 Destination Tips</h3>
+                <ul class="list-disc list-inside prose text-gray-700 mt-2">
+                  <% details["trip_tips"].each do |tip| %>
+                    <li><%= tip %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-gray-500">No summary available for this location</div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Courses Section -->
+  <div id="courses" class="mb-16">
+    <%= render partial: "shared/carousel", locals: {
+      title: "Courses Nearby",
+      subtitle: "View all courses in #{@location.state}",
+      subtitle_link: {
+        text: "View all courses in #{@location.state}",
+        path: state_path(@location.state)
+      },
+      items: @nearby_courses,
+      partial: "shared/card",
+      partial_locals: {
+        type: 'course',
+        show_details: true,
+        link_path: ->(item) { course_path(item) }
+      }
+    } %>
+  </div>
+
+  <!-- Lodging Section -->
+  <div id="lodging" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Lodging Options</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @location.lodgings.each do |lodging| %>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+          <% if lodging.image_url.present? %>
+            <div class="aspect-w-16 aspect-h-9">
+              <%= image_tag lodging.image_url, class: "w-full h-48 object-cover", alt: lodging.name %>
+            </div>
+          <% else %>
+            <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center h-48">
+              <span class="text-gray-400">No photo available</span>
             </div>
           <% end %>
-        </div>
-      </div>
-
-      <!-- Nearby Locations -->
-      <% if @nearby_locations&.any? %>
-        <div class="mt-12">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Nearby Golf Destinations</h2>
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <% @nearby_locations.each do |location| %>
-              <%= link_to location_path(location), class: "block" do %>
-                <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <%= image_tag location.image_url, class: "w-full h-48 object-cover" %>
-                  <div class="p-4">
-                    <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>
-                    <p class="mt-1 text-sm text-gray-500">
-                      <%= [location.region, location.state, location.country].compact.join(', ') %>
-                    </p>
-                    <p class="mt-2 text-sm text-gray-600">
-                      <%= pluralize(location.courses.count, 'course') %>
-                    </p>
-                  </div>
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-gray-900"><%= lodging.name %></h3>
+            <% if lodging.rating.present? %>
+              <div class="flex items-center mt-1">
+                <div class="flex items-center">
+                  <% lodging.rating.to_i.times do %>
+                    <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  <% end %>
+                  <span class="ml-2 text-sm text-gray-600"><%= lodging.rating %> stars</span>
                 </div>
-              <% end %>
+              </div>
             <% end %>
+            <p class="mt-2 text-sm text-gray-600"><%= lodging.formatted_address %></p>
+            <% if lodging.formatted_phone_number.present? %>
+              <p class="mt-1 text-sm text-gray-600">
+                <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                <%= lodging.formatted_phone_number %>
+              </p>
+            <% end %>
+            <% if lodging.types.present? %>
+              <div class="mt-2 flex flex-wrap gap-1">
+                <% lodging.types.each do |type| %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                    <%= type.titleize %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+            <div class="mt-4 space-y-2">
+              <% if lodging.website.present? %>
+                <%= link_to "Visit Website", lodging.website, target: "_blank", class: "inline-block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#355E3B] hover:bg-[#2A4A30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+              <% end %>
+              <%= link_to "View on Google Maps", "https://www.google.com/maps/place/?q=place_id:#{lodging.google_place_id}", target: "_blank", class: "inline-block w-full text-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#355E3B]" %>
+            </div>
           </div>
         </div>
       <% end %>
     </div>
   </div>
+
+  <!-- Nearby Locations -->
+  <% if @nearby_locations&.any? %>
+    <div class="mt-12">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">Nearby Golf Destinations</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <% @nearby_locations.each do |location| %>
+          <%= link_to location_path(location), class: "block" do %>
+            <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <%= image_tag location.image_url, class: "w-full h-48 object-cover" %>
+              <div class="p-4">
+                <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>
+                <p class="mt-1 text-sm text-gray-500">
+                  <%= [location.region, location.state, location.country].compact.join(', ') %>
+                </p>
+                <p class="mt-2 text-sm text-gray-600">
+                  <%= pluralize(location.courses.count, 'course') %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>
+</div>    
 
 <!-- JavaScript for highlighting active section -->
 <script>

@@ -221,26 +221,26 @@
   <div id="nearby" class="mb-16">
     <h2 class="text-2xl font-bold text-gray-900 mb-6">Nearby Courses</h2>
     <div class="bg-white rounded-lg shadow-sm p-6">
-      <% if @course.locations.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <% @course.locations.first.courses.where.not(id: @course.id).limit(6).each do |nearby_course| %>
-            <%= link_to course_path(nearby_course), class: "block group" do %>
-              <div class="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-                <%= image_tag nearby_course.image_url, class: "w-full h-48 object-cover", alt: nearby_course.name %>
-                <div class="p-4">
-                  <h3 class="text-lg font-semibold text-gray-900 group-hover:text-[#355E3B]"><%= nearby_course.name %></h3>
-                  <div class="mt-2 flex items-center justify-between">
-                    <span class="text-lg text-gray-600"><%= nearby_course.number_of_holes %> holes</span>
-                    <span class="text-lg font-bold text-[#355E3B]"><%= number_to_currency(nearby_course.green_fee) %></span>
-                  </div>
-                </div>
+    <% if @course.locations.any? && @course.locations.first.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @course.locations.first.courses.where.not(id: @course.id).limit(6).each do |nearby_course| %>
+        <%= link_to course_path(nearby_course), class: "block group" do %>
+          <div class="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+            <%= image_tag nearby_course.image_url, class: "w-full h-48 object-cover", alt: nearby_course.name %>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-[#355E3B]"><%= nearby_course.name %></h3>
+              <div class="mt-2 flex items-center justify-between">
+                <span class="text-lg text-gray-600"><%= nearby_course.number_of_holes %> holes</span>
+                <span class="text-lg font-bold text-[#355E3B]"><%= number_to_currency(nearby_course.green_fee) %></span>
               </div>
-            <% end %>
-          <% end %>
-        </div>
-      <% else %>
-        <p class="text-gray-600 text-lg">No nearby courses found.</p>
+            </div>
+          </div>
+        <% end %>
       <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-600 text-lg">No nearby courses found.</p>
+  <% end %>
     </div>
   </div>
 </div>

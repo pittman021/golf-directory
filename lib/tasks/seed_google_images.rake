@@ -11,7 +11,6 @@ namespace :seed do
     puts "🔍 Looking for courses missing image_url..."
 
     courses = Course.where(image_url: nil).where.not(google_place_id: nil)
-    courses = courses.limit(limit) if limit.positive?
 
     puts "Found #{courses.count} courses without images"
 
