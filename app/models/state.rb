@@ -19,6 +19,10 @@ class State < ApplicationRecord
     courses.count
   end
 
+  def top_100_courses_count
+    @top_100_courses_count ||= courses.with_tag("golf:top100").count
+  end
+
   def featured_courses
     Course.where(id: featured_course_ids)
   end

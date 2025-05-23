@@ -6,12 +6,11 @@
       </h1>
       <p class="text-md md:text-xl">
         These are the <%= state.courses.count %> golf courses and <%= state.locations.count %> destinations in <%= state.name %>, where the average green fee is approximately <%= number_to_currency(state.average_green_fee.presence || 100) %>.
-        <% top_100_course_count_in_state = Course.where(state: state).tagged_with("golf:top100").count %>
-        <% if top_100_course_count_in_state > 0 %>
-          and <%= top_100_course_count_in_state %> Top 100 course<%= 's' if top_100_course_count_in_state > 1 %>.
-        <% else %>
-          .
-        <% end %>
+        <% if @top_100_courses_count.to_i > 0 %>
+  and <%= @top_100_courses_count %> Top 100 course<%= 's' if @top_100_courses_count > 1 %>.
+<% else %>
+  .
+<% end %>
       </p>
     </div>
   </div>

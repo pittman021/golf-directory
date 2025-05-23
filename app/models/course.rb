@@ -41,6 +41,11 @@ class Course < ApplicationRecord
       where("earth_distance(ll_to_earth(latitude, longitude), ll_to_earth(?, ?)) <= ?", lat, lng, radius_meters)
     }
 
+    # Scope to find courses with a specific tag (case-insensitive)
+    scope :with_tag, ->(tag_name) {
+      where("EXISTS (SELECT 1 FROM unnest(course_tags) AS t(tag_element) WHERE LOWER(t.tag_element) LIKE ?)", "%#{tag_name.downcase}%")
+    }
+
     def average_rating
       reviews.average(:rating)
     end

@@ -6,6 +6,8 @@ class StatesController < ApplicationController
   def show
     @courses = @state.courses.ordered_by_price.includes(:reviews)
     @locations = @state.locations.includes(:courses, :reviews)
+    @top_100_courses_count = @state.courses.where("'top_100_courses' = ANY(course_tags)").count
+
     
     # Get nearby locations if coordinates are available
     if @locations.any? { |l| l.latitude && l.longitude }
