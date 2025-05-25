@@ -20,19 +20,28 @@ ActiveAdmin.register Course do
     defaults finder: :find_by_slug
     
     def update
-      # Convert comma-separated tags to array
-      if params[:course] && params[:course][:course_tags].present?
-        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
+      if params[:course][:location_ids].present?
+        @course = Course.find_by_slug(params[:id])
+        @course.locations = Location.where(id: params[:course][:location_ids].reject(&:blank?))
       end
       super
     end
     
     def create
-      # Convert comma-separated tags to array
-      if params[:course] && params[:course][:course_tags].present?
-        params[:course][:course_tags] = params[:course][:course_tags].split(',').map(&:strip)
+      if params[:course][:location_ids].present?
+        @course = Course.new(course_params)
+        @course.locations = Location.where(id: params[:course][:location_ids].reject(&:blank?))
       end
       super
+    end
+
+    private
+
+    def course_params
+      params.require(:course).permit(:name, :course_type, :description, :green_fee, 
+                                   :green_fee_range, :number_of_holes, :par, :yardage, 
+                                   :notes, :website_url, :latitude, :longitude, 
+                                   :image_url, course_tags: [])
     end
   end
 
@@ -73,7 +82,7 @@ ActiveAdmin.register Course do
   form do |f|
     f.inputs "Course Details" do
       f.input :name
-      f.input :locations, collection: Location.all.map { |l| [l.name, l.id] }, input_html: { multiple: true }
+      f.input :locations, as: :select, collection: Location.all.map { |l| [l.name, l.id] }, input_html: { multiple: true }, include_blank: false
       f.input :course_type, as: :select, collection: Course.course_types.map { |k, v| [k.humanize, k] }
       f.input :description
       f.input :green_fee
@@ -81,7 +90,7 @@ ActiveAdmin.register Course do
       f.input :number_of_holes
       f.input :par
       f.input :yardage
-      f.input :course_tags, input_html: { value: f.object.course_tags&.join(', ') }
+      f.input :course_tags, as: :check_boxes, collection: TAG_CATEGORIES.values.flatten.uniq.reject(&:blank?), label_method: :titleize
       f.input :notes
       f.input :website_url
       f.input :latitude
@@ -148,5 +157,5 @@ ActiveAdmin.register Course do
   # Permit all parameters
   permit_params :name, :location_id, :course_type, :description, :green_fee, 
                 :green_fee_range, :number_of_holes, :par, :yardage, :notes, 
-                :website_url, :latitude, :longitude, :image_url, :course_tags
+                :website_url, :latitude, :longitude, :image_url, course_tags: [], location_ids: []
 end
