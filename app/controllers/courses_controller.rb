@@ -35,7 +35,21 @@ class CoursesController < ApplicationController
 
     # Set SEO meta tags
     @page_title = "#{@course.name} – Green Fees, Yardage, Course Info"
-    @page_description = @course.description.present? ? @course.description.truncate(155) : "Play #{@course.name}, a #{@course.course_type.humanize} golf course in #{@course.state.name}. #{@course.number_of_holes} holes, par #{@course.par}, green fee #{number_to_currency(@course.green_fee)}."
+    
+    # Build meta description with safe navigation and fallbacks
+    description_parts = []
+    description_parts << "Play #{@course.name}"
+    description_parts << "a #{@course.course_type&.humanize || 'golf'} course"
+    description_parts << "in #{@course.state&.name || 'the United States'}"
+    
+    course_details = []
+    course_details << "#{@course.number_of_holes || '18'} holes" if @course.number_of_holes
+    course_details << "par #{@course.par}" if @course.par
+    course_details << "green fee #{number_to_currency(@course.green_fee)}" if @course.green_fee
+    
+    description_parts << course_details.join(', ') if course_details.any?
+    
+    @page_description = description_parts.join(', ') + '.'
   end
 
   # GET /courses/new
