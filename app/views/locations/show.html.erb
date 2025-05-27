@@ -73,7 +73,7 @@
 <div class="infobar">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start py-6">
-      <%# Data setup for this section %>
+      <%# Data setupx for this section %>
       <%
         details_json = @location.details_json || {}
         course_conditions_data = details_json["course_conditions"] || {}
@@ -172,13 +172,13 @@
 <div class="sticky-nav">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <nav class="flex justify-center py-3">
-      <a href="#information" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+      <a href="#information" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-gray-900 hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
         Information
       </a>
-      <a href="#courses" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+      <a href="#courses" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-gray-900 hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
         Courses
       </a>
-      <a href="#lodging" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+      <a href="#lodging" class="nav-link px-6 py-2 mx-2 text-sm font-medium text-gray-900 hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
         Lodging
       </a>
     </nav>
@@ -188,12 +188,7 @@
 <div class="container-fluid px-2 sm:px-4 py-8">
   <!-- Map and Courses Section - Matching Homepage Experience -->
  
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-      <!-- Map View -->
-      <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
-           id="location-map"
-           data-controller="map"
-           data-map-markers-value="<%= [
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start" data-controller="map" data-map-markers-value="<%= [
              *@courses.select { |c| c.latitude.present? && c.longitude.present? }.map { |course| {
                latitude: course.latitude.to_f,
                longitude: course.longitude.to_f,
@@ -209,21 +204,26 @@
                info: "#{course.name}<br>#{course.course_type.humanize}<br>#{number_to_currency(course.green_fee, precision: 0)}"
              }}
            ].to_json %>">
+      <!-- Map View -->
+      <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
+           id="location-map"
+           data-map-target="mapElement">
       </div>
 
       <!-- Grid View -->
       <div data-view-toggle-target="cardView" class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
-          <% @courses.each do |course| %>
+          <% @courses.each_with_index do |course, index| %>
             <div class="course-card" 
                  data-course-id="<%= course.id %>"
-                 data-controller="course-card"
-                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                 data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric"
+                 data-map-target="card">
               <%= render partial: "shared/card", locals: { 
                 item: course,
                 type: 'course',
                 link_path: course_path(course),
-                show_details: true
+                show_details: true,
+                ranking: index + 1
               } %>
             </div>
           <% end %>
@@ -445,14 +445,15 @@
       subtitle: "View all courses in #{@location.state}",
       subtitle_link: {
         text: "View all courses in #{@location.state}",
-        path: state_path(@location.state)
+        path: state_path(@location.state_record)
       },
       items: @nearby_courses,
       partial: "shared/card",
       partial_locals: {
         type: 'course',
         show_details: true,
-        link_path: ->(item) { course_path(item) }
+        link_path: ->(item) { course_path(item) },
+        ranking: ->(item, index) { index + 1 }
       }
     } %>
   </div>

@@ -89,13 +89,7 @@
     <% end %>
 
     <!-- Map and Cards Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-      <!-- Map View - Full width and more prominent -->
-      <div class="relative w-full overflow-hidden">
-      <div class="relative w-full h-[calc(100vh-200px)] min-h-[600px] overflow-hidden bg-white rounded-lg shadow-sm sticky top-4"
-           id="locations-map"
-           data-controller="map location-hover"
-           data-map-markers-value="<%= [
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start" data-controller="map location-hover" data-map-markers-value="<%= [
              # Location markers
              *@locations.map { |location| {
                latitude: location.latitude.to_f,
@@ -110,6 +104,11 @@
                info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
              }}
            ].to_json %>">
+      <!-- Map View - Full width and more prominent -->
+      <div class="relative w-full overflow-hidden">
+      <div class="relative w-full h-[calc(100vh-200px)] min-h-[600px] overflow-hidden bg-white rounded-lg shadow-sm sticky top-4"
+           id="locations-map"
+           data-map-target="mapElement">
       </div>
       </div>
       
@@ -120,7 +119,8 @@
             <div class="location-card" 
                  data-location-id="<%= location.id %>"
                  data-controller="location-card"
-                 data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                 data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                 data-map-target="card">
               <%= render partial: "shared/card", locals: { 
                 item: location,
                 type: 'location',
@@ -141,8 +141,8 @@
               <div class="location-card" 
                    data-location-id="<%= location.id %>"
                    data-controller="location-card"
-           
-                   data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                   data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                   data-map-target="card">
                 <%= render partial: "locations/location_card", locals: { location: location } %>
               </div>
             <% end %>
@@ -178,7 +178,8 @@
                   <% @locations.each do |location| %>
                     <tr class="hover:bg-gray-50 location-row" 
                         data-location-id="<%= location.id %>"
-                        data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+                        data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
+                        data-map-target="card">
                       <td class="px-6 py-4">
                         <div class="relative h-24 w-36 rounded-lg overflow-hidden">
                           <%= image_tag location.image_url, 

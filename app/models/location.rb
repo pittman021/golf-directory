@@ -220,6 +220,10 @@ class Location < ApplicationRecord
     %w[courses location_courses lodgings]
   end
 
+  def state_record
+    @state_record ||= State.find_by(name: state)
+  end
+
   private
 
   def calculate_estimated_trip_cost

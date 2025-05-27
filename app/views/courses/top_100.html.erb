@@ -67,12 +67,7 @@
     <h2 class="text-xl font-semibold text-gray-800">Top 100 Courses (<%= @courses.size %>)</h2>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-    <!-- Map View -->
-    <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
-         id="top-100-map"
-         data-controller="map"
-         data-map-markers-value="<%= [
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start" data-controller="map" data-map-markers-value="<%= [
            *@courses.select { |c| c.latitude.present? && c.longitude.present? }.map { |course| {
              latitude: course.latitude.to_f,
              longitude: course.longitude.to_f,
@@ -88,21 +83,26 @@
              info: "#{course.name}<br>#{course.course_type.humanize}<br>#{number_to_currency(course.green_fee, precision: 0)}"
            }}
          ].to_json %>">
+    <!-- Map View -->
+    <div class="w-full h-[calc(100vh-3.5rem)] bg-white rounded-lg shadow-sm overflow-hidden sticky top-14" 
+         id="top-100-map"
+         data-map-target="mapElement">
     </div>
 
     <!-- Grid View -->
     <div class="grid-view-wrapper h-[calc(100vh-3.5rem)] overflow-y-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
-        <% @courses.each do |course| %>
+        <% @courses.each_with_index do |course, index| %>
           <div class="course-card" 
                data-course-id="<%= course.id %>"
-               data-controller="course-card"
-               data-action="mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker">
+               data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric"
+               data-map-target="card">
             <%= render partial: "shared/card", locals: { 
               item: course,
               type: 'course',
               link_path: course_path(course),
-              show_details: true
+              show_details: true,
+              ranking: index + 1
             } %>
           </div>
         <% end %>

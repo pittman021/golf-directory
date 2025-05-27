@@ -45,10 +45,13 @@
       <div data-carousel-target="container" 
            class="flex transition-transform duration-300 ease-in-out"
            style="transform: translateX(0px)">
-        <% items.each do |item| %>
+        <% items.each_with_index do |item, index| %>
           <div class="flex-shrink-0 w-64 px-2">
-            <% link_path = partial_locals[:link_path].respond_to?(:call) ? partial_locals[:link_path].call(item) : partial_locals[:link_path] %>
-            <%= render partial: partial, locals: partial_locals.merge(item: item, link_path: link_path) %>
+            <% 
+              link_path = partial_locals[:link_path].respond_to?(:call) ? partial_locals[:link_path].call(item) : partial_locals[:link_path]
+              ranking = partial_locals[:ranking].respond_to?(:call) ? partial_locals[:ranking].call(item, index) : partial_locals[:ranking]
+            %>
+            <%= render partial: partial, locals: partial_locals.merge(item: item, link_path: link_path, ranking: ranking) %>
           </div>
         <% end %>
       </div>

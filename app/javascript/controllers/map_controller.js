@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "markers"]
+  static targets = ["container", "markers", "card", "mapElement"]
   static values = {
     latitude: Number,
     longitude: Number,
@@ -9,10 +9,70 @@ export default class extends Controller {
   }
   
   connect() {
-  
-    
+    console.log("Map controller connected");
     // Set a timer to check if Google Maps API is loaded
     this.checkGoogleMapsLoaded();
+  }
+  
+  debugConnection() {
+    console.log("Map controller debug connection");
+    console.log("Element:", this.element);
+    console.log("Map element:", this.mapElementTarget);
+    console.log("Has markers value:", this.hasMarkersValue);
+    if (this.hasMarkersValue) {
+      console.log("Markers data:", this.markersValue);
+    }
+    console.log("Card targets:", this.cardTargets);
+  }
+  
+  debugCard(event) {
+    console.log("Card connected:", event.currentTarget);
+    console.log("Course ID:", event.currentTarget.dataset.courseId);
+  }
+  
+  testHover(event) {
+    console.log("Hover event triggered:", event.type);
+    console.log("Target:", event.currentTarget);
+    console.log("Course ID:", event.currentTarget.dataset.courseId);
+    alert(`Hover ${event.type} on course ${event.currentTarget.dataset.courseId}`);
+  }
+  
+  highlightMarkerOnHover(event) {
+    const courseId = event.currentTarget.dataset.courseId;
+    if (!courseId) return;
+    
+    // Find the marker for this course
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const marker = this.markers[markerIndex];
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close all info windows first
+      this.infoWindows.forEach(info => info.close());
+      
+      // Open this info window
+      if (infoWindow && marker) {
+        infoWindow.open(this.map, marker);
+      }
+    }
+  }
+  
+  resetMarkerOnHover(event) {
+    const courseId = event.currentTarget.dataset.courseId;
+    if (!courseId) return;
+    
+    // Find the marker for this course
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close the info window
+      if (infoWindow) {
+        infoWindow.close();
+      }
+    }
   }
   
   checkGoogleMapsLoaded() {
@@ -54,8 +114,8 @@ export default class extends Controller {
       const zoom = 8;
       
       
-      // Initialize the map on the element with the controller  
-      this.map = new google.maps.Map(this.element, {
+      // Initialize the map on the mapElement target instead of this.element
+      this.map = new google.maps.Map(this.mapElementTarget, {
         center: { lat, lng },
         zoom: zoom,
         mapId: window.googleMapsConfig?.mapId,
@@ -64,7 +124,7 @@ export default class extends Controller {
         streetViewControl: false
       });
       
-      this.element.style.backgroundColor = "#e5e5e5";
+      this.mapElementTarget.style.backgroundColor = "#e5e5e5";
       
       // If we have markers data, add them to the map
       if (this.hasMarkersValue) {
@@ -480,5 +540,98 @@ export default class extends Controller {
         console.error("Error when panning map to show info window:", error);
       }
     }, 100); // Short delay to ensure DOM is fully ready
+  }
+
+  highlightMarker(event) {
+    console.log("Highlight marker called", event);
+    const courseId = event.currentTarget.dataset.courseId;
+    console.log("Course ID:", courseId);
+    
+    if (!courseId) {
+      console.log("No course ID found");
+      return;
+    }
+    
+    // Find the marker for this course
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
+    console.log("Marker index:", markerIndex);
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const marker = this.markers[markerIndex];
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close all info windows first
+      this.infoWindows.forEach(info => info.close());
+      
+      // Open this info window
+      if (infoWindow && marker) {
+        console.log("Opening info window");
+        infoWindow.open(this.map, marker);
+      }
+    }
+  }
+
+  resetMarker(event) {
+    console.log("Reset marker called", event);
+    const courseId = event.currentTarget.dataset.courseId;
+    console.log("Course ID:", courseId);
+    
+    if (!courseId) {
+      console.log("No course ID found");
+      return;
+    }
+    
+    // Find the marker for this course
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
+    console.log("Marker index:", markerIndex);
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close the info window
+      if (infoWindow) {
+        console.log("Closing info window");
+        infoWindow.close();
+      }
+    }
+  }
+
+  // Generic hover methods that work for both courses and locations
+  highlightMarkerOnHoverGeneric(event) {
+    const itemId = event.currentTarget.dataset.courseId || event.currentTarget.dataset.locationId;
+    if (!itemId) return;
+    
+    // Find the marker for this item
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === itemId.toString());
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const marker = this.markers[markerIndex];
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close all info windows first
+      this.infoWindows.forEach(info => info.close());
+      
+      // Open this info window
+      if (infoWindow && marker) {
+        infoWindow.open(this.map, marker);
+      }
+    }
+  }
+
+  resetMarkerOnHoverGeneric(event) {
+    const itemId = event.currentTarget.dataset.courseId || event.currentTarget.dataset.locationId;
+    if (!itemId) return;
+    
+    // Find the marker for this item
+    const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === itemId.toString());
+    
+    if (markerIndex >= 0 && this.markers && this.infoWindows) {
+      const infoWindow = this.infoWindows[markerIndex];
+      
+      // Close the info window
+      if (infoWindow) {
+        infoWindow.close();
+      }
+    }
   }
 }
