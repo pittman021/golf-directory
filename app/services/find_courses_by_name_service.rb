@@ -21,10 +21,10 @@ class FindCoursesByNameService
   def initialize(name)
     @name = name
     # Use environment-specific API keys
-    if Rails.env.production?
-      @api_key = Rails.application.credentials.google_maps[:api_key]
-    elsif Rails.env.development? || Rails.env.test?
-      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+    @api_key = if Rails.env.production?
+      Rails.application.credentials.google_maps[:api_key]
+    else
+      Rails.application.credentials.google_maps[:development_api_key]
     end
   end
 

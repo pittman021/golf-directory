@@ -3,10 +3,10 @@ class FindLodgingsByCoordinatesService
     @latitude = latitude
     @longitude = longitude
     @state = state
-    if Rails.env.production?
-      @api_key = Rails.application.credentials.google_maps[:api_key]
+    @api_key = if Rails.env.production?
+      Rails.application.credentials.google_maps[:api_key]
     else
-      @api_key = Rails.application.credentials.google_maps[:development_api_key]
+      Rails.application.credentials.google_maps[:development_api_key]
     end
   end
 

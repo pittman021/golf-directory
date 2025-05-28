@@ -11,7 +11,7 @@ class User < ApplicationRecord
   
   validates :email, presence: true, uniqueness: true
   validates :username, presence: true, uniqueness: true
-
+  
   # Define which attributes can be searched with Ransack
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "email", "id", "role", "updated_at", "username"]
