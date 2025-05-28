@@ -108,11 +108,54 @@ class Course < ApplicationRecord
     def self.ransackable_attributes(auth_object = nil)
       ["course_tags", "course_type", "created_at", "description", "green_fee", "green_fee_range", 
        "id", "latitude", "longitude", "name", "notes", "number_of_holes", "par", 
-       "updated_at", "website_url", "yardage", "image_url"]
+       "updated_at", "website_url", "yardage", "image_url", "amenities", "phone"]
     end
     
     def self.ransackable_associations(auth_object = nil)
       ["location_courses", "locations", "reviews"]
+    end
+
+    # Amenities helper methods - now using standardized system
+    def has_amenity?(amenity_name)
+      amenities&.include?(amenity_name.to_s)
+    end
+
+    def amenities_by_category
+      return {} unless amenities.present?
+      
+      require_relative '../config/standardized_amenities' unless defined?(StandardizedAmenityProcessor)
+      StandardizedAmenityProcessor.categorize_amenities(amenities)
+    end
+
+    def standardized_amenities
+      return [] unless amenities.present?
+      
+      require_relative '../config/standardized_amenities' unless defined?(StandardizedAmenityProcessor)
+      StandardizedAmenityProcessor.standardize_amenities(amenities)
+    end
+
+    def amenity_count
+      amenities&.length || 0
+    end
+
+    # Check if course has amenities in a specific category
+    def has_golf_facilities?
+      golf_facilities = ['Driving Range', 'Putting Green', 'Short Game Area', 'Practice Facility']
+      amenities.present? && (amenities & golf_facilities).any?
+    end
+
+    def has_dining?
+      dining_amenities = ['Restaurant', 'Bar', 'Snack Bar', 'Beverage Cart']
+      amenities.present? && (amenities & dining_amenities).any?
+    end
+
+    def has_lodging?
+      amenities&.include?('Lodging')
+    end
+
+    def has_event_facilities?
+      event_amenities = ['Event Space', 'Tournament Host', 'Wedding Venue', 'Conference Facilities', 'Banquet Facilities']
+      amenities.present? && (amenities & event_amenities).any?
     end
 
     private

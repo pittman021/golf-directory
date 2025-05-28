@@ -1,0 +1,5 @@
+class AddEmailToCourses < ActiveRecord::Migration[7.2]
+  def change
+    add_column :courses, :email, :string
+  end
+end

@@ -173,7 +173,7 @@ class Location < ApplicationRecord
   def derived_tags
     [].tap do |rolled_up|
       course_tags = courses.flat_map(&:course_tags).uniq.compact
-      rolled_up << "golf:top100" if course_tags.include?("top_100")
+      rolled_up << "golf:top100" if course_tags.include?("top_100_courses")
       rolled_up << "golf:tournament" if course_tags.include?("pga_tour_host")
       rolled_up << "golf:bucket_list" if course_tags.include?("bucket_list")
       rolled_up << "golf:multiple_courses" if courses.size > 1
