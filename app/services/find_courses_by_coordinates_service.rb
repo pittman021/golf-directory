@@ -507,6 +507,36 @@ class FindCoursesByCoordinatesService
       # Exclude golf cart services
       return false if name_lower.include?("golf cart")
       
+      # NEW: Exclude non-golf facilities that might have "country club" in name
+      # Exclude motels, hotels, inns (unless they explicitly mention golf)
+      if (name_lower.include?("motel") || name_lower.include?("inn") || name_lower.include?("hotel")) &&
+         !name_lower.include?("golf course") && 
+         !name_lower.include?("golf club") &&
+         !name_lower.include?("golf resort")
+        return false
+      end
+      
+      # Exclude shopping centers, malls, retail
+      return false if name_lower.include?("shopping")
+      return false if name_lower.include?("mall")
+      return false if name_lower.include?("retail")
+      return false if name_lower.include?("plaza")
+      
+      # Exclude pet facilities
+      return false if name_lower.include?("pet")
+      return false if name_lower.include?("kennel")
+      return false if name_lower.include?("veterinary")
+      return false if name_lower.include?("animal")
+      
+      # Exclude maintenance/service facilities
+      return false if name_lower.include?("maintenance") && !name_lower.include?("golf course")
+      return false if name_lower.include?("service") && !name_lower.include?("golf")
+      
+      # Exclude generic business facilities
+      return false if name_lower.include?("office")
+      return false if name_lower.include?("building")
+      return false if name_lower.include?("center") && !name_lower.include?("golf")
+      
       # Must contain golf-related terms to be considered
       golf_terms = ["golf course", "golf club", "country club", "golf resort", "municipal golf", "public golf", "private golf"]
       has_golf_term = golf_terms.any? { |term| name_lower.include?(term) }
@@ -518,6 +548,12 @@ class FindCoursesByCoordinatesService
                         name_lower.include?("club") || 
                         name_lower.include?("links") ||
                         types&.include?("golf_course"))
+      end
+      
+      # Special case: If it has "country club" but no golf terms, be more strict
+      if name_lower.include?("country club") && !has_golf_term
+        # Only allow if it's clearly a golf facility
+        return name_lower.include?("golf") || types&.include?("golf_course")
       end
       
       has_golf_term

@@ -13,10 +13,10 @@
           <div class="absolute left-0 mt-2 w-[800px] bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 hidden z-[999]" data-dropdown-target="menu">
             <div class="p-4">
               <div class="grid grid-cols-4 gap-4">
-                <% State.order(:name).each do |state| %>
+                <% State.left_joins(:courses).group('states.id', 'states.name', 'states.slug').order('states.name').select('states.*, COALESCE(COUNT(courses.id), 0) as courses_count').each do |state| %>
                   <%= link_to state_path(state), class: "text-gray-700 hover:text-[#355E3B] hover:bg-gray-50 px-3 py-2 rounded-md text-sm" do %>
                     <%= state.name %>
-                    <span class="text-gray-400 text-xs ml-1">(<%= state.courses_count %>)</span>
+                    <span class="text-gray-400 text-xs ml-1">(<%= state[:courses_count] %>)</span>
                   <% end %>
                 <% end %>
               </div>

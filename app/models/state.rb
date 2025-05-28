@@ -16,7 +16,7 @@ class State < ApplicationRecord
 
   # Methods
   def courses_count
-    courses.count
+    @courses_count ||= courses.count
   end
 
   def top_100_courses_count
