@@ -8,142 +8,79 @@ require_relative '../../config/golf_amenities'
 require_relative '../../config/standardized_amenities'
 
 namespace :courses do
-  desc "Test scraping on 10 courses - log data without saving"
-  task test_scraping: :environment do
-    puts "🧪 Testing web scraping on 10 courses (no data will be saved)..."
+  desc "Run enhanced scraping on courses with real websites and blank amenities"
+  task scrape_all_remaining_courses: :environment do
+    puts "🕷️ Starting targeted web scraping for courses with blank amenities..."
+    puts "Target: Courses with real websites (excluding 'Pending Google Enrichment') that have blank amenities"
+    puts "Focus: Amenities extraction from golf course websites"
     puts "=" * 70
     
-    # Find 10 courses with website URLs for testing
-    test_courses = Course.where.not(website_url: nil)
-                        .where("website_url != ''")
-                        .limit(10)
+    # Get list of previously failed course IDs
+    failed_course_ids = get_failed_course_ids_from_log
+    puts "📋 Excluding #{failed_course_ids.count} previously failed courses"
     
-    puts "Testing scraping on #{test_courses.count} courses:\n\n"
+    # Create log file for failed scrapes
+    log_file = Rails.root.join('log', 'failed_scrapes.log')
     
-    test_courses.each_with_index do |course, index|
-      puts "#{index + 1}. 🏌️ #{course.name}"
-      puts "   State: #{course.state&.name || course.state || 'Unknown'}"
-      puts "   Website: #{course.website_url}"
-      puts "   Current Data:"
-      puts "     Phone: #{course.phone.present? ? course.phone : 'MISSING'}"
-      puts "     Green Fee: #{course.green_fee || 'MISSING'}"
-      puts "     Description: #{course.description.present? ? "#{course.description.length} chars" : 'MISSING'}"
-      puts "     Notes: #{course.notes.present? ? "#{course.notes.length} chars" : 'MISSING'}"
-      puts "     Image URL: #{course.image_url.present? ? 'Present' : 'MISSING'}"
-      
-      puts "\n   🕷️ Scraping website..."
-      
-      begin
-        scraped_data = scrape_course_website(course.website_url)
-        
-        if scraped_data.any?
-          puts "   ✅ SCRAPED DATA FOUND:"
-          scraped_data.each do |key, value|
-            case key
-            when :phone
-              puts "     Phone: #{value}"
-            when :email  
-              puts "     Email: #{value}"
-            when :green_fee
-              puts "     Green Fee: $#{value}"
-            when :description
-              puts "     Description: #{value.length} chars - \"#{value[0..100]}...\""
-            when :address
-              puts "     Address: #{value}"
-            else
-              puts "     #{key.to_s.capitalize}: #{value}"
-            end
-          end
-          
-          # Show what would be updated
-          puts "   📝 WOULD UPDATE:"
-          would_update = []
-          would_update << "phone (#{scraped_data[:phone]})" if scraped_data[:phone] && course.phone.blank?
-          would_update << "email (#{scraped_data[:email]})" if scraped_data[:email] && course.email.blank?
-          would_update << "description (#{scraped_data[:description]&.length} chars)" if scraped_data[:description] && course.description.blank?
-          would_update << "par (#{scraped_data[:par]})" if scraped_data[:par] && course.par != scraped_data[:par]
-          would_update << "yardage (#{scraped_data[:yardage]})" if scraped_data[:yardage] && course.yardage != scraped_data[:yardage]
-          would_update << "holes (#{scraped_data[:number_of_holes]})" if scraped_data[:number_of_holes] && course.number_of_holes != scraped_data[:number_of_holes]
-          
-          if scraped_data[:email]
-            puts "     📧 EMAIL FOUND (would need new field): #{scraped_data[:email]}"
-          end
-          
-          if scraped_data[:amenities]&.any?
-            puts "     🏌️ AMENITIES FOUND: #{scraped_data[:amenities].join(', ')}"
-          end
-          
-          if would_update.any?
-            would_update.each { |update| puts "     - #{update}" }
-          else
-            puts "     - Nothing (all existing fields already have data)"
-          end
-        else
-          puts "   ❌ NO USEFUL DATA FOUND"
-        end
-        
-      rescue StandardError => e
-        puts "   💥 ERROR: #{e.message}"
-        puts "   📍 #{e.backtrace.first}" if e.backtrace.present?
-      end
-      
-      puts "\n" + "-" * 70 + "\n"
-      
-      # Small delay between requests
-      sleep(1) if index < test_courses.count - 1
+    # Find courses with REAL websites that have blank amenities
+    base_query = Course.where.not(website_url: nil)
+                      .where("website_url != ''")
+                      .where("website_url NOT LIKE '%Pending%' AND website_url NOT LIKE '%No website%'")
+                      .where("amenities IS NULL OR ARRAY_LENGTH(amenities, 1) IS NULL")
+    
+    # Exclude previously failed courses
+    if failed_course_ids.any?
+      base_query = base_query.where.not(id: failed_course_ids)
     end
     
-    puts "🏁 Test scraping complete!"
-    puts "\n💡 If the results look good, run 'rails courses:scrape_basic_info' to start saving data."
-    puts "📋 Note: Email would still require adding a new field to Course model."
-  end
-  
-  desc "Scrape basic course information from their websites"
-  task scrape_basic_info: :environment do
-    puts "🕷️ Starting web scraping for basic course information..."
+    courses_to_scrape = base_query.limit(500) # Process in larger batches for efficiency
     
-    # Find courses with website URLs that need basic info
-    courses_to_scrape = Course.where.not(website_url: nil)
-                             .where("website_url != ''")
-                             .where("(phone IS NULL OR phone = '') OR
-                                     (green_fee IS NULL OR green_fee = 100) OR
-                                     (description IS NULL OR LENGTH(description) < 50)")
-                             .limit(50) # Process in batches
-    
-    puts "Found #{courses_to_scrape.count} courses with websites to scrape"
+    total_eligible = base_query.count
+    puts "Found #{courses_to_scrape.count} courses to scrape in this batch"
+    puts "Total eligible courses with blank amenities: #{total_eligible}"
+    puts "Previously failed courses excluded: #{failed_course_ids.count}"
+    puts "Failed scrapes will be logged to: #{log_file}"
+    puts ""
     
     scraped_count = 0
     failed_count = 0
+    failed_courses = []
     
     courses_to_scrape.find_each.with_index do |course, index|
-      puts "\n#{index + 1}/#{courses_to_scrape.count}: Scraping #{course.name}..."
+      puts "\n#{index + 1}/#{courses_to_scrape.count}: Scraping amenities for #{course.name}..."
+      puts "  State: #{course.state&.name || course.state || 'Unknown'}"
       puts "  Website: #{course.website_url}"
+      puts "  Current amenities: #{course.amenities&.any? ? course.amenities.join(', ') : 'BLANK'}"
       
       begin
-        scraped_data = scrape_course_website(course.website_url)
+        scraped_data = scrape_course_website_enhanced(course.website_url, course.name)
         
         if scraped_data.any?
           update_course_with_scraped_data(course, scraped_data)
           scraped_count += 1
           puts "  ✅ Successfully scraped data for #{course.name}"
+          
+          # Show what was found, with emphasis on amenities
+          if scraped_data[:amenities]&.any?
+            puts "  🏌️ AMENITIES FOUND: #{scraped_data[:amenities].join(', ')}"
+          else
+            puts "  🏌️ Amenities: Not found"
+          end
+          
           puts "  📞 Phone: #{scraped_data[:phone] || 'Not found'}"
           puts "  📧 Email: #{scraped_data[:email] || 'Not found'}"
           puts "  📝 Description: #{scraped_data[:description] ? "#{scraped_data[:description].length} chars" : 'Not found'}"
-          if scraped_data[:par]
-            holes = scraped_data[:number_of_holes] || course.number_of_holes
-            if holes
-              puts "    ℹ️ Par #{scraped_data[:par]} for #{holes} holes"
-            else
-              puts "    ℹ️ Par #{scraped_data[:par]} (hole count unknown)"
-            end
-          end
+          puts "  🎯 Par: #{scraped_data[:par] || 'Not found'}"
           puts "  📏 Yardage: #{scraped_data[:yardage] || 'Not found'}"
           puts "  🕳️ Holes: #{scraped_data[:number_of_holes] || 'Not found'}"
-          if scraped_data[:amenities]&.any?
-            puts "  🏌️ Amenities: #{scraped_data[:amenities].join(', ')}"
-          end
         else
           puts "  ⚠️ No useful data found for #{course.name}"
+          # Log as a failed scrape - website loads but no useful data
+          failed_courses << {
+            course: course,
+            error: "No useful data found",
+            error_type: "no_data"
+          }
         end
         
         # Be respectful with delays - reduced since we're hitting different sites
@@ -151,17 +88,39 @@ namespace :courses do
         
       rescue StandardError => e
         failed_count += 1
-        puts "  ❌ Error scraping #{course.name}: #{e.message}"
+        error_message = e.message
+        error_type = categorize_error(error_message)
+        
+        puts "  ❌ Error scraping #{course.name}: #{error_message}"
+        
+        # Log the failed scrape
+        failed_courses << {
+          course: course,
+          error: error_message,
+          error_type: error_type
+        }
       end
     end
     
-    puts "\n📊 Scraping Summary:"
+    # Write failed scrapes to log file
+    if failed_courses.any?
+      log_failed_scrape(failed_courses)
+    end
+    
+    puts "\n📊 Amenities Scraping Summary:"
     puts "Successfully scraped: #{scraped_count} courses"
     puts "Failed to scrape: #{failed_count} courses"
+    if failed_courses.any?
+      puts "No data found: #{failed_courses.count { |f| f[:error_type] == 'no_data' }} courses"
+      puts "Connection errors: #{failed_courses.count { |f| f[:error_type] == 'connection_failed' }} courses"
+      puts "Timeout errors: #{failed_courses.count { |f| f[:error_type] == 'timeout' }} courses"
+    end
     puts "Total processed: #{scraped_count + failed_count} courses"
+    puts "Total eligible remaining: #{total_eligible - courses_to_scrape.count} courses"
     
-    puts "\n💡 Run again to continue scraping more courses."
-    puts "After scraping, run 'rails courses:enrich_top_100' for premium enrichment."
+    puts "\n💡 Run again to continue scraping more courses with blank amenities."
+    puts "📋 Check #{log_file} for courses that need website URL corrections."
+    puts "🎯 This focused approach targets amenities extraction from real golf course websites."
   end
   
   desc "Enrich only top 100 courses with premium AI-generated content"
@@ -220,12 +179,17 @@ namespace :courses do
     puts "=" * 60
     
     total_courses = Course.count
-    courses_with_websites = Course.where.not(website_url: nil).where("website_url != ''").count
+    courses_with_real_websites = Course.where.not(website_url: nil)
+                                      .where("website_url != ''")
+                                      .where("website_url NOT LIKE '%Pending%' AND website_url NOT LIKE '%No website%'")
+                                      .count
+    courses_with_pending = Course.where("website_url LIKE '%Pending%'").count
     top_100_courses = Course.where("'top_100' = ANY(course_tags)").count
     
     puts "\n🌐 Website Coverage:"
     puts "Total courses: #{total_courses}"
-    puts "Courses with websites: #{courses_with_websites} (#{(courses_with_websites.to_f / total_courses * 100).round(1)}%)"
+    puts "Courses with real websites: #{courses_with_real_websites} (#{(courses_with_real_websites.to_f / total_courses * 100).round(1)}%)"
+    puts "Courses with 'Pending' URLs: #{courses_with_pending} (#{(courses_with_pending.to_f / total_courses * 100).round(1)}%)"
     puts "Top 100 courses: #{top_100_courses}"
     
     # Check basic data coverage
@@ -237,6 +201,18 @@ namespace :courses do
     puts "Phone numbers: #{phone_coverage} (#{(phone_coverage.to_f / total_courses * 100).round(1)}%)"
     puts "Email addresses: #{email_coverage} (#{(email_coverage.to_f / total_courses * 100).round(1)}%)"
     puts "Green fees (non-default): #{green_fee_coverage} (#{(green_fee_coverage.to_f / total_courses * 100).round(1)}%)"
+    
+    # Check amenities coverage
+    puts "\n🏌️ Amenities Coverage:"
+    amenities_coverage = Course.where.not("amenities IS NULL OR ARRAY_LENGTH(amenities, 1) IS NULL").count
+    real_websites_with_amenities = Course.where.not(website_url: nil)
+                                         .where("website_url != ''")
+                                         .where("website_url NOT LIKE '%Pending%' AND website_url NOT LIKE '%No website%'")
+                                         .where.not("amenities IS NULL OR ARRAY_LENGTH(amenities, 1) IS NULL")
+                                         .count
+    
+    puts "Courses with amenities: #{amenities_coverage} (#{(amenities_coverage.to_f / total_courses * 100).round(1)}%)"
+    puts "Real websites with amenities: #{real_websites_with_amenities}/#{courses_with_real_websites} (#{(real_websites_with_amenities.to_f / courses_with_real_websites * 100).round(1)}%)"
     
     # Check enrichment coverage
     puts "\n🎯 Enrichment Coverage:"
@@ -257,674 +233,128 @@ namespace :courses do
     puts "Top 100 with good descriptions: #{top_100_with_good_descriptions}/#{top_100_courses}"
     puts "Top 100 with websites: #{top_100_with_websites}/#{top_100_courses}"
     
+    # Scraping targets
+    puts "\n🎯 Current Scraping Targets:"
+    blank_amenities = Course.where.not(website_url: nil)
+                           .where("website_url != ''")
+                           .where("website_url NOT LIKE '%Pending%' AND website_url NOT LIKE '%No website%'")
+                           .where("amenities IS NULL OR ARRAY_LENGTH(amenities, 1) IS NULL")
+                           .count
+    
+    puts "Courses with real websites needing amenities: #{blank_amenities}"
+    
     puts "\n💡 Recommendations:"
-    if courses_with_websites > phone_coverage
-      puts "1. Run 'rails courses:scrape_basic_info' to get contact info from websites"
+    if blank_amenities > 0
+      puts "1. Run 'rails courses:scrape_all_remaining_courses' to extract amenities from real websites"
     end
     if top_100_with_good_descriptions < top_100_courses
       puts "2. Run 'rails courses:enrich_top_100' for premium content on top courses"
     end
-    puts "3. Focus scraping efforts on courses with websites but missing basic data"
+    puts "3. Focus scraping efforts on courses with real websites but missing amenities"
   end
   
-  desc "Test enhanced scraping on 10 courses - log all data without saving"
-  task test_enhanced_scraping: :environment do
-    puts "🧪 Testing enhanced web scraping on 10 courses (no data will be saved)..."
-    puts "=" * 70
-    
-    # Find 10 courses with website URLs for testing
-    test_courses = Course.where.not(website_url: nil)
-                        .where("website_url != ''")
-                        .limit(10)
-    
-    puts "Testing enhanced scraping on #{test_courses.count} courses:\n\n"
-    
-    test_courses.each_with_index do |course, index|
-      puts "#{index + 1}. 🏌️ #{course.name}"
-      puts "   State: #{course.state&.name || course.state || 'Unknown'}"
-      puts "   Website: #{course.website_url}"
-      puts "   Current Data:"
-      puts "     Phone: #{course.phone.present? ? course.phone : 'MISSING'}"
-      puts "     Green Fee: #{course.green_fee || 'MISSING'}"
-      puts "     Par: #{course.par || 'MISSING'}"
-      puts "     Yardage: #{course.yardage || 'MISSING'}"
-      puts "     Holes: #{course.number_of_holes || 'MISSING'}"
-      puts "     Description: #{course.description.present? ? "#{course.description.length} chars" : 'MISSING'}"
-      
-      puts "\n   🕷️ Enhanced scraping website..."
-      
-      begin
-        scraped_data = scrape_course_website_enhanced(course.website_url, course.name)
-        
-        if scraped_data.any?
-          puts "   ✅ ENHANCED SCRAPED DATA FOUND:"
-          
-          # Display all found data with better formatting
-          scraped_data.each do |key, value|
-            case key
-            when :phone
-              puts "     📞 Phone: #{value}"
-            when :email  
-              puts "     📧 Email: #{value}"
-            when :green_fee
-              puts "     💰 Green Fee: $#{value}"
-            when :description
-              puts "     📝 Description: #{value.length} chars - \"#{value[0..100]}...\""
-            when :yardage
-              puts "     📏 Yardage: #{value} yards"
-            when :par
-              puts "     🎯 Par: #{value}"
-              if value
-                holes = scraped_data[:number_of_holes] || course.number_of_holes
-                if holes
-                  puts "    ℹ️ Par #{value} for #{holes} holes"
-                else
-                  puts "    ℹ️ Par #{value} (hole count unknown)"
-                end
-              end
-            when :number_of_holes
-              puts "     🕳️ Holes: #{value}"
-            when :amenities
-              puts "     🏌️ Amenities: #{value.join(', ')}" if value.any?
-            when :address
-              puts "     📍 Address: #{value}"
-            when :booking_url
-              puts "     🔗 Booking URL: #{value}"
-            when :pricing_notes
-              puts "     💡 Pricing Notes: #{value}"
-            else
-              puts "     #{key.to_s.capitalize}: #{value}"
-            end
-          end
-          
-          # Show what would be updated
-          puts "   📝 WOULD UPDATE:"
-          would_update = []
-          would_update << "phone (#{scraped_data[:phone]})" if scraped_data[:phone] && course.phone.blank?
-          would_update << "email (#{scraped_data[:email]})" if scraped_data[:email] && course.email.blank?
-          would_update << "description (#{scraped_data[:description]&.length} chars)" if scraped_data[:description] && course.description.blank?
-          would_update << "par (#{scraped_data[:par]})" if scraped_data[:par] && course.par != scraped_data[:par]
-          would_update << "yardage (#{scraped_data[:yardage]})" if scraped_data[:yardage] && course.yardage != scraped_data[:yardage]
-          would_update << "holes (#{scraped_data[:number_of_holes]})" if scraped_data[:number_of_holes] && course.number_of_holes != scraped_data[:number_of_holes]
-          
-          if scraped_data[:email]
-            puts "     📧 EMAIL FOUND (would need new field): #{scraped_data[:email]}"
-          end
-          
-          if scraped_data[:amenities]&.any?
-            puts "     🏌️ AMENITIES FOUND: #{scraped_data[:amenities].join(', ')}"
-          end
-          
-          if would_update.any?
-            would_update.each { |update| puts "     - #{update}" }
-          else
-            puts "     - Nothing (all existing fields already have data)"
-          end
-        else
-          puts "   ❌ NO USEFUL DATA FOUND"
-        end
-        
-      rescue StandardError => e
-        puts "   💥 ERROR: #{e.message}"
-        puts "   📍 #{e.backtrace.first}" if e.backtrace.present?
-      end
-      
-      puts "\n" + "-" * 70 + "\n"
-      
-      # Small delay between requests
-      sleep(2) if index < test_courses.count - 1
-    end
-    
-    puts "🏁 Enhanced test scraping complete!"
-    puts "\n💡 If the results look good, run 'rails courses:scrape_enhanced_info' to start saving data."
-  end
+  private
   
-  desc "Run enhanced scraping on eligible courses (small batches)"
-  task scrape_enhanced_info_batch: :environment do
-    puts "🕷️ Starting enhanced web scraping for eligible courses (batch mode)..."
-    puts "Excluding: green fee detection, booking link detection"
-    puts "Including: phone, email, course details, amenities, descriptions"
-    puts "=" * 70
-    
-    # Create log file for failed scrapes
-    log_file = Rails.root.join('log', 'failed_scrapes.log')
-    
-    # Find courses with website URLs that need basic info
-    courses_to_scrape = Course.where.not(website_url: nil)
-                             .where("website_url != ''")
-                             .where("(phone IS NULL OR phone = '') OR
-                                     (description IS NULL OR LENGTH(description) < 50) OR
-                                     (par IS NULL) OR
-                                     (yardage IS NULL) OR
-                                     (number_of_holes IS NULL)")
-                             .limit(100) # Process in smaller batches
-    
-    puts "Found #{courses_to_scrape.count} courses with websites to scrape"
-    puts "Total eligible courses: #{Course.where.not(website_url: nil).where("website_url != ''").where("(phone IS NULL OR phone = '') OR (description IS NULL OR LENGTH(description) < 50) OR (par IS NULL) OR (yardage IS NULL) OR (number_of_holes IS NULL)").count}"
-    puts "Failed scrapes will be logged to: #{log_file}"
-    puts ""
-    
-    scraped_count = 0
-    failed_count = 0
-    failed_courses = []
-    
-    courses_to_scrape.find_each.with_index do |course, index|
-      puts "\n#{index + 1}/#{courses_to_scrape.count}: Enhanced scraping #{course.name}..."
-      puts "  State: #{course.state&.name || course.state || 'Unknown'}"
-      puts "  Website: #{course.website_url}"
-      
-      begin
-        scraped_data = scrape_course_website_enhanced(course.website_url, course.name)
-        
-        if scraped_data.any?
-          update_course_with_scraped_data(course, scraped_data)
-          scraped_count += 1
-          puts "  ✅ Successfully scraped enhanced data for #{course.name}"
-          puts "  📞 Phone: #{scraped_data[:phone] || 'Not found'}"
-          puts "  📧 Email: #{scraped_data[:email] || 'Not found'}"
-          puts "  📝 Description: #{scraped_data[:description] ? "#{scraped_data[:description].length} chars" : 'Not found'}"
-          puts "  🎯 Par: #{scraped_data[:par] || 'Not found'}"
-          if scraped_data[:par]
-            holes = scraped_data[:number_of_holes] || course.number_of_holes
-            if holes
-              puts "    ℹ️ Par #{scraped_data[:par]} for #{holes} holes"
-            else
-              puts "    ℹ️ Par #{scraped_data[:par]} (hole count unknown)"
-            end
-          end
-          puts "  📏 Yardage: #{scraped_data[:yardage] || 'Not found'}"
-          puts "  🕳️ Holes: #{scraped_data[:number_of_holes] || 'Not found'}"
-          if scraped_data[:amenities]&.any?
-            puts "  🏌️ Amenities: #{scraped_data[:amenities].join(', ')}"
-          end
-        else
-          puts "  ⚠️ No useful data found for #{course.name}"
-          # Log as a failed scrape - website loads but no useful data
-          failed_courses << {
-            course: course,
-            error: "No useful data found",
-            error_type: "no_data"
-          }
-        end
-        
-        # Be respectful with delays - reduced since we're hitting different sites
-        sleep(0.5)
-        
-      rescue StandardError => e
-        failed_count += 1
-        error_message = e.message
-        error_type = case error_message
-                    when /Failed to open TCP connection/, /getaddrinfo/, /nodename nor servname/
-                      "connection_failed"
-                    when /Timeout/, /execution expired/
-                      "timeout"
-                    when /SSL/, /certificate/
-                      "ssl_error"
-                    when /404/, /Not Found/
-                      "not_found"
-                    when /403/, /Forbidden/
-                      "forbidden"
-                    when /500/, /Internal Server Error/
-                      "server_error"
-                    else
-                      "unknown_error"
-                    end
-        
-        puts "  ❌ Error scraping #{course.name}: #{error_message}"
-        
-        # Log the failed scrape
-        failed_courses << {
-          course: course,
-          error: error_message,
-          error_type: error_type
-        }
-      end
-    end
-    
-    # Write failed scrapes to log file
-    if failed_courses.any?
-      File.open(log_file, 'a') do |f|
-        f.puts "\n" + "=" * 80
-        f.puts "Failed Scrapes Log - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}"
-        f.puts "=" * 80
-        
-        failed_courses.each do |failed|
-          course = failed[:course]
-          f.puts "\nCourse: #{course.name}"
-          f.puts "ID: #{course.id}"
-          f.puts "State: #{course.state&.name || course.state || 'Unknown'}"
-          f.puts "Website: #{course.website_url}"
-          f.puts "Error Type: #{failed[:error_type]}"
-          f.puts "Error: #{failed[:error]}"
-          f.puts "Current Data:"
-          f.puts "  Phone: #{course.phone.present? ? course.phone : 'MISSING'}"
-          f.puts "  Par: #{course.par || 'MISSING'}"
-          f.puts "  Holes: #{course.number_of_holes || 'MISSING'}"
-          f.puts "  Description: #{course.description.present? ? "#{course.description.length} chars" : 'MISSING'}"
-          f.puts "-" * 40
-        end
-      end
-      
-      # Also create a simple text file for easy review
-      simple_file = Rails.root.join('log', 'failed_courses_simple.txt')
-      File.open(simple_file, 'a') do |f|
-        f.puts "\n" + "=" * 60
-        f.puts "Failed Courses - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}"
-        f.puts "=" * 60
-        f.puts "Format: ID | Course Name | State | Website URL | Error Type"
-        f.puts "-" * 60
-        
-        failed_courses.each do |failed|
-          course = failed[:course]
-          state = course.state&.name || course.state || 'Unknown'
-          f.puts "#{course.id} | #{course.name} | #{state} | #{course.website_url} | #{failed[:error_type]}"
-        end
-      end
-      
-      puts "\n📝 Logged #{failed_courses.count} failed scrapes to #{log_file}"
-      puts "📄 Simple list saved to #{simple_file}"
-    end
-    
-    puts "\n📊 Enhanced Scraping Summary:"
-    puts "Successfully scraped: #{scraped_count} courses"
-    puts "Failed to scrape: #{failed_count} courses"
-    puts "No data found: #{failed_courses.count { |f| f[:error_type] == 'no_data' }} courses"
-    puts "Connection errors: #{failed_courses.count { |f| f[:error_type] == 'connection_failed' }} courses"
-    puts "Timeout errors: #{failed_courses.count { |f| f[:error_type] == 'timeout' }} courses"
-    puts "Total processed: #{scraped_count + failed_count} courses"
-    
-    puts "\n💡 Run again to continue scraping more courses."
-    puts "📋 Check #{log_file} for courses that need website URL corrections."
-    puts "After scraping, run 'rails courses:enrich_top_100' for premium AI enrichment."
-  end
-  
-  desc "Analyze failed scrapes and suggest corrections"
-  task analyze_failed_scrapes: :environment do
-    puts "📊 Analyzing Failed Scrapes"
-    puts "=" * 50
-    
-    log_file = Rails.root.join('log', 'failed_scrapes.log')
-    
-    unless File.exist?(log_file)
-      puts "❌ No failed scrapes log found at #{log_file}"
-      puts "💡 Run 'rails courses:scrape_enhanced_info' first to generate the log."
-      return
-    end
-    
-    # Parse the log file to extract course IDs and error types
-    failed_courses = []
-    current_course = nil
-    
-    File.readlines(log_file).each do |line|
-      line = line.strip
-      
-      if line.start_with?("Course: ")
-        current_course = { name: line.sub("Course: ", "") }
-      elsif line.start_with?("ID: ") && current_course
-        current_course[:id] = line.sub("ID: ", "").to_i
-      elsif line.start_with?("Website: ") && current_course
-        current_course[:website] = line.sub("Website: ", "")
-      elsif line.start_with?("Error Type: ") && current_course
-        current_course[:error_type] = line.sub("Error Type: ", "")
-      elsif line.start_with?("Error: ") && current_course
-        current_course[:error] = line.sub("Error: ", "")
-        failed_courses << current_course
-        current_course = nil
-      end
-    end
-    
-    puts "Found #{failed_courses.count} failed scrapes in log\n"
-    
-    # Group by error type
-    error_groups = failed_courses.group_by { |course| course[:error_type] }
-    
-    error_groups.each do |error_type, courses|
-      puts "🔍 #{error_type.upcase.gsub('_', ' ')} (#{courses.count} courses):"
-      puts "-" * 40
-      
-      case error_type
-      when "connection_failed"
-        puts "💡 These courses likely have incorrect or outdated website URLs:"
-        courses.first(10).each do |course|
-          puts "  • #{course[:name]} - #{course[:website]}"
-        end
-        puts "  ... and #{courses.count - 10} more" if courses.count > 10
-        puts "\n🔧 Suggested actions:"
-        puts "  1. Search for correct website URLs"
-        puts "  2. Check if domain has changed or expired"
-        puts "  3. Update Course records with correct URLs"
-        
-      when "timeout"
-        puts "⏰ These courses have slow-loading websites:"
-        courses.first(5).each do |course|
-          puts "  • #{course[:name]} - #{course[:website]}"
-        end
-        puts "\n🔧 Suggested actions:"
-        puts "  1. Retry during off-peak hours"
-        puts "  2. Increase timeout if consistently slow"
-        
-      when "no_data"
-        puts "📄 These courses have websites but no extractable golf data:"
-        courses.first(5).each do |course|
-          puts "  • #{course[:name]} - #{course[:website]}"
-        end
-        puts "\n🔧 Suggested actions:"
-        puts "  1. Manual review of website content"
-        puts "  2. Check if it's a booking-only site"
-        puts "  3. Look for 'About' or 'Course Info' pages"
-        
-      when "ssl_error"
-        puts "🔒 These courses have SSL/certificate issues:"
-        courses.each do |course|
-          puts "  • #{course[:name]} - #{course[:website]}"
-        end
-        puts "\n🔧 Suggested actions:"
-        puts "  1. Try HTTP instead of HTTPS"
-        puts "  2. Check if certificate has expired"
-        
-      when "not_found", "forbidden", "server_error"
-        puts "🚫 These courses have server issues:"
-        courses.each do |course|
-          puts "  • #{course[:name]} - #{course[:website]}"
-        end
-        puts "\n🔧 Suggested actions:"
-        puts "  1. Verify website still exists"
-        puts "  2. Search for new website URL"
-        puts "  3. Check if site has moved"
-      end
-      
-      puts "\n"
-    end
-    
-    # Generate SQL for easy course lookup
-    connection_failed_ids = error_groups["connection_failed"]&.map { |c| c[:id] } || []
-    if connection_failed_ids.any?
-      puts "🔍 SQL to find connection failed courses:"
-      puts "SELECT id, name, website_url, state FROM courses WHERE id IN (#{connection_failed_ids.join(', ')});"
-      puts ""
-    end
-    
-    puts "📋 Summary:"
-    puts "Total failed scrapes: #{failed_courses.count}"
-    error_groups.each do |error_type, courses|
-      puts "#{error_type.gsub('_', ' ').capitalize}: #{courses.count}"
-    end
-    
-    puts "\n💡 Next steps:"
-    puts "1. Focus on fixing 'connection_failed' courses first (likely wrong URLs)"
-    puts "2. Research correct website URLs for high-priority courses"
-    puts "3. Update Course records with correct URLs"
-    puts "4. Re-run scraping after URL corrections"
-  end
-  
-  desc "Export failed courses to CSV for easy editing"
-  task export_failed_courses_csv: :environment do
-    puts "📊 Exporting Failed Courses to CSV"
-    puts "=" * 40
-    
-    log_file = Rails.root.join('log', 'failed_scrapes.log')
-    
-    unless File.exist?(log_file)
-      puts "❌ No failed scrapes log found at #{log_file}"
-      puts "💡 Run 'rails courses:scrape_enhanced_info' first to generate the log."
-      return
-    end
-    
-    # Parse the log file to extract course information
-    failed_courses = []
-    current_course = nil
-    
-    File.readlines(log_file).each do |line|
-      line = line.strip
-      
-      if line.start_with?("Course: ")
-        current_course = { name: line.sub("Course: ", "") }
-      elsif line.start_with?("ID: ") && current_course
-        current_course[:id] = line.sub("ID: ", "").to_i
-      elsif line.start_with?("State: ") && current_course
-        current_course[:state] = line.sub("State: ", "")
-      elsif line.start_with?("Website: ") && current_course
-        current_course[:website] = line.sub("Website: ", "")
-      elsif line.start_with?("Error Type: ") && current_course
-        current_course[:error_type] = line.sub("Error Type: ", "")
-      elsif line.start_with?("Error: ") && current_course
-        current_course[:error] = line.sub("Error: ", "")
-        failed_courses << current_course
-        current_course = nil
-      end
-    end
-    
-    # Create CSV file
-    csv_file = Rails.root.join('log', 'failed_courses.csv')
-    require 'csv'
-    
-    CSV.open(csv_file, 'w') do |csv|
-      # Header row
-      csv << ['ID', 'Course Name', 'State', 'Current Website URL', 'Error Type', 'Error Message', 'Corrected URL', 'Notes']
-      
-      # Data rows
-      failed_courses.each do |course|
-        csv << [
-          course[:id],
-          course[:name],
-          course[:state],
-          course[:website],
-          course[:error_type],
-          course[:error],
-          '', # Empty column for corrected URL
-          ''  # Empty column for notes
-        ]
-      end
-    end
-    
-    puts "✅ Exported #{failed_courses.count} failed courses to #{csv_file}"
-    puts ""
-    puts "📋 CSV columns:"
-    puts "  - ID: Course database ID"
-    puts "  - Course Name: Name of the golf course"
-    puts "  - State: Course location"
-    puts "  - Current Website URL: The URL that failed"
-    puts "  - Error Type: Type of error (connection_failed, timeout, etc.)"
-    puts "  - Error Message: Detailed error message"
-    puts "  - Corrected URL: [EMPTY] - Fill in the correct URL"
-    puts "  - Notes: [EMPTY] - Add any notes about the correction"
-    puts ""
-    puts "💡 Next steps:"
-    puts "1. Open #{csv_file} in Excel/Google Sheets"
-    puts "2. Research and fill in the 'Corrected URL' column"
-    puts "3. Add notes about any findings"
-    puts "4. Use the data to update Course records in the database"
-  end
-  
-  desc "Run enhanced scraping on ALL remaining courses (excluding previously failed ones)"
-  task scrape_all_remaining_courses: :environment do
-    puts "🕷️ Starting enhanced web scraping for ALL remaining courses..."
-    puts "Excluding: green fee detection, booking link detection, previously failed courses"
-    puts "Including: phone, email, course details, amenities, descriptions"
-    puts "=" * 70
-    
-    # Get list of previously failed course IDs
+  # Standardized failed URL tracking system
+  def get_failed_course_ids_from_log
     failed_course_ids = []
     simple_log_file = Rails.root.join('log', 'failed_courses_simple.txt')
     
     if File.exist?(simple_log_file)
       File.readlines(simple_log_file).each do |line|
         line = line.strip
-        next if line.empty? || line.start_with?('=') || line.start_with?('Failed') || line.start_with?('Format:') || line.start_with?('-')
+        next if line.empty? || line.start_with?('ID|') # Skip header
         
-        # Extract ID from format: "ID | Course Name | State | Website URL | Error Type"
-        parts = line.split(' | ')
-        if parts.length >= 5 && parts[0].match?(/^\d+$/)
+        # Extract ID from new format: "ID|Course Name|State|Website URL|Error Type|Date"
+        parts = line.split('|')
+        if parts.length >= 6 && parts[0].match?(/^\d+$/)
           failed_course_ids << parts[0].to_i
         end
       end
-      puts "📋 Excluding #{failed_course_ids.count} previously failed courses"
-    else
-      puts "📋 No previous failures found - processing all courses"
     end
     
-    # Create log file for failed scrapes
-    log_file = Rails.root.join('log', 'failed_scrapes.log')
-    
-    # Find ALL courses with website URLs that need basic info, excluding previously failed ones
-    base_query = Course.where.not(website_url: nil)
-                      .where("website_url != ''")
-                      .where("(phone IS NULL OR phone = '') OR
-                              (description IS NULL OR LENGTH(description) < 50) OR
-                              (par IS NULL) OR
-                              (yardage IS NULL) OR
-                              (number_of_holes IS NULL)")
-    
-    # Exclude previously failed courses
-    if failed_course_ids.any?
-      base_query = base_query.where.not(id: failed_course_ids)
-    end
-    
-    courses_to_scrape = base_query.limit(780) # Process in larger batches
-    
-    total_eligible = base_query.count
-    puts "Found #{courses_to_scrape.count} courses to scrape in this batch"
-    puts "Total eligible courses remaining: #{total_eligible}"
-    puts "Previously failed courses excluded: #{failed_course_ids.count}"
-    puts "Failed scrapes will be logged to: #{log_file}"
-    puts ""
-    
-    scraped_count = 0
-    failed_count = 0
-    failed_courses = []
-    
-    courses_to_scrape.find_each.with_index do |course, index|
-      puts "\n#{index + 1}/#{courses_to_scrape.count}: Enhanced scraping #{course.name}..."
-      puts "  State: #{course.state&.name || course.state || 'Unknown'}"
-      puts "  Website: #{course.website_url}"
-      
-      begin
-        scraped_data = scrape_course_website_enhanced(course.website_url, course.name)
-        
-        if scraped_data.any?
-          update_course_with_scraped_data(course, scraped_data)
-          scraped_count += 1
-          puts "  ✅ Successfully scraped enhanced data for #{course.name}"
-          puts "  📞 Phone: #{scraped_data[:phone] || 'Not found'}"
-          puts "  📧 Email: #{scraped_data[:email] || 'Not found'}"
-          puts "  📝 Description: #{scraped_data[:description] ? "#{scraped_data[:description].length} chars" : 'Not found'}"
-          puts "  🎯 Par: #{scraped_data[:par] || 'Not found'}"
-          if scraped_data[:par]
-            holes = scraped_data[:number_of_holes] || course.number_of_holes
-            if holes
-              puts "    ℹ️ Par #{scraped_data[:par]} for #{holes} holes"
-            else
-              puts "    ℹ️ Par #{scraped_data[:par]} (hole count unknown)"
-            end
-          end
-          puts "  📏 Yardage: #{scraped_data[:yardage] || 'Not found'}"
-          puts "  🕳️ Holes: #{scraped_data[:number_of_holes] || 'Not found'}"
-          if scraped_data[:amenities]&.any?
-            puts "  🏌️ Amenities: #{scraped_data[:amenities].join(', ')}"
-          end
-        else
-          puts "  ⚠️ No useful data found for #{course.name}"
-          # Log as a failed scrape - website loads but no useful data
-          failed_courses << {
-            course: course,
-            error: "No useful data found",
-            error_type: "no_data"
-          }
-        end
-        
-        # Be respectful with delays - reduced since we're hitting different sites
-        sleep(0.5)
-        
-      rescue StandardError => e
-        failed_count += 1
-        error_message = e.message
-        error_type = case error_message
-                    when /Failed to open TCP connection/, /getaddrinfo/, /nodename nor servname/
-                      "connection_failed"
-                    when /Timeout/, /execution expired/
-                      "timeout"
-                    when /SSL/, /certificate/
-                      "ssl_error"
-                    when /404/, /Not Found/
-                      "not_found"
-                    when /403/, /Forbidden/
-                      "forbidden"
-                    when /500/, /Internal Server Error/
-                      "server_error"
-                    else
-                      "unknown_error"
-                    end
-        
-        puts "  ❌ Error scraping #{course.name}: #{error_message}"
-        
-        # Log the failed scrape
-        failed_courses << {
-          course: course,
-          error: error_message,
-          error_type: error_type
-        }
-      end
-    end
-    
-    # Write failed scrapes to log file
-    if failed_courses.any?
-      File.open(log_file, 'a') do |f|
-        f.puts "\n" + "=" * 80
-        f.puts "Failed Scrapes Log - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}"
-        f.puts "=" * 80
-        
-        failed_courses.each do |failed|
-          course = failed[:course]
-          f.puts "\nCourse: #{course.name}"
-          f.puts "ID: #{course.id}"
-          f.puts "State: #{course.state&.name || course.state || 'Unknown'}"
-          f.puts "Website: #{course.website_url}"
-          f.puts "Error Type: #{failed[:error_type]}"
-          f.puts "Error: #{failed[:error]}"
-          f.puts "Current Data:"
-          f.puts "  Phone: #{course.phone.present? ? course.phone : 'MISSING'}"
-          f.puts "  Par: #{course.par || 'MISSING'}"
-          f.puts "  Holes: #{course.number_of_holes || 'MISSING'}"
-          f.puts "  Description: #{course.description.present? ? "#{course.description.length} chars" : 'MISSING'}"
-          f.puts "-" * 40
-        end
-      end
-      
-      # Also append to simple text file for easy review
-      simple_file = Rails.root.join('log', 'failed_courses_simple.txt')
-      File.open(simple_file, 'a') do |f|
-        f.puts "\n" + "=" * 60
-        f.puts "Failed Courses - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}"
-        f.puts "=" * 60
-        f.puts "Format: ID | Course Name | State | Website URL | Error Type"
-        f.puts "-" * 60
-        
-        failed_courses.each do |failed|
-          course = failed[:course]
-          state = course.state&.name || course.state || 'Unknown'
-          f.puts "#{course.id} | #{course.name} | #{state} | #{course.website_url} | #{failed[:error_type]}"
-        end
-      end
-      
-      puts "\n📝 Logged #{failed_courses.count} failed scrapes to #{log_file}"
-      puts "📄 Simple list appended to #{simple_file}"
-    end
-    
-    puts "\n📊 Enhanced Scraping Summary:"
-    puts "Successfully scraped: #{scraped_count} courses"
-    puts "Failed to scrape: #{failed_count} courses"
-    puts "No data found: #{failed_courses.count { |f| f[:error_type] == 'no_data' }} courses"
-    puts "Connection errors: #{failed_courses.count { |f| f[:error_type] == 'connection_failed' }} courses"
-    puts "Timeout errors: #{failed_courses.count { |f| f[:error_type] == 'timeout' }} courses"
-    puts "Total processed: #{scraped_count + failed_count} courses"
-    puts "Total eligible remaining: #{total_eligible - courses_to_scrape.count} courses"
-    
-    puts "\n💡 Run again to continue scraping more courses."
-    puts "📋 Check #{log_file} for courses that need website URL corrections."
-    puts "After scraping, run 'rails courses:enrich_top_100' for premium AI enrichment."
+    failed_course_ids
   end
   
-  private
+  def log_failed_scrape(course_or_array, error_message = nil, error_type = nil)
+    # Handle both single course and array of failed courses
+    if course_or_array.is_a?(Array)
+      failed_courses = course_or_array
+    else
+      failed_courses = [{
+        course: course_or_array,
+        error: error_message,
+        error_type: error_type
+      }]
+    end
+    
+    # Write to detailed log
+    log_file = Rails.root.join('log', 'failed_scrapes.log')
+    File.open(log_file, 'a') do |f|
+      f.puts "\n" + "=" * 80
+      f.puts "Failed Scrape Log - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}"
+      f.puts "=" * 80
+      
+      failed_courses.each do |failed|
+        course = failed[:course]
+        f.puts "\nCourse: #{course.name}"
+        f.puts "ID: #{course.id}"
+        f.puts "State: #{course.state&.name || course.state || 'Unknown'}"
+        f.puts "Website: #{course.website_url}"
+        f.puts "Error Type: #{failed[:error_type]}"
+        f.puts "Error: #{failed[:error]}"
+        f.puts "Current Data:"
+        f.puts "  Phone: #{course.phone.present? ? course.phone : 'MISSING'}"
+        f.puts "  Par: #{course.par || 'MISSING'}"
+        f.puts "  Holes: #{course.number_of_holes || 'MISSING'}"
+        f.puts "  Description: #{course.description.present? ? "#{course.description.length} chars" : 'MISSING'}"
+        f.puts "-" * 40
+      end
+    end
+    
+    # Write to simple log - CLEAN FORMAT with no dividers
+    simple_file = Rails.root.join('log', 'failed_courses_simple.txt')
+    
+    # Create header if file doesn't exist
+    unless File.exist?(simple_file)
+      File.open(simple_file, 'w') do |f|
+        f.puts "ID|Course Name|State|Website URL|Error Type|Date"
+      end
+    end
+    
+    # Append new failed courses - one line per course, no dividers
+    File.open(simple_file, 'a') do |f|
+      failed_courses.each do |failed|
+        course = failed[:course]
+        state = course.state&.name || course.state || 'Unknown'
+        date = Time.current.strftime('%Y-%m-%d')
+        f.puts "#{course.id}|#{course.name}|#{state}|#{course.website_url}|#{failed[:error_type]}|#{date}"
+      end
+    end
+  end
+  
+  def categorize_error(error_message)
+    case error_message
+    when /Failed to open TCP connection/, /getaddrinfo/, /nodename nor servname/
+      "connection_failed"
+    when /Timeout/, /execution expired/
+      "timeout"
+    when /SSL/, /certificate/
+      "ssl_error"
+    when /404/, /Not Found/
+      "not_found"
+    when /403/, /Forbidden/
+      "forbidden"
+    when /500/, /Internal Server Error/
+      "server_error"
+    when /redirection forbidden/
+      "redirect_error"
+    when /invalid byte sequence/
+      "encoding_error"
+    else
+      "unknown_error"
+    end
+  end
   
   def scrape_course_website(url)
     scraped_data = {}

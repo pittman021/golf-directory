@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_28_135033) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_28_232809) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "cube"
   enable_extension "earthdistance"
@@ -105,6 +105,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_28_135033) do
     t.string "phone"
     t.string "amenities", default: [], array: true
     t.string "email"
+    t.decimal "google_rating"
+    t.integer "google_reviews_count"
+    t.string "formatted_address"
+    t.text "opening_hours_text"
     t.index ["amenities"], name: "index_courses_on_amenities", using: :gin
     t.index ["course_tags"], name: "index_courses_on_course_tags", using: :gin
     t.index ["course_type"], name: "index_courses_on_course_type"

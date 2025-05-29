@@ -188,7 +188,7 @@ export default class extends Controller {
   
   addMarkers() {
     try {
-      console.log("Starting to add markers...");
+
       const markersData = this.markersValue;
       console.log("Markers data:", markersData);
       const bounds = new google.maps.LatLngBounds();
