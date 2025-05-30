@@ -25,7 +25,7 @@ class Course < ApplicationRecord
     validates :state_id, presence: true
     
     # Set a default image URL for when none is provided
-    DEFAULT_IMAGE_URL = "https://res.cloudinary.com/demo/image/upload/golf_directory/placeholder_golf_course.jpg"
+    DEFAULT_IMAGE_URL = "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=600&h=400&fit=crop"
 
     # Callbacks to update location's average green fee
     after_save :update_locations_avg_green_fee

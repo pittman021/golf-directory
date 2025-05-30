@@ -10,6 +10,7 @@
   <meta name="cloudinary-upload-preset" content="<%= ENV['CLOUDINARY_UPLOAD_PRESET'] %>">
   
   <%= favicon_link_tag ActiveAdmin.application.favicon if ActiveAdmin.application.favicon %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag 'active_admin', media: 'screen' %>
   <%= stylesheet_link_tag 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css' %>
   <%= csrf_meta_tag %>
@@ -21,16 +22,44 @@
   <%= javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js' %>
   <%= javascript_include_tag 'application' %>
 </head>
-<body class="active_admin <%= controller.action_name %>">
-  <div id="wrapper">
+<body class="bg-gray-50 font-sans antialiased">
+  <div id="wrapper" class="min-h-screen">
     <%= render partial: 'layouts/active_admin_header' %>
     <%= render partial: 'layouts/active_admin_flash_messages' %>
-    <div id="active_admin_content" class="<%= 'with_sidebar' if active_admin_content_sidebar? %>">
-      <%= yield %>
-    </div>
-    <div id="footer">
-      <%= yield :footer %>
-    </div>
+    
+    <main id="active_admin_content" class="<%= 'lg:flex' if active_admin_content_sidebar? %>">
+      <% if active_admin_content_sidebar? %>
+        <!-- Sidebar -->
+        <aside class="lg:w-64 bg-white shadow-sm border-r border-gray-200">
+          <div class="p-6">
+            <%= yield :sidebar %>
+          </div>
+        </aside>
+        
+        <!-- Main content -->
+        <div class="flex-1 min-w-0">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <%= yield %>
+          </div>
+        </div>
+      <% else %>
+        <!-- Full width content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <%= yield %>
+        </div>
+      <% end %>
+    </main>
+    
+    <footer id="footer" class="bg-white border-t border-gray-200 mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="text-center text-sm text-gray-500">
+          <%= yield :footer %>
+          <% unless content_for?(:footer) %>
+            Golf Directory Admin Panel
+          <% end %>
+        </div>
+      </div>
+    </footer>
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', function() {

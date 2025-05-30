@@ -1,19 +1,25 @@
-<header id="header" class="header">
-  <h1 class="site_title">
-    <%= link_to(ActiveAdmin.application.site_title, active_admin_root_path) %>
-  </h1>
-  
-  <% if current_active_admin_user %>
-    <ul class="header-item tabs" id="utility_nav">
-      <li class="menu_item">
-        <%= link_to "View Site", root_path, target: "_blank" %>
-      </li>
-      <li class="menu_item current_user">
-        <%= link_to current_active_admin_user.email, edit_admin_admin_user_path(current_active_admin_user) %>
-      </li>
-      <li class="menu_item logout">
-        <%= link_to "Logout", destroy_admin_user_session_path, method: :delete %>
-      </li>
-    </ul>
-  <% end %>
+<header id="header" class="bg-green-800 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <h1 class="text-xl font-semibold">
+        <%= link_to(ActiveAdmin.application.site_title, active_admin_root_path, class: "text-white hover:text-green-200 transition-colors duration-200") %>
+      </h1>
+      
+      <% if current_active_admin_user %>
+        <nav>
+          <ul class="flex items-center space-x-6" id="utility_nav">
+            <li>
+              <%= link_to "View Site", root_path, target: "_blank", class: "text-green-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" %>
+            </li>
+            <li>
+              <%= link_to current_active_admin_user.email, edit_admin_admin_user_path(current_active_admin_user), class: "text-green-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" %>
+            </li>
+            <li>
+              <%= link_to "Logout", destroy_admin_user_session_path, method: :delete, class: "bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200" %>
+            </li>
+          </ul>
+        </nav>
+      <% end %>
+    </div>
+  </div>
 </header> 
