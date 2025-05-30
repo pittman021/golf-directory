@@ -1,5 +1,80 @@
 <% content_for :google_maps, true %>
 
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Sticky navigation styling */
+  .sticky-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Active state for navigation */
+  .nav-link.active {
+    background-color: rgba(53, 94, 59, 0.1);
+    font-weight: 600;
+  }
+  
+  /* Custom line clamp for truncated text */
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-height: 6em;
+    text-overflow: ellipsis;
+  }
+
+  /* Fix Google Maps positioning to remove unwanted margin */
+  #locations-map {
+    position: static !important;
+    overflow: hidden !important; /* Constrain all map content including info windows */
+  }
+  
+  #locations-map > div {
+    position: static !important;
+  }
+
+  /* Ensure info windows stay within map bounds */
+  .gm-style-iw {
+    max-height: calc(100vh - 8rem) !important;
+    z-index: 1 !important;
+  }
+  
+  .gm-style-iw-c {
+    z-index: 1 !important;
+  }
+
+  /* Responsive grid adjustments for overlay */
+  @media (max-width: 1279px) {
+    .grid-overlay .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .grid-overlay {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+      background: white !important;
+      backdrop-filter: none !important;
+      margin-top: 1rem;
+    }
+    .grid-overlay .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .map-container {
+      height: 400px !important;
+    }
+  }
+</style>
+
 <div>
 
 <!-- Hero Banner -->
@@ -9,7 +84,7 @@
     Plan Your Next Golf Trip
   </h1>
   <p class="text-md md:text-xl">
-    Explore the <%= @stats[:locations_count] %> golf destinations and <%= @stats[:courses_count] %> golf courses to plan your next golf trip.
+    Explore the <%= @stats[:locations_count] %> golf destinations and over 13,000 golf courses to plan your next golf trip.
   </p>
 </div>
 </div> 
@@ -88,8 +163,8 @@
       <div class="w-full border-b border-gray-200 mb-4"></div>
     <% end %>
 
-    <!-- Map and Cards Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start" data-controller="map location-hover" data-map-markers-value="<%= [
+    <!-- Full-Width Map with Overlapping Grid -->
+    <div class="relative w-full" data-controller="map location-hover" data-map-markers-value="<%= [
              # Location markers
              *@locations.map { |location| {
                latitude: location.latitude.to_f,
@@ -104,145 +179,45 @@
                info: "#{location.name}<br>#{pluralize(location.courses.count, 'course')}<br>Avg: #{number_to_currency(location.avg_green_fee, precision: 0)}"
              }}
            ].to_json %>">
-      <!-- Map View - Full width and more prominent -->
-      <div class="relative w-full overflow-hidden">
-      <div class="relative w-full h-[calc(100vh-200px)] min-h-[600px] overflow-hidden bg-white rounded-lg shadow-sm sticky top-4"
+      
+      <!-- Full-Width Map -->
+      <div class="map-container w-full h-[calc(100vh-3.5rem)] bg-white overflow-hidden sticky top-14" 
            id="locations-map"
            data-map-target="mapElement">
       </div>
-      </div>
-      
-      <!-- Location Cards Grid View -->
-      <div data-layout-target="gridView" class="grid-view-wrapper h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto">
-        <div id="grid_view" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
-          <% @locations.each do |location| %>
-            <div class="location-card" 
-                 data-location-id="<%= location.id %>"
-                 data-controller="location-card"
-                 data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
-                 data-map-target="card">
-              <%= render partial: "shared/card", locals: { 
-                item: location,
-                type: 'location',
-                link_path: location_path(location),
-                show_details: true
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </div>
 
-      <!-- List View (Hidden by default) -->
-      <div data-layout-target="listView" id="locations_table" class="hidden">
-        <div class="bg-white rounded-lg shadow">
-          <!-- Mobile View (Inside List View) -->
-          <div class="block lg:hidden">
+      <!-- Overlapping Grid -->
+      <div class="grid-overlay absolute top-0 right-8 w-96 h-[calc(100vh-3.5rem)] bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 overflow-hidden z-10">
+        <div class="h-full overflow-y-auto">
+          <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-green-50/80 to-blue-50/80 backdrop-blur-sm">
+            <div class="flex items-center">
+              <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <p class="text-green-800 text-xs font-medium">
+                <%= @stats[:locations_count] %> Golf Destinations
+              </p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-4 p-4">
             <% @locations.each do |location| %>
               <div class="location-card" 
                    data-location-id="<%= location.id %>"
                    data-controller="location-card"
                    data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
                    data-map-target="card">
-                <%= render partial: "locations/location_card", locals: { location: location } %>
+                <%= render partial: "shared/card", locals: { 
+                  item: location,
+                  type: 'location',
+                  link_path: location_path(location),
+                  show_details: true
+                } %>
               </div>
             <% end %>
-          </div>
-
-          <!-- Desktop Table View -->
-          <div class="hidden lg:block">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 sticky top-0 z-10">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                      Image
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Region/State
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Avg Green Fee
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Est Trip Cost
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Compare
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <% @locations.each do |location| %>
-                    <tr class="hover:bg-gray-50 location-row" 
-                        data-location-id="<%= location.id %>"
-                        data-action="mouseenter->map#highlightMarkerOnHoverGeneric mouseleave->map#resetMarkerOnHoverGeneric mouseover->location-hover#highlightMarker mouseout->location-hover#resetMarker click->location-hover#focusMarker"
-                        data-map-target="card">
-                      <td class="px-6 py-4">
-                        <div class="relative h-24 w-36 rounded-lg overflow-hidden">
-                          <%= image_tag location.image_url, 
-                              class: "h-full w-full object-cover",
-                              alt: "#{location.name} featured image" %>
-                        </div>
-                      </td>
-                      <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-[#355E3B]">
-                          <%= link_to location.name, location_path(location), data: { turbo_frame: "_top" } %>
-                        </div>
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        <%= location.region %>, <%= location.state %>
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        <%= number_to_currency(location.avg_green_fee, precision: 0) %>
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        <%= number_to_currency(location.estimated_trip_cost, precision: 0) %>
-                      </td>
-                      <td class="px-6 py-4 text-center">
-                        <input type="checkbox" 
-                               class="location-compare-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                               data-location-id="<%= location.id %>"
-                               data-action="change->comparison#toggleLocation"
-                               data-comparison-target="checkbox">
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<style>
-  
-  /* Responsive adjustments */
-  @media (max-width: 1279px) {
-    #grid_view {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  
-  @media (max-width: 767px) {
-    #grid_view {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .lg\:grid-cols-2 {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    #locations-map {
-      height: 400px;
-      min-height: 400px;
-    }
-    .grid-view-wrapper {
-      height: auto;
-      min-height: 0;
-    }
-  }
-</style>

@@ -1,0 +1,9 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Golf flag -->
+  <path d="M4 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M4 2l8 3-8 3V2z" fill="currentColor"/>
+  <!-- Golf ball -->
+  <circle cx="16" cy="18" r="2" fill="currentColor"/>
+  <!-- Grass/ground -->
+  <path d="M2 20h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg> 

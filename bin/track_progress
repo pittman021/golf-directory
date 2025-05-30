@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+require_relative '../config/environment'
+
+puts "🏌️ Golf Directory Progress Tracker"
+puts "=" * 50
+
+case ARGV[0]
+when 'daily'
+  puts "Running daily progress tracking..."
+  system('rails analytics:progress_tracking')
+  
+when 'weekly'
+  puts "Generating weekly report..."
+  system('rails analytics:weekly_report')
+  
+when 'full'
+  puts "Generating comprehensive analytics report..."
+  system('rails analytics:comprehensive_report')
+  
+when 'stats'
+  puts "Running all statistics..."
+  system('rails courses:scraping_stats')
+  puts "\n" + "=" * 50
+  system('rails golf:discovery_stats')
+  puts "\n" + "=" * 50
+  system('rails courses:analyze_sparse')
+  
+when 'quick'
+  # Quick overview
+  total_courses = Course.count
+  websites = Course.where("website_url IS NOT NULL AND website_url != '' AND website_url NOT LIKE '%Pending%'").count
+  google_data = Course.where("google_place_id IS NOT NULL").count
+  amenities = Course.where.not("amenities IS NULL OR ARRAY_LENGTH(amenities, 1) IS NULL").count
+  descriptions = Course.where("description IS NOT NULL AND LENGTH(description) > 50").count
+  
+  puts "📊 Quick Stats:"
+  puts "  Total Courses: #{total_courses.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+  puts "  Websites: #{websites} (#{((websites.to_f / total_courses) * 100).round(1)}%)"
+  puts "  Google Data: #{google_data} (#{((google_data.to_f / total_courses) * 100).round(1)}%)"
+  puts "  Amenities: #{amenities} (#{((amenities.to_f / total_courses) * 100).round(1)}%)"
+  puts "  Descriptions: #{descriptions} (#{((descriptions.to_f / total_courses) * 100).round(1)}%)"
+  
+  # Recent activity
+  recent = Course.where("created_at > ?", 7.days.ago).count
+  puts "  Added this week: #{recent}"
+  
+else
+  puts "Usage: bin/track_progress [command]"
+  puts ""
+  puts "Commands:"
+  puts "  quick   - Quick overview of current stats"
+  puts "  daily   - Record daily progress metrics"
+  puts "  weekly  - Generate weekly report"
+  puts "  full    - Comprehensive analytics report"
+  puts "  stats   - Run all existing statistics tasks"
+  puts ""
+  puts "Examples:"
+  puts "  bin/track_progress quick"
+  puts "  bin/track_progress daily"
+  puts "  bin/track_progress full"
+end 

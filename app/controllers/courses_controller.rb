@@ -33,6 +33,17 @@ class CoursesController < ApplicationController
     @reviews = @course.reviews.order(created_at: :desc).includes(:user)
     @review = Review.new(course: @course)
 
+    # Load nearby courses efficiently (moved from view)
+    if @course.locations.any?
+      @nearby_courses = Course.joins(:location_courses)
+                             .where(location_courses: { location_id: @course.location_ids })
+                             .where.not(id: @course.id)
+                             .includes(:state)
+                             .limit(6)
+    else
+      @nearby_courses = Course.none
+    end
+
     # Set SEO meta tags
     @page_title = "#{@course.name} – Green Fees, Yardage, Course Info"
     
@@ -120,7 +131,7 @@ class CoursesController < ApplicationController
         redirect_to course_path(course), status: :moved_permanently
       else
         begin
-          @course = Course.includes(:state, :reviews, :locations).friendly.find(params[:slug])
+          @course = Course.includes(:state, :reviews, location_courses: :location).friendly.find(params[:slug])
         rescue => e
           Rails.logger.error "Error finding course: #{e.message}"
           flash[:alert] = "Course not found"

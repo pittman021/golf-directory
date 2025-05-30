@@ -79,8 +79,8 @@
           Overview
           
         </a>
-        <a href="#course-info" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
-          Course Info
+        <a href="#amenities" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
+          Amenities
         </a>
         <a href="#notable-holes" class="nav-link px-3 py-2 text-sm font-medium text-[#355E3B] hover:bg-[#355E3B]/10 rounded-md transition duration-150 ease-in-out">
           Notable Holes
@@ -111,58 +111,22 @@
     </div>
   </div>
 
-  <!-- Course Info Section -->
-  <div id="course-info" class="mb-16">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Course Information</h2>
+  <!-- Amenities Section -->
+  <div id="amenities" class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Course Amenities</h2>
     <div class="bg-white rounded-lg shadow-sm p-6">
-      <!-- Basic Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 pb-6 border-b border-gray-200">
-        <div>
-          <h4 class="text-sm font-medium text-gray-900 mb-1">Course Type</h4>
-          <p class="text-gray-700"><%= @course.course_type.titleize %></p>
+      <% if @course.amenities.present? %>
+        <div class="flex flex-wrap gap-2">
+          <% @course.amenities.each do |amenity| %>
+            <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-black-800">
+              <%= TagEmojiService.emoji_for("amenity:#{amenity.downcase.gsub(' ', '_')}") %>
+              <%= amenity %>
+            </span>
+          <% end %>
         </div>
-        <div>
-          <h4 class="text-sm font-medium text-gray-900 mb-1">Holes</h4>
-          <p class="text-gray-700"><%= @course.number_of_holes %></p>
-        </div>
-        <div>
-          <h4 class="text-sm font-medium text-gray-900 mb-1">Par</h4>
-          <p class="text-gray-700"><%= @course.par %></p>
-        </div>
-        <div>
-          <h4 class="text-sm font-medium text-gray-900 mb-1">Yardage</h4>
-          <p class="text-gray-700"><%= @course.yardage %> yards</p>
-        </div>
-      </div>
-
-      <!-- Course Designers -->
-      <% if @course.summary&.dig("designers")&.any? %>
-        <div class="mb-6 pb-6 border-b border-gray-200">
-          <h3 class="text-2xl font-semibold text-gray-900 mb-2">Course Designers</h3>
-          <div class="flex flex-wrap gap-2">
-            <% @course.summary["designers"].each do |designer| %>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-lg font-medium bg-gray-100 text-gray-800">
-                <%= designer %>
-              </span>
-            <% end %>
-          </div>
-        </div>
+      <% else %>
+        <p class="text-gray-600 text-lg">No amenities information available.</p>
       <% end %>
-
-      <!-- Tournament History -->
-      <% if @course.summary&.dig("tournament_history")&.any? %>
-        <div class="mb-6 pb-6 border-b border-gray-200">
-          <h3 class="text-2xl font-semibold text-gray-900 mb-2">Tournament History</h3>
-          <div class="prose max-w-none text-gray-700">
-            <ul class="list-disc pl-5 space-y-2">
-              <% @course.summary["tournament_history"].each do |history| %>
-                <li class="text-lg"><%= history %></li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      <% end %>
-
     </div>
   </div>
 
@@ -214,7 +178,7 @@
     <div class="bg-white rounded-lg shadow-sm p-6">
     <% if @course.locations.any? && @course.locations.first.present? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @course.locations.first.courses.where.not(id: @course.id).limit(6).each do |nearby_course| %>
+      <% @nearby_courses.each do |nearby_course| %>
         <%= link_to course_path(nearby_course), class: "block group" do %>
           <div class="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
             <%= image_tag nearby_course.image_url, class: "w-full h-48 object-cover", alt: nearby_course.name %>
@@ -240,7 +204,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Elements to observe
-    const sections = document.querySelectorAll('#overview, #course-info, #notable-holes, #playing-tips, #nearby');
+    const sections = document.querySelectorAll('#overview, #amenities, #notable-holes, #playing-tips, #nearby');
     const navLinks = document.querySelectorAll('.nav-link');
     
     // Create an intersection observer

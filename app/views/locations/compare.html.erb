@@ -95,9 +95,7 @@
               <!-- Number of Courses -->
               <div class="flex items-center">
                 <div class="flex-shrink-0 bg-green-100 rounded-full p-2">
-                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                  </svg>
+                  <%= svg_icon('golf-course', class: "w-5 h-5 text-green-600") %>
                 </div>
                 <div class="ml-3">
                   <p class="text-xs font-medium text-gray-500">Courses</p>
@@ -145,10 +143,15 @@
             <div>
               <h4 class="text-sm font-medium text-gray-900 mb-2">Golf Courses</h4>
               <div class="divide-y divide-gray-200">
-                <% location.courses.each do |course| %>
+                <% location.limited_courses.each do |course| %>
                   <div class="flex justify-between items-center py-2">
                     <span class="text-sm text-gray-700"><%= course.name %></span>
                     <span class="text-sm text-gray-600"><%= number_to_currency(course.green_fee) %></span>
+                  </div>
+                <% end %>
+                <% if location.courses.count > 15 %>
+                  <div class="py-2 text-center">
+                    <span class="text-xs text-gray-500">+ <%= location.courses.count - 15 %> more courses</span>
                   </div>
                 <% end %>
               </div>

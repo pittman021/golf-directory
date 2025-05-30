@@ -21,7 +21,7 @@ class Course < ApplicationRecord
     validates :par, presence: true, numericality: { only_integer: true }
     validates :yardage, presence: true, numericality: { only_integer: true }
     validates :green_fee, presence: true, numericality: { greater_than_or_equal_to: 0 }
-    validates :course_tags, presence: true
+    # validates :course_tags, presence: true  # Removed to allow cleanup
     validates :state_id, presence: true
     
     # Set a default image URL for when none is provided

@@ -48,7 +48,7 @@ class LocationsController < ApplicationController
   end
 
   def show
-    @courses = @location.courses.ordered_by_price.includes(:reviews, :state)
+    @courses = @location.courses.ordered_by_price.includes(:reviews, :state).limit(25)
     
     @reviews = Review.joins(:course)
                     .where(courses: { id: @location.course_ids })
@@ -88,8 +88,8 @@ class LocationsController < ApplicationController
                     []
                   end
     
-    # Find the locations, including their courses
-    @locations = Location.includes(:courses).where(id: location_ids)
+    # Find the locations, including their courses with a limit
+    @locations = Location.includes(courses: [:reviews, :state]).where(id: location_ids)
     
     # Redirect to locations index if fewer than 2 locations selected
     if @locations.size < 2
@@ -99,6 +99,13 @@ class LocationsController < ApplicationController
     
     # Take the first 2 locations for side-by-side comparison
     @locations = @locations.limit(2)
+    
+    # Limit courses for each location to prevent performance issues
+    @locations.each do |location|
+      location.define_singleton_method(:limited_courses) do
+        courses.ordered_by_price.limit(15)
+      end
+    end
   end
 
   # GET /locations/new

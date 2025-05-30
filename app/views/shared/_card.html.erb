@@ -19,7 +19,7 @@
   ranking ||= nil
 %>
 
-<%= link_to link_path, class: "block group" do %>
+<%= link_to link_path, class: "block group", data: { turbo_prefetch: false } do %>
   <div class="w-full aspect-square">
     <div class="relative w-full h-full overflow-hidden rounded-2xl">
       <% if ranking.present? %>

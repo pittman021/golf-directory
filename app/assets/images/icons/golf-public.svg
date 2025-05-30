@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Golf tee -->
+  <path d="M12 16v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 22h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <!-- Golf ball on tee -->
+  <circle cx="12" cy="14" r="2" fill="currentColor"/>
+  <!-- Open gate/entrance -->
+  <path d="M4 2v12h4V2M16 2v12h4V2" stroke="currentColor" stroke-width="2"/>
+  <path d="M8 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg> 

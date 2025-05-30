@@ -9,9 +9,17 @@ export default class extends Controller {
   }
   
   connect() {
-    console.log("Map controller connected");
+    // Make this controller globally accessible for info window close buttons
+    window.mapController = this;
     // Set a timer to check if Google Maps API is loaded
     this.checkGoogleMapsLoaded();
+  }
+  
+  disconnect() {
+    // Clean up global reference
+    if (window.mapController === this) {
+      window.mapController = null;
+    }
   }
   
   debugConnection() {
@@ -143,54 +151,64 @@ export default class extends Controller {
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `
-   
-    .gm-style .gm-style-iw-c {
+      /* Constrain info windows to map container */
+      .gm-style .gm-style-iw-c {
         padding: 0 !important;
-        /* overflow: visible !important; */ /* Let Google Maps handle this initially */
         max-height: none !important;
         box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);
         border-radius: 8px !important;
+        z-index: 1 !important; /* Keep within map container z-index */
       }
+      
       .gm-style .gm-style-iw-d {
-        /* overflow: visible !important; */ /* Let Google Maps handle this initially */
         max-height: none !important;
+        overflow: hidden !important; /* Prevent overflow outside map */
       }
+      
+      /* Hide scrollbars */
       .gm-style-iw-d::-webkit-scrollbar { 
         display: none;
       }
+      
+      /* Hide default close button and tail */
       .gm-ui-hover-effect {
         display: none !important;
       }
+      
       .gm-style-iw-tc, .gm-style-iw-tc:after {
         display: none !important;
+      }
+      
+      /* Ensure map container has proper stacking context */
+      .map-container {
+        position: relative;
+        z-index: 1;
+        overflow: hidden; /* Constrain all map content */
+      }
+      
+      /* Ensure info windows don't escape map bounds */
+      .gm-style-iw {
+        max-width: calc(100vw - 2rem) !important;
+        max-height: calc(100vh - 4rem) !important;
       }
     `;
     document.head.appendChild(style);
     
     // Add event listener to catch any dynamically created info windows
     google.maps.event.addListener(this.map, 'idle', () => {
-      // Force all info window containers to be visible
+      // Ensure all info windows stay within bounds
       const infoWindows = document.querySelectorAll('.gm-style-iw, .gm-style-iw-d');
       infoWindows.forEach(el => {
-        /* el.style.overflow = 'visible'; // Controlled by panning logic now */
-        el.style.maxHeight = 'none';
+        el.style.maxHeight = 'calc(100vh - 4rem)';
+        // Keep overflow hidden to prevent escaping map container
+        el.style.overflow = 'hidden';
       });
     });
-    
-    // Remove listener that disables auto pan
-    // google.maps.event.addListener(this.map, 'click', () => {
-    //   // Make sure the map doesn't recenter on info window open
-    //   if (this.map) {
-    //     this.map.setOptions({ disableAutoPan: true });
-    //   }
-    // });
   }
   
   addMarkers() {
     try {
-
       const markersData = this.markersValue;
-      console.log("Markers data:", markersData);
       const bounds = new google.maps.LatLngBounds();
       
       // Store markers and info windows
@@ -198,17 +216,12 @@ export default class extends Controller {
       this.infoWindows = [];
       
       markersData.forEach((markerData, index) => {
-        console.log(`Processing marker ${index}:`, markerData);
-        console.log(`Marker type: ${markerData.type}`);
-        
         // Ensure latitude and longitude are valid numbers
         const latitude = parseFloat(markerData.latitude);
         const longitude = parseFloat(markerData.longitude);
 
-        
         // Skip invalid coordinates
         if (isNaN(latitude) || isNaN(longitude)) {
-          console.warn(`Invalid coordinates for ${markerData.name}: [${markerData.latitude}, ${markerData.longitude}]`);
           return;
         }
         
@@ -232,13 +245,11 @@ export default class extends Controller {
         let marker;
         
         if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
-          console.log("Using Advanced Marker API");
           // Create custom marker content based on type
           const markerContent = document.createElement('div');
           markerContent.className = 'custom-marker';
           
           if (markerData.type === 'location') {
-            console.log("Creating location marker");
             markerContent.innerHTML = `
               <div class="location-marker">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -248,24 +259,8 @@ export default class extends Controller {
               </div>
             `;
           } else {
-            markerContent.innerHTML = `
-              <div class="course-marker">
-              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none">
-                  <path
-                    d="M16 0C9.37 0 4 5.37 4 12c0 7.25 10.4 19.33 11.1 20.17a1 1 0 0 0 1.8 0C17.6 31.33 28 19.25 28 12c0-6.63-5.37-12-12-12Z"
-                    fill="#E53E3E"
-                  />
-                  <circle cx="16" cy="12" r="5" fill="white"/>
-                  <path
-                    d="M17 9l4 2-4 2v-4Z"
-                    fill="#1A202C"
-                  />
-                  <line x1="17" y1="9" x2="17" y2="15" stroke="#1A202C" stroke-width="1.5"/>
-                </g>
-              </svg>
-            </div>
-            `;
+            // Use different markers based on course type
+            markerContent.innerHTML = this.getCourseMarkerSVG(markerData.course_type);
           }
           
           // Use the new AdvancedMarkerElement
@@ -291,8 +286,6 @@ export default class extends Controller {
                 const pos = marker.getPosition();
                 if (pos && !isNaN(pos.lat()) && !isNaN(pos.lng())) {
                   this.map.panTo(pos);
-                } else {
-                  console.warn("Invalid marker position for AdvancedMarkerElement", pos, markerData);
                 }
               }
               
@@ -306,13 +299,21 @@ export default class extends Controller {
             this.markerClicked(markerData.id);
           });
         } else {
-          // Fall back to legacy Marker with custom icon
+          // Fall back to legacy Marker with custom icon using course type specific designs
+          const locationSvg = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="16" fill="#355E3B"/>
+            <circle cx="16" cy="16" r="8" fill="white"/>
+          </svg>`;
+          
+          // Get course type specific SVG for legacy markers
+          const courseSvg = this.getLegacyCourseMarkerSVG(markerData.course_type);
+          
           const icon = {
             url: markerData.type === 'location' 
-              ? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0iIzM1NUUzQiIvPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9IndoaXRlIi8+PC9zdmc+'
-              : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwxMiAxMkwyMiA3TDEyIDJaIiBmaWxsPSIjRTUzRTNFIi8+PHBhdGggZD0iTTIgMTdMMTIgMjJMMjIgMTciIHN0cm9rZT0iI0U1M0UzRSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+',
-            scaledSize: new google.maps.Size(32, 32),
-            anchor: new google.maps.Point(16, 16)
+              ? 'data:image/svg+xml;base64,' + btoa(locationSvg)
+              : 'data:image/svg+xml;base64,' + btoa(courseSvg),
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 40) // Anchor at bottom center for pin
           };
           
           marker = new google.maps.Marker({
@@ -337,8 +338,6 @@ export default class extends Controller {
                 const pos = marker.getPosition();
                 if (pos && !isNaN(pos.lat()) && !isNaN(pos.lng())) {
                   this.map.panTo(pos);
-                } else {
-                  console.warn("Invalid marker position for legacy Marker", pos, markerData);
                 }
               }
               
@@ -436,7 +435,8 @@ export default class extends Controller {
       details = `${markerData.courses_count} course${markerData.courses_count == 1 ? '' : 's'}${markerData.avg_green_fee ? ` • Avg ${markerData.avg_green_fee}` : ''}${markerData.estimated_trip_cost ? ` • ${markerData.estimated_trip_cost}` : ''}`;
     }
     return `
-      <div style="display: flex; flex-direction: row; align-items: stretch; width: 340px; min-height: 110px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.13); cursor: pointer;" onclick=\"window.location.href='${linkPath}'\">
+      <div style="position: relative; display: flex; flex-direction: row; align-items: stretch; width: 340px; min-height: 110px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.13); cursor: pointer;" onclick=\"window.location.href='${linkPath}'\">
+        <button onclick="event.stopPropagation(); window.mapController.closeAllInfoWindows();" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: none; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; z-index: 10; line-height: 1;" title="Close">×</button>
         <div style=\"flex: 0 0 110px; height: 110px; background: #eee; display: flex; align-items: stretch;\">
           <img src=\"${imageUrl}\" alt=\"${name}\" style=\"width: 110px; height: 110px; object-fit: cover; display: block; margin: 0; padding: 0;\">
         </div>
@@ -457,19 +457,16 @@ export default class extends Controller {
       try {
         const mapDiv = this.map.getDiv();
         if (!mapDiv) {
-          console.warn("Map div not found for panning.");
           return;
         }
 
         const infoWindowDiv = mapDiv.querySelector('.gm-style-iw');
         if (!infoWindowDiv) {
-          console.warn("Info window div not found for panning.");
           return;
         }
 
         const mapBounds = this.map.getBounds();
         if (!mapBounds) {
-          console.warn("Map bounds not available for panning.");
           return; // Not enough info to pan yet
         }
         
@@ -478,13 +475,11 @@ export default class extends Controller {
         const iwContainer = infoWindowDiv.firstChild; // The content container
 
         if (!iwOuter || !iwContainer) {
-          console.warn("Info window inner elements not found for panning.");
           return;
         }
 
         // Verify elements are actually DOM Elements before proceeding
         if (!(iwOuter instanceof Element) || !(iwContainer instanceof Element)) {
-          console.warn("Info window elements are not valid DOM Elements.");
           return;
         }
 
@@ -504,57 +499,56 @@ export default class extends Controller {
         let panX = 0;
         let panY = 0;
 
-        // Check horizontal visibility
-        if (iwLeft < 0) {
-          panX = iwLeft - 10; // Pan right (negative iwLeft), plus a margin
-        } else if (iwLeft + iwWidth > mapWidth) {
-          panX = (iwLeft + iwWidth - mapWidth) + 10; // Pan left, plus a margin
+        // Check horizontal visibility - be more conservative
+        if (iwLeft < 20) {
+          panX = iwLeft - 20; // Pan right, with margin
+        } else if (iwLeft + iwWidth > mapWidth - 20) {
+          panX = (iwLeft + iwWidth - mapWidth) + 20; // Pan left, with margin
         }
 
-        // Check vertical visibility
-        if (iwTop < 0) {
-          panY = iwTop - 10; // Pan down (negative iwTop), plus a margin
-        } else if (iwTop + iwHeight > mapHeight) {
-          panY = (iwTop + iwHeight - mapHeight) + 10; // Pan up, plus a margin
+        // Check vertical visibility - be more conservative  
+        if (iwTop < 20) {
+          panY = iwTop - 20; // Pan down, with margin
+        } else if (iwTop + iwHeight > mapHeight - 20) {
+          panY = (iwTop + iwHeight - mapHeight) + 20; // Pan up, with margin
         }
         
+        // Only pan if necessary and keep it minimal
         if (panX !== 0 || panY !== 0) {
-          console.log(`Panning map by ${panX}, ${panY}`);
           this.map.panBy(panX, panY);
         }
 
-        // Ensure the overflow is visible after panning
+        // Ensure the info window stays constrained within map bounds
         if (iwContainer instanceof Element) {
-          iwContainer.style.overflow = 'visible';
+          iwContainer.style.overflow = 'hidden'; // Keep constrained
+          iwContainer.style.maxHeight = 'calc(100vh - 4rem)';
           if (iwContainer.parentElement instanceof Element) {
-            iwContainer.parentElement.style.overflow = 'visible';
+            iwContainer.parentElement.style.overflow = 'hidden';
+            iwContainer.parentElement.style.maxHeight = 'calc(100vh - 4rem)';
           }
         }
         
-        // One final check to ensure the main info window wrapper is also visible
+        // Ensure the main info window wrapper stays constrained
         const gmStyleIw = iwOuter.closest('.gm-style-iw');
         if (gmStyleIw instanceof Element) {
-          gmStyleIw.style.overflow = 'visible';
+          gmStyleIw.style.overflow = 'hidden';
+          gmStyleIw.style.maxHeight = 'calc(100vh - 4rem)';
         }
       } catch (error) {
-        console.error("Error when panning map to show info window:", error);
+        // Silently handle errors
       }
     }, 100); // Short delay to ensure DOM is fully ready
   }
 
   highlightMarker(event) {
-    console.log("Highlight marker called", event);
     const courseId = event.currentTarget.dataset.courseId;
-    console.log("Course ID:", courseId);
     
     if (!courseId) {
-      console.log("No course ID found");
       return;
     }
     
     // Find the marker for this course
     const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
-    console.log("Marker index:", markerIndex);
     
     if (markerIndex >= 0 && this.markers && this.infoWindows) {
       const marker = this.markers[markerIndex];
@@ -565,32 +559,26 @@ export default class extends Controller {
       
       // Open this info window
       if (infoWindow && marker) {
-        console.log("Opening info window");
         infoWindow.open(this.map, marker);
       }
     }
   }
 
   resetMarker(event) {
-    console.log("Reset marker called", event);
     const courseId = event.currentTarget.dataset.courseId;
-    console.log("Course ID:", courseId);
     
     if (!courseId) {
-      console.log("No course ID found");
       return;
     }
     
     // Find the marker for this course
     const markerIndex = this.markersValue.findIndex(marker => marker.id.toString() === courseId.toString());
-    console.log("Marker index:", markerIndex);
     
     if (markerIndex >= 0 && this.markers && this.infoWindows) {
       const infoWindow = this.infoWindows[markerIndex];
       
       // Close the info window
       if (infoWindow) {
-        console.log("Closing info window");
         infoWindow.close();
       }
     }
@@ -632,6 +620,194 @@ export default class extends Controller {
       if (infoWindow) {
         infoWindow.close();
       }
+    }
+  }
+
+  getCourseMarkerSVG(courseType) {
+    const courseTypeNormalized = courseType ? courseType.toLowerCase() : 'public course';
+    
+    switch (courseTypeNormalized) {
+      case 'public course':
+      case 'public':
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Dark green for public -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1B4332"/>
+              <!-- Golf tee icon -->
+              <g transform="translate(15, 8)">
+                <path d="M5 7v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M2.5 17h5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="5" cy="6" r="2" fill="white"/>
+              </g>
+            </svg>
+          </div>
+        `;
+        
+      case 'private course':
+      case 'private':
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Dark blue for private -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1E3A8A"/>
+              <!-- Lock icon -->
+              <g transform="translate(13, 7)">
+                <rect x="2.5" y="7.5" width="7.5" height="5" rx="0.5" stroke="white" stroke-width="1.5" fill="none"/>
+                <path d="M4.5 7.5V5.5a2 2 0 114 0v2" stroke="white" stroke-width="1.5" fill="none"/>
+                <circle cx="6.25" cy="10" r="0.75" fill="white"/>
+              </g>
+            </svg>
+          </div>
+        `;
+        
+      case 'resort course':
+      case 'resort':
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Gold for resort -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#D4AF37"/>
+              <!-- Resort building icon -->
+              <g transform="translate(13, 7)">
+                <path d="M1 12.5h12v-5l-6-3.75-6 3.75v5z" stroke="white" stroke-width="1.5" fill="none"/>
+                <path d="M5 12.5v-3.75h4v3.75" stroke="white" stroke-width="1.5"/>
+                <circle cx="7" cy="10.5" r="0.4" fill="white"/>
+              </g>
+            </svg>
+          </div>
+        `;
+        
+      case 'semi-private course':
+      case 'semi-private':
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Medium green for semi-private -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#2D5016"/>
+              <!-- Half-open gate icon -->
+              <g transform="translate(13, 7)">
+                <path d="M1 5v7.5h2.5V5M10.5 5v7.5H13V5" stroke="white" stroke-width="1.5"/>
+                <path d="M3.5 8.75h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M10.5 8.75h1.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              </g>
+            </svg>
+          </div>
+        `;
+        
+      case 'municipal course':
+      case 'municipal':
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Dark teal for municipal -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#134E4A"/>
+              <!-- City building icon -->
+              <g transform="translate(13, 7)">
+                <rect x="1" y="7.5" width="3.75" height="5" stroke="white" stroke-width="1.5" fill="none"/>
+                <rect x="7.5" y="5" width="3.75" height="7.5" stroke="white" stroke-width="1.5" fill="none"/>
+                <rect x="2.25" y="8.75" width="1.25" height="1.25" fill="white"/>
+                <rect x="8.75" y="6.25" width="1.25" height="1.25" fill="white"/>
+                <rect x="8.75" y="8.75" width="1.25" height="1.25" fill="white"/>
+              </g>
+            </svg>
+          </div>
+        `;
+        
+      default:
+        // Default golf course marker (dark green)
+        return `
+          <div class="course-marker">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Pin shape - Default dark green -->
+              <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1B4332"/>
+              <!-- Golf flag inside pin -->
+              <g transform="translate(15, 7)">
+                <path d="M2.5 2.5v15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M2.5 2.5l7.5 2.5-7.5 2.5V2.5z" fill="white"/>
+              </g>
+            </svg>
+          </div>
+        `;
+    }
+  }
+
+  getLegacyCourseMarkerSVG(courseType) {
+    const courseTypeNormalized = courseType ? courseType.toLowerCase() : 'public course';
+    
+    switch (courseTypeNormalized) {
+      case 'public course':
+      case 'public':
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1B4332"/>
+          <g transform="translate(15, 8)">
+            <path d="M5 7v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M2.5 17h5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="5" cy="6" r="2" fill="white"/>
+          </g>
+        </svg>`;
+        
+      case 'private course':
+      case 'private':
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1E3A8A"/>
+          <g transform="translate(13, 7)">
+            <rect x="2.5" y="7.5" width="7.5" height="5" rx="0.5" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M4.5 7.5V5.5a2 2 0 114 0v2" stroke="white" stroke-width="1.5" fill="none"/>
+            <circle cx="6.25" cy="10" r="0.75" fill="white"/>
+          </g>
+        </svg>`;
+        
+      case 'resort course':
+      case 'resort':
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#D4AF37"/>
+          <g transform="translate(13, 7)">
+            <path d="M1 12.5h12v-5l-6-3.75-6 3.75v5z" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M5 12.5v-3.75h4v3.75" stroke="white" stroke-width="1.5"/>
+            <circle cx="7" cy="10.5" r="0.4" fill="white"/>
+          </g>
+        </svg>`;
+        
+      case 'semi-private course':
+      case 'semi-private':
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#2D5016"/>
+          <g transform="translate(13, 7)">
+            <path d="M1 5v7.5h2.5V5M10.5 5v7.5H13V5" stroke="white" stroke-width="1.5"/>
+            <path d="M3.5 8.75h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M10.5 8.75h1.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+        </svg>`;
+        
+      case 'municipal course':
+      case 'municipal':
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#134E4A"/>
+          <g transform="translate(13, 7)">
+            <rect x="1" y="7.5" width="3.75" height="5" stroke="white" stroke-width="1.5" fill="none"/>
+            <rect x="7.5" y="5" width="3.75" height="7.5" stroke="white" stroke-width="1.5" fill="none"/>
+            <rect x="2.25" y="8.75" width="1.25" height="1.25" fill="white"/>
+            <rect x="8.75" y="6.25" width="1.25" height="1.25" fill="white"/>
+            <rect x="8.75" y="8.75" width="1.25" height="1.25" fill="white"/>
+          </g>
+        </svg>`;
+        
+      default:
+        // Default golf course marker (dark green)
+        return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2C14.48 2 10 6.48 10 12c0 7.5 10 22.5 10 22.5s10-15 10-22.5c0-5.52-4.48-10-10-10z" fill="#1B4332"/>
+          <g transform="translate(15, 7)">
+            <path d="M2.5 2.5v15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M2.5 2.5l7.5 2.5-7.5 2.5V2.5z" fill="white"/>
+          </g>
+        </svg>`;
+    }
+  }
+
+  closeAllInfoWindows() {
+    if (this.infoWindows) {
+      this.infoWindows.forEach(info => info.close());
     }
   }
 }

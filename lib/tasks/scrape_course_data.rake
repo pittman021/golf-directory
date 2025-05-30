@@ -666,6 +666,20 @@ namespace :courses do
     else
       puts "    ℹ️ No updates needed (existing fields already have data)"
     end
+    
+    # 🏷️ NEW: Enrich course with appropriate tags based on scraped data
+    begin
+      enrichment_service = CourseTagEnrichmentService.new(course.reload)
+      suggested_tags = enrichment_service.enrich_tags
+      
+      if suggested_tags.any?
+        puts "    🏷️ Tag Enrichment: Added #{suggested_tags.join(', ')}"
+      else
+        puts "    🏷️ Tag Enrichment: No new tags suggested"
+      end
+    rescue => e
+      puts "    ⚠️ Tag enrichment failed: #{e.message}"
+    end
   end
   
   def scrape_course_website_enhanced(url, course_name)
