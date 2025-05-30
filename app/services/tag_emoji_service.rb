@@ -41,7 +41,7 @@ class TagEmojiService
     'trip:remote' => '🗺️',
     
     # Legacy golf course tags (for backward compatibility)
-    'golf:top_100_courses' => '🏆',
+    'golf:top100' => '🏆',
     'golf:bucket_list' => '🎯',
     'golf:links' => '🌊',
     'golf:parkland' => '🌳',

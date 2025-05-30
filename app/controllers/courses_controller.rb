@@ -12,7 +12,7 @@ class CoursesController < ApplicationController
 
   # GET /top-100-courses
   def top_100
-    @courses = Course.where("'top_100_courses' = ANY(course_tags)")
+    @courses = Course.where("'golf:top100' = ANY(course_tags)")
                     .includes(:reviews, :locations, :state)
                     .order(:name)
 

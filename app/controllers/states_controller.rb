@@ -7,7 +7,7 @@ class StatesController < ApplicationController
     @courses = @state.courses.ordered_by_price.includes(:reviews).limit(50)
     @total_courses_count = @state.courses.count
     @locations = @state.locations.includes(:courses, :reviews)
-    @top_100_courses_count = @state.courses.where("'top_100_courses' = ANY(course_tags)").count
+    @top_100_courses_count = @state.courses.where("'golf:top100' = ANY(course_tags)").count
 
     
     # Get nearby locations if coordinates are available
