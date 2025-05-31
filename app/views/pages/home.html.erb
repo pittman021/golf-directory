@@ -33,12 +33,12 @@
 
   /* Fix Google Maps positioning to remove unwanted margin */
   #locations-map {
-    position: static !important;
-    overflow: hidden !important; /* Constrain all map content including info windows */
+    position: relative !important;
+    overflow: visible !important;
   }
   
   #locations-map > div {
-    position: static !important;
+    position: relative !important;
   }
 
   /* Ensure info windows stay within map bounds */
@@ -57,20 +57,78 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+  
   @media (max-width: 767px) {
-    .grid-overlay {
-      position: relative !important;
-      width: 100% !important;
-      height: auto !important;
-      background: white !important;
-      backdrop-filter: none !important;
-      margin-top: 1rem;
+    /* Simple mobile approach: full screen map OR full screen list */
+    .mobile-container {
+      position: relative;
     }
-    .grid-overlay .grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    
+    /* Map takes full viewport on mobile - override ALL other styles */
     .map-container {
-      height: 400px !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 10 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Override any Tailwind classes that might interfere */
+    .map-container.h-\[calc\(100vh-3\.5rem\)\] {
+      height: 100vh !important;
+    }
+    
+    .map-container.relative {
+      position: fixed !important;
+    }
+    
+    .map-container.md\:sticky {
+      position: fixed !important;
+    }
+    
+    /* List view takes full screen when shown */
+    .grid-overlay {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: white !important;
+      z-index: 20 !important;
+      overflow-y: auto !important;
+      padding: 1rem !important;
+      display: none; /* Hidden by default, show map first */
+    }
+    
+    /* When list view is active */
+    .grid-overlay.active {
+      display: block !important;
+    }
+    
+    /* Hide map when list is active */
+    .map-container.hidden {
+      display: none !important;
+    }
+    
+    /* Ensure map can initialize properly and takes full space */
+    #locations-map {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: visible !important;
+    }
+    
+    #locations-map > div {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
     }
   }
 </style>
@@ -94,7 +152,7 @@
   <div class="px-2 sm:px-4 lg:px-6 mt-2" data-controller="layout comparison filters">
     <%= form_tag root_path, method: :get, data: { filters_target: "form" } do %>
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2 max-w-5xl mx-auto w-full py-4">
-        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div class="flex flex-row gap-2 w-full sm:w-auto overflow-x-auto">
           <%= select_tag :trip_cost,
               options_for_select([
                 ['💰Budget (Up to $1,500)', 'budget'],
@@ -103,9 +161,9 @@
                 ['💰💰💰💰Luxury ($4,000+)', 'luxury']
               ], params[:price_category]),
               { prompt: "Trip Cost",
-                class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                class: "w-48 min-w-[180px] flex-shrink-0 rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
                 data: { action: "change->filters#filter" } } %>
-          <div class="relative">
+          <div class="relative flex-shrink-0">
             <%= select_tag "golf",
               options_for_select([
                 ['🎖️ Top 100 Courses', 'golf:top_100'],
@@ -119,11 +177,11 @@
               params[:tags]&.include?('golf:multiple_courses') ? 'golf:multiple_courses' : nil),
               {
                 prompt: "Golf Experience",
-                class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                class: "w-48 min-w-[180px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
                 data: { action: "change->filters#addTag" }
               } %>
           </div>
-          <div class="relative">
+          <div class="relative flex-shrink-0">
             <%= select_tag "trip_style",
                 options_for_select([
                   ['🏨 Resort', 'style:resort'],
@@ -137,7 +195,7 @@
                    params[:tags]&.include?('style:mountain') ? 'style:mountain' :
                    params[:tags]&.include?('style:desert') ? 'style:desert' : nil),
                 { prompt: "Trip Style",
-                  class: "w-64 min-w-[220px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
+                  class: "w-48 min-w-[180px] rounded-full border border-gray-300 bg-transparent py-2 pl-3 pr-10 text-sm focus:ring-[#355E3B] focus:border-[#355E3B] text-sm",
                   data: { action: "change->filters#addTag" } } %>
           </div>
           <%= hidden_field_tag "tags[]", "", id: "hidden_tags_field" %>
@@ -164,7 +222,7 @@
     <% end %>
 
     <!-- Full-Width Map with Overlapping Grid -->
-    <div class="relative w-full" data-controller="map location-hover" data-map-markers-value="<%= [
+    <div class="relative w-full mobile-container" data-controller="map location-hover" data-map-markers-value="<%= [
              # Location markers
              *@locations.map { |location| {
                latitude: location.latitude.to_f,
@@ -181,13 +239,24 @@
            ].to_json %>">
       
       <!-- Full-Width Map -->
-      <div class="map-container w-full h-[calc(100vh-3.5rem)] bg-white overflow-hidden sticky top-14" 
+      <div class="map-container w-full h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] bg-white overflow-hidden relative md:sticky md:top-14" 
            id="locations-map"
            data-map-target="mapElement">
       </div>
 
-      <!-- Overlapping Grid -->
-      <div class="grid-overlay absolute top-0 right-8 w-96 h-[calc(100vh-3.5rem)] bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 overflow-hidden z-10">
+      <!-- Mobile Toggle Button -->
+      <button id="mobile-view-toggle" 
+              class="md:hidden fixed bottom-6 right-6 z-30 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition-colors duration-200">
+        <svg id="list-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+        <svg id="map-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
+      </button>
+
+      <!-- Overlapping Grid / Mobile List -->
+      <div class="grid-overlay static md:absolute md:top-0 md:right-8 w-full md:w-96 h-auto md:h-[calc(100vh-3.5rem)] bg-white md:bg-white/95 md:backdrop-blur-sm md:rounded-lg md:shadow-xl md:border md:border-gray-200 overflow-visible md:overflow-hidden z-10 p-4 md:p-0">
         <div class="h-full overflow-y-auto">
           <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-green-50/80 to-blue-50/80 backdrop-blur-sm">
             <div class="flex items-center">
@@ -221,3 +290,53 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Simple mobile view toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('mobile-view-toggle');
+    const mapContainer = document.querySelector('.map-container');
+    const listContainer = document.querySelector('.grid-overlay');
+    const listIcon = document.getElementById('list-icon');
+    const mapIcon = document.getElementById('map-icon');
+    
+    let isListView = false;
+    
+    if (toggleButton) {
+      toggleButton.addEventListener('click', function() {
+        isListView = !isListView;
+        
+        if (isListView) {
+          // Show list, hide map
+          listContainer.classList.add('active');
+          mapContainer.classList.add('hidden');
+          listIcon.classList.add('hidden');
+          mapIcon.classList.remove('hidden');
+        } else {
+          // Show map, hide list
+          listContainer.classList.remove('active');
+          mapContainer.classList.remove('hidden');
+          listIcon.classList.remove('hidden');
+          mapIcon.classList.add('hidden');
+          
+          // Trigger map resize when returning to map view
+          if (window.mapController && window.mapController.map) {
+            setTimeout(() => {
+              google.maps.event.trigger(window.mapController.map, 'resize');
+            }, 100);
+          }
+        }
+      });
+    }
+    
+    // Simple map resize handler for orientation changes
+    window.addEventListener('orientationchange', function() {
+      if (!isListView && window.mapController && window.mapController.map) {
+        setTimeout(() => {
+          google.maps.event.trigger(window.mapController.map, 'resize');
+        }, 500);
+      }
+    });
+  });
+</script>
+

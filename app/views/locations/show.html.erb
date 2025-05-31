@@ -39,12 +39,12 @@
 
   /* Fix Google Maps positioning to remove unwanted margin */
   #location-map {
-    position: static !important;
-    overflow: hidden !important; /* Constrain all map content including info windows */
+    position: relative !important;
+    overflow: visible !important;
   }
   
   #location-map > div {
-    position: static !important;
+    position: relative !important;
   }
 
   /* Ensure info windows stay within map bounds */
@@ -63,20 +63,78 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+  
   @media (max-width: 767px) {
-    .grid-overlay {
-      position: relative !important;
-      width: 100% !important;
-      height: auto !important;
-      background: white !important;
-      backdrop-filter: none !important;
-      margin-top: 1rem;
+    /* Simple mobile approach: full screen map OR full screen list */
+    .mobile-container {
+      position: relative;
     }
-    .grid-overlay .grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    
+    /* Map takes full viewport on mobile - override ALL other styles */
     .map-container {
-      height: 400px !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 10 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Override any Tailwind classes that might interfere */
+    .map-container.h-\[calc\(100vh-3\.5rem\)\] {
+      height: 100vh !important;
+    }
+    
+    .map-container.relative {
+      position: fixed !important;
+    }
+    
+    .map-container.sticky {
+      position: fixed !important;
+    }
+    
+    /* List view takes full screen when shown */
+    .grid-overlay {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: white !important;
+      z-index: 20 !important;
+      overflow-y: auto !important;
+      padding: 1rem !important;
+      display: none; /* Hidden by default, show map first */
+    }
+    
+    /* When list view is active */
+    .grid-overlay.active {
+      display: block !important;
+    }
+    
+    /* Hide map when list is active */
+    .map-container.hidden {
+      display: none !important;
+    }
+    
+    /* Ensure map can initialize properly and takes full space */
+    #location-map {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: visible !important;
+    }
+    
+    #location-map > div {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
     }
   }
 </style>
@@ -198,7 +256,7 @@
 </div>
 
 <!-- Full-Width Map with Overlapping Grid -->
-<div class="relative w-full" data-controller="map" data-map-markers-value="<%= [
+<div class="relative w-full mobile-container" data-controller="map" data-map-markers-value="<%= [
          *@courses.select { |c| c.latitude.present? && c.longitude.present? }.map { |course| {
            latitude: course.latitude.to_f,
            longitude: course.longitude.to_f,
@@ -220,6 +278,17 @@
        id="location-map"
        data-map-target="mapElement">
   </div>
+
+  <!-- Mobile Toggle Button -->
+  <button id="mobile-view-toggle" 
+          class="md:hidden fixed bottom-6 right-6 z-30 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition-colors duration-200">
+    <svg id="list-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+    </svg>
+    <svg id="map-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
+    </svg>
+  </button>
 
   <!-- Overlapping Grid -->
   <div class="grid-overlay absolute top-0 right-8 w-96 h-[calc(100vh-3.5rem)] bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 overflow-hidden z-10">
@@ -441,6 +510,55 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Simple mobile view toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('mobile-view-toggle');
+    const mapContainer = document.querySelector('.map-container');
+    const listContainer = document.querySelector('.grid-overlay');
+    const listIcon = document.getElementById('list-icon');
+    const mapIcon = document.getElementById('map-icon');
+    
+    let isListView = false;
+    
+    if (toggleButton) {
+      toggleButton.addEventListener('click', function() {
+        isListView = !isListView;
+        
+        if (isListView) {
+          // Show list, hide map
+          listContainer.classList.add('active');
+          mapContainer.classList.add('hidden');
+          listIcon.classList.add('hidden');
+          mapIcon.classList.remove('hidden');
+        } else {
+          // Show map, hide list
+          listContainer.classList.remove('active');
+          mapContainer.classList.remove('hidden');
+          listIcon.classList.remove('hidden');
+          mapIcon.classList.add('hidden');
+          
+          // Trigger map resize when returning to map view
+          if (window.mapController && window.mapController.map) {
+            setTimeout(() => {
+              google.maps.event.trigger(window.mapController.map, 'resize');
+            }, 100);
+          }
+        }
+      });
+    }
+    
+    // Simple map resize handler for orientation changes
+    window.addEventListener('orientationchange', function() {
+      if (!isListView && window.mapController && window.mapController.map) {
+        setTimeout(() => {
+          google.maps.event.trigger(window.mapController.map, 'resize');
+        }, 500);
+      }
+    });
+  });
+</script>
 </body>
 </html>
 
